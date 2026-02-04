@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-mode="focus">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#e74c3c">
+  <meta name="description" content="A focused pomodoro timer to boost your productivity">
+  <title>Pomodoro Timer</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='280' r='200' fill='%23e74c3c'/%3E%3Ccircle cx='256' cy='280' r='170' fill='%23c0392b'/%3E%3Ccircle cx='256' cy='280' r='160' fill='%23e74c3c'/%3E%3Crect x='250' y='130' width='12' height='100' rx='6' fill='%23fff'/%3E%3Crect x='250' y='230' width='12' height='60' rx='6' fill='%23fff' transform='rotate(30 256 280)'/%3E%3Cellipse cx='256' cy='100' rx='12' ry='20' fill='%2327ae60'/%3E%3Cellipse cx='240' cy='95' rx='18' ry='10' fill='%2327ae60' transform='rotate(-30 240 95)'/%3E%3Cellipse cx='272' cy='95' rx='18' ry='10' fill='%2327ae60' transform='rotate(30 272 95)'/%3E%3C/svg%3E">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --transition: 600ms ease;
+    }
+
+    /* Light Focus */
+    html[data-theme="light"][data-mode="focus"] {
+      --bg: #fdf6f4;
+      --surface: #ffffff;
+      --primary: #e74c3c;
+      --primary-hover: #c0392b;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #f0d5d1;
+      --border: #e8e0de;
+    }
+
+    /* Light Break */
+    html[data-theme="light"][data-mode="break"],
+    html[data-theme="light"][data-mode="longbreak"] {
+      --bg: #f4fdf6;
+      --surface: #ffffff;
+      --primary: #27ae60;
+      --primary-hover: #1e8449;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #c8e6c9;
+      --border: #d5e8d7;
+    }
+
+    /* Dark Focus */
+    html[data-theme="dark"][data-mode="focus"] {
+      --bg: #1a1215;
+      --surface: #2d2024;
+      --primary: #e74c3c;
+      --primary-hover: #ff6b5a;
+      --text: #f0e6e6;
+      --text-secondary: #a89999;
+      --ring-track: #4a2a2a;
+      --border: #3d2a2e;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.16);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.20);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,0.24);
+    }
+
+    /* Dark Break */
+    html[data-theme="dark"][data-mode="break"],
+    html[data-theme="dark"][data-mode="longbreak"] {
+      --bg: #121a15;
+      --surface: #1e2d22;
+      --primary: #2ecc71;
+      --primary-hover: #58d68d;
+      --text: #e6f0e8;
+      --text-secondary: #8fb898;
+      --ring-track: #1e3d24;
+      --border: #2a3d2e;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.16);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.20);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,0.24);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background var(--transition), color var(--transition);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+      padding: 16px 20px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      animation: fadeIn 400ms ease;
+    }
+
+    /* Header */
+    .header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      transition: color var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo svg { width: 28px; height: 28px; }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow-sm);
+      touch-action: manipulation;
+    }
+
+    .icon-btn:hover { color: var(--primary); box-shadow: var(--shadow-md); }
+    .icon-btn svg { width: 20px; height: 20px; }
+
+    /* Mode indicator */
+    .mode-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      transition: color var(--transition);
+    }
+
+    /* Timer ring */
+    .timer-container {
+      position: relative;
+      width: clamp(220px, 60vw, 300px);
+      height: clamp(220px, 60vw, 300px);
+    }
+
+    .timer-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .ring-track {
+      fill: none;
+      stroke: var(--ring-track);
+      stroke-width: 8;
+      transition: stroke var(--transition);
+    }
+
+    .ring-progress {
+      fill: none;
+      stroke: var(--primary);
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke var(--transition), stroke-dashoffset 0.3s linear;
+    }
+
+    .timer-display {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .time-text {
+      font-size: clamp(3.5rem, 15vw, 6rem);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      color: var(--text);
+      transition: color var(--transition);
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      height: 48px;
+      padding: 0 28px;
+      border: none;
+      border-radius: var(--radius-full);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), box-shadow var(--transition), transform 100ms ease;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:active { transform: scale(0.96); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover { background: var(--primary-hover); box-shadow: var(--shadow-lg); }
+
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover { box-shadow: var(--shadow-md); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 0 16px;
+    }
+
+    .btn-ghost:hover { color: var(--text); background: var(--surface); }
+
+    .hidden { display: none !important; }
+
+    /* Session dots */
+    .session-dots {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--ring-track);
+      transition: background var(--transition), transform 200ms ease;
+    }
+
+    .dot.completed {
+      background: var(--primary);
+      transform: scale(1.15);
+    }
+
+    .dot.active {
+      background: var(--primary);
+      animation: pulse 1.5s ease infinite;
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition), box-shadow var(--transition);
+      animation: slideUp 400ms ease both;
+    }
+
+    .stat-card:nth-child(2) { animation-delay: 60ms; }
+    .stat-card:nth-child(3) { animation-delay: 120ms; }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+      transition: color var(--transition);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: color var(--transition);
+    }
+
+    /* Settings dialog */
+    dialog {
+      border: none;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      color: var(--text);
+      padding: 0;
+      max-width: 380px;
+      width: calc(100% - 32px);
+      box-shadow: var(--shadow-lg);
+      animation: slideUp 300ms ease;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+    }
+
+    .dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px 0;
+    }
+
+    .dialog-header h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .dialog-body {
+      padding: 20px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .field input[type="number"] {
+      height: 42px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0 12px;
+      font-size: 1rem;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color 200ms ease;
+      width: 100%;
+    }
+
+    .field input[type="number"]:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    .toggle-row span {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .toggle {
+      position: relative;
+      width: 48px;
+      height: 28px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 200ms ease;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 3px;
+      bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 200ms ease;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: var(--primary);
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    .dialog-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding-top: 8px;
+    }
+
+    /* Keyboard hint */
+    .kbd-hint {
+      font-size: 0.6875rem;
+      color: var(--text-secondary);
+      text-align: center;
+      opacity: 0.7;
+      transition: color var(--transition);
+    }
+
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (min-width: 480px) {
+      .app { padding: 24px 24px 48px; gap: 28px; }
+      .stat-card { padding: 20px; }
+    }
+
+    @media (min-width: 768px) {
+      .app { padding: 32px 24px 56px; gap: 32px; }
+      .timer-container { width: 320px; height: 320px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="logo" aria-label="Pomodoro Timer">
+        <svg viewBox="0 0 512 512" aria-hidden="true">
+          <circle cx="256" cy="280" r="200" fill="currentColor"/>
+          <circle cx="256" cy="280" r="170" fill="currentColor" opacity="0.7"/>
+          <circle cx="256" cy="280" r="160" fill="currentColor"/>
+          <rect x="250" y="130" width="12" height="100" rx="6" fill="#fff"/>
+          <rect x="250" y="230" width="12" height="60" rx="6" fill="#fff" transform="rotate(30 256 280)"/>
+          <ellipse cx="256" cy="100" rx="12" ry="20" fill="#27ae60"/>
+          <ellipse cx="240" cy="95" rx="18" ry="10" fill="#27ae60" transform="rotate(-30 240 95)"/>
+          <ellipse cx="272" cy="95" rx="18" ry="10" fill="#27ae60" transform="rotate(30 272 95)"/>
+        </svg>
+        Pomodoro
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg id="moonIcon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="settingsBtn" aria-label="Open settings" title="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="mode-label" id="modeLabel" aria-live="polite">Focus Time</div>
+
+    <div class="timer-container" role="timer" aria-label="Timer">
+      <svg class="timer-svg" viewBox="0 0 200 200">
+        <circle class="ring-track" cx="100" cy="100" r="90"/>
+        <circle class="ring-progress" id="progressRing" cx="100" cy="100" r="90"
+                stroke-dasharray="565.49" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-display">
+        <span class="time-text" id="timeDisplay">25:00</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="startBtn">Start</button>
+      <button class="btn btn-secondary hidden" id="pauseBtn">Pause</button>
+      <button class="btn btn-ghost" id="resetBtn">Reset</button>
+    </div>
+
+    <div class="session-dots" id="sessionDots" aria-label="Session progress">
+      <div class="dot" data-dot="0"></div>
+      <div class="dot" data-dot="1"></div>
+      <div class="dot" data-dot="2"></div>
+      <div class="dot" data-dot="3"></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="statToday">0</div>
+        <div class="stat-label">Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-label">Total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statStreak">0</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+    </div>
+
+    <div class="kbd-hint" aria-hidden="true">Space: start/pause &middot; R: reset &middot; Esc: close settings</div>
+  </div>
+
+  <dialog id="settingsDialog" aria-labelledby="settingsTitle">
+    <div class="dialog-header">
+      <h2 id="settingsTitle">Settings</h2>
+      <button class="icon-btn" id="closeSettings" aria-label="Close settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <form class="dialog-body" id="settingsForm">
+      <div class="field">
+        <label for="focusDuration">Focus Duration (min)</label>
+        <input type="number" id="focusDuration" min="1" max="120" value="25">
+      </div>
+      <div class="field">
+        <label for="breakDuration">Break Duration (min)</label>
+        <input type="number" id="breakDuration" min="1" max="30" value="5">
+      </div>
+      <div class="field">
+        <label for="longBreakDuration">Long Break Duration (min)</label>
+        <input type="number" id="longBreakDuration" min="1" max="60" value="15">
+      </div>
+      <div class="field">
+        <label for="longBreakInterval">Long Break Interval</label>
+        <input type="number" id="longBreakInterval" min="2" max="10" value="4">
+      </div>
+      <div class="toggle-row">
+        <span>Auto-start next session</span>
+        <label class="toggle">
+          <input type="checkbox" id="autoStart">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <span>Sound</span>
+        <label class="toggle">
+          <input type="checkbox" id="soundEnabled" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="cancelSettings">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    (() => {
+      'use strict';
+
+      // --- Constants ---
+      const CIRCUMFERENCE = 2 * Math.PI * 90; // ~565.49
+      const STORAGE_KEYS = {
+        settings: 'pomodoro-settings',
+        stats: 'pomodoro-stats',
+        theme: 'pomodoro-theme',
+      };
+
+      // --- DOM refs ---
+      const $ = (s) => document.querySelector(s);
+      const root = document.documentElement;
+      const modeLabel = $('#modeLabel');
+      const timeDisplay = $('#timeDisplay');
+      const progressRing = $('#progressRing');
+      const startBtn = $('#startBtn');
+      const pauseBtn = $('#pauseBtn');
+      const resetBtn = $('#resetBtn');
+      const sessionDotsEl = $('#sessionDots');
+      const statToday = $('#statToday');
+      const statTotal = $('#statTotal');
+      const statStreak = $('#statStreak');
+      const themeToggle = $('#themeToggle');
+      const sunIcon = $('#sunIcon');
+      const moonIcon = $('#moonIcon');
+      const settingsBtn = $('#settingsBtn');
+      const settingsDialog = $('#settingsDialog');
+      const settingsForm = $('#settingsForm');
+      const closeSettingsBtn = $('#closeSettings');
+      const cancelSettingsBtn = $('#cancelSettings');
+      const themeColorMeta = $('meta[name="theme-color"]');
+
+      // --- Default settings ---
+      const DEFAULTS = {
+        focusDuration: 25,
+        breakDuration: 5,
+        longBreakDuration: 15,
+        longBreakInterval: 4,
+        autoStart: false,
+        soundEnabled: true,
+      };
+
+      // --- State ---
+      const state = {
+        mode: 'focus', // 'focus' | 'break' | 'longbreak'
+        status: 'idle', // 'idle' | 'running' | 'paused'
+        timeRemaining: 0,
+        totalTime: 0,
+        endTime: 0,
+        intervalId: null,
+        completedInCycle: 0,
+        settings: { ...DEFAULTS },
+        stats: { totalPomodoros: 0, dailyCounts: {} },
+      };
+
+      // --- Storage ---
+      function loadSettings() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.settings);
+          if (raw) Object.assign(state.settings, JSON.parse(raw));
+        } catch {}
+      }
+
+      function saveSettings() {
+        localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(state.settings));
+      }
+
+      function loadStats() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.stats);
+          if (raw) Object.assign(state.stats, JSON.parse(raw));
+        } catch {}
+      }
+
+      function saveStats() {
+        localStorage.setItem(STORAGE_KEYS.stats, JSON.stringify(state.stats));
+      }
+
+      function loadTheme() {
+        const saved = localStorage.getItem(STORAGE_KEYS.theme);
+        if (saved) return saved;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+
+      function saveTheme(theme) {
+        localStorage.setItem(STORAGE_KEYS.theme, theme);
+      }
+
+      // --- Helpers ---
+      function todayKey() {
+        return new Date().toISOString().slice(0, 10);
+      }
+
+      function formatTime(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      function getDurationForMode(mode) {
+        switch (mode) {
+          case 'focus': return state.settings.focusDuration * 60;
+          case 'break': return state.settings.breakDuration * 60;
+          case 'longbreak': return state.settings.longBreakDuration * 60;
+        }
+      }
+
+      function getModeName(mode) {
+        switch (mode) {
+          case 'focus': return 'Focus Time';
+          case 'break': return 'Break';
+          case 'longbreak': return 'Long Break';
+        }
+      }
+
+      function getThemeColor() {
+        const theme = root.dataset.theme;
+        const mode = root.dataset.mode;
+        if (mode === 'focus') return '#e74c3c';
+        if (theme === 'dark') return '#2ecc71';
+        return '#27ae60';
+      }
+
+      // --- Streak calculation ---
+      function calculateStreak() {
+        const counts = state.stats.dailyCounts;
+        let streak = 0;
+        const d = new Date();
+        // Check today first
+        const today = d.toISOString().slice(0, 10);
+        if (!counts[today] || counts[today] < 1) {
+          // Check if yesterday has counts (streak not broken yet today)
+          d.setDate(d.getDate() - 1);
+        }
+        while (true) {
+          const key = d.toISOString().slice(0, 10);
+          if (counts[key] && counts[key] >= 1) {
+            streak++;
+            d.setDate(d.getDate() - 1);
+          } else {
+            break;
+          }
+        }
+        return streak;
+      }
+
+      // --- Sound (Web Audio API) ---
+      let audioCtx = null;
+
+      function getAudioCtx() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        return audioCtx;
+      }
+
+      function playChime(type) {
+        if (!state.settings.soundEnabled) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+          const notes = type === 'focus'
+            ? [523.25, 659.25, 783.99] // C5, E5, G5
+            : [783.99, 659.25, 523.25]; // G5, E5, C5 descending for break
+
+          notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, now + i * 0.15);
+            gain.gain.linearRampToValueAtTime(0.3, now + i * 0.15 + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.4);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * 0.15);
+            osc.stop(now + i * 0.15 + 0.4);
+          });
+        } catch {}
+      }
+
+      // --- Notifications ---
+      function requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+      }
+
+      function sendNotification(title, body) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+          try { new Notification(title, { body, icon: 'data:image/svg+xml,...' }); } catch {}
+        }
+      }
+
+      // --- UI Updates ---
+      function updateTimerDisplay() {
+        const text = formatTime(state.timeRemaining);
+        timeDisplay.textContent = text;
+      }
+
+      function updateProgressRing() {
+        const fraction = state.totalTime > 0
+          ? state.timeRemaining / state.totalTime
+          : 1;
+        progressRing.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+      }
+
+      function updateControls() {
+        if (state.status === 'running') {
+          startBtn.classList.add('hidden');
+          pauseBtn.classList.remove('hidden');
+        } else {
+          startBtn.classList.remove('hidden');
+          pauseBtn.classList.add('hidden');
+          startBtn.textContent = state.status === 'paused' ? 'Resume' : 'Start';
+        }
+      }
+
+      function updateModeIndicator() {
+        modeLabel.textContent = getModeName(state.mode);
+        root.dataset.mode = state.mode;
+        themeColorMeta.content = getThemeColor();
+      }
+
+      function updateSessionDots() {
+        const dots = sessionDotsEl.querySelectorAll('.dot');
+        const interval = state.settings.longBreakInterval;
+
+        dots.forEach((dot, i) => {
+          dot.classList.remove('completed', 'active');
+          if (i >= interval) {
+            dot.style.display = 'none';
+          } else {
+            dot.style.display = '';
+            if (i < state.completedInCycle) {
+              dot.classList.add('completed');
+            } else if (i === state.completedInCycle && state.mode === 'focus' && state.status === 'running') {
+              dot.classList.add('active');
+            }
+          }
+        });
+      }
+
+      function updateStats() {
+        const today = todayKey();
+        statToday.textContent = state.stats.dailyCounts[today] || 0;
+        statTotal.textContent = state.stats.totalPomodoros;
+        statStreak.textContent = calculateStreak();
+      }
+
+      function updateDocumentTitle() {
+        if (state.status === 'running' || state.status === 'paused') {
+          document.title = `${formatTime(state.timeRemaining)} — ${getModeName(state.mode)}`;
+        } else {
+          document.title = 'Pomodoro Timer';
+        }
+      }
+
+      function updateThemeIcons() {
+        const isDark = root.dataset.theme === 'dark';
+        sunIcon.classList.toggle('hidden', isDark);
+        moonIcon.classList.toggle('hidden', !isDark);
+      }
+
+      function updateAll() {
+        updateTimerDisplay();
+        updateProgressRing();
+        updateControls();
+        updateModeIndicator();
+        updateSessionDots();
+        updateStats();
+        updateDocumentTitle();
+        updateThemeIcons();
+      }
+
+      // --- Timer Engine ---
+      function tick() {
+        if (state.status !== 'running') return;
+        const now = Date.now();
+        const remaining = Math.round((state.endTime - now) / 1000);
+        state.timeRemaining = Math.max(0, remaining);
+
+        updateTimerDisplay();
+        updateProgressRing();
+        updateDocumentTitle();
+
+        if (state.timeRemaining <= 0) {
+          complete();
+        }
+      }
+
+      function start() {
+        if (state.status === 'running') return;
+        requestNotificationPermission();
+
+        if (state.status === 'idle') {
+          state.totalTime = getDurationForMode(state.mode);
+          state.timeRemaining = state.totalTime;
+        }
+
+        state.endTime = Date.now() + state.timeRemaining * 1000;
+        state.status = 'running';
+        state.intervalId = setInterval(tick, 250);
+
+        updateAll();
+      }
+
+      function pause() {
+        if (state.status !== 'running') return;
+        clearInterval(state.intervalId);
+        state.intervalId = null;
+        // Recalculate exact remaining
+        state.timeRemaining = Math.max(0, Math.round((state.endTime - Date.now()) / 1000));
+        state.status = 'paused';
+        updateAll();
+      }
+
+      function reset() {
+        clearInterval(state.intervalId);
+        state.intervalId = null;
+        state.status = 'idle';
+        state.totalTime = getDurationForMode(state.mode);
+        state.timeRemaining = state.totalTime;
+        updateAll();
+      }
+
+      function complete() {
+        clearInterval(state.intervalId);
+        state.intervalId = null;
+        state.status = 'idle';
+        state.timeRemaining = 0;
+
+        updateTimerDisplay();
+        updateProgressRing();
+
+        if (state.mode === 'focus') {
+          // Completed a pomodoro
+          state.completedInCycle++;
+          const today = todayKey();
+          state.stats.totalPomodoros++;
+          state.stats.dailyCounts[today] = (state.stats.dailyCounts[today] || 0) + 1;
+          saveStats();
+
+          playChime('focus');
+          sendNotification('Pomodoro Complete!', 'Time for a break.');
+
+          // Switch to break
+          if (state.completedInCycle >= state.settings.longBreakInterval) {
+            switchMode('longbreak');
+          } else {
+            switchMode('break');
+          }
+        } else {
+          // Break complete
+          playChime('break');
+          sendNotification('Break Over!', 'Time to focus.');
+
+          if (state.mode === 'longbreak') {
+            state.completedInCycle = 0;
+          }
+          switchMode('focus');
+        }
+
+        if (state.settings.autoStart) {
+          start();
+        } else {
+          updateAll();
+        }
+      }
+
+      function switchMode(newMode) {
+        state.mode = newMode;
+        state.totalTime = getDurationForMode(newMode);
+        state.timeRemaining = state.totalTime;
+        state.status = 'idle';
+        updateModeIndicator();
+      }
+
+      // --- Visibility change (catch-up on tab switch) ---
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && state.status === 'running') {
+          tick();
+        }
+      });
+
+      // --- Event listeners ---
+      startBtn.addEventListener('click', start);
+      pauseBtn.addEventListener('click', pause);
+      resetBtn.addEventListener('click', reset);
+
+      // Theme toggle
+      themeToggle.addEventListener('click', () => {
+        const newTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+        root.dataset.theme = newTheme;
+        saveTheme(newTheme);
+        themeColorMeta.content = getThemeColor();
+        updateThemeIcons();
+      });
+
+      // Settings
+      settingsBtn.addEventListener('click', () => {
+        $('#focusDuration').value = state.settings.focusDuration;
+        $('#breakDuration').value = state.settings.breakDuration;
+        $('#longBreakDuration').value = state.settings.longBreakDuration;
+        $('#longBreakInterval').value = state.settings.longBreakInterval;
+        $('#autoStart').checked = state.settings.autoStart;
+        $('#soundEnabled').checked = state.settings.soundEnabled;
+        settingsDialog.showModal();
+      });
+
+      closeSettingsBtn.addEventListener('click', () => settingsDialog.close());
+      cancelSettingsBtn.addEventListener('click', () => settingsDialog.close());
+
+      settingsForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        state.settings.focusDuration = parseInt($('#focusDuration').value) || DEFAULTS.focusDuration;
+        state.settings.breakDuration = parseInt($('#breakDuration').value) || DEFAULTS.breakDuration;
+        state.settings.longBreakDuration = parseInt($('#longBreakDuration').value) || DEFAULTS.longBreakDuration;
+        state.settings.longBreakInterval = parseInt($('#longBreakInterval').value) || DEFAULTS.longBreakInterval;
+        state.settings.autoStart = $('#autoStart').checked;
+        state.settings.soundEnabled = $('#soundEnabled').checked;
+        saveSettings();
+
+        // Update session dots count
+        const dots = sessionDotsEl.querySelectorAll('.dot');
+        const needed = state.settings.longBreakInterval;
+        // Add dots if needed
+        while (sessionDotsEl.children.length < needed) {
+          const dot = document.createElement('div');
+          dot.className = 'dot';
+          dot.dataset.dot = sessionDotsEl.children.length;
+          sessionDotsEl.appendChild(dot);
+        }
+
+        // If idle, reset timer to new duration
+        if (state.status === 'idle') {
+          state.totalTime = getDurationForMode(state.mode);
+          state.timeRemaining = state.totalTime;
+        }
+
+        settingsDialog.close();
+        updateAll();
+      });
+
+      // Close dialog on backdrop click
+      settingsDialog.addEventListener('click', (e) => {
+        if (e.target === settingsDialog) settingsDialog.close();
+      });
+
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        // Don't trigger shortcuts when typing in inputs
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        // Don't trigger when dialog is open (except Escape)
+        if (settingsDialog.open && e.key !== 'Escape') return;
+
+        switch (e.key) {
+          case ' ':
+            e.preventDefault();
+            if (state.status === 'running') pause();
+            else start();
+            break;
+          case 'r':
+          case 'R':
+            e.preventDefault();
+            reset();
+            break;
+          case 'Escape':
+            if (settingsDialog.open) settingsDialog.close();
+            break;
+        }
+      });
+
+      // --- Init ---
+      function init() {
+        loadSettings();
+        loadStats();
+
+        const theme = loadTheme();
+        root.dataset.theme = theme;
+
+        state.mode = 'focus';
+        state.totalTime = getDurationForMode('focus');
+        state.timeRemaining = state.totalTime;
+
+        updateAll();
+
+        // Service worker registration
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+          });
+        }
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
