@@ -691,6 +691,278 @@
       }
     }
 
+    /* Auth button */
+    .auth-btn {
+      height: 36px;
+      padding: 0 14px;
+      border: none;
+      background: var(--surface);
+      color: var(--text);
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+      touch-action: manipulation;
+      white-space: nowrap;
+    }
+
+    .auth-btn:hover { box-shadow: var(--shadow-md); }
+
+    .auth-btn svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    /* User avatar */
+    .user-avatar-btn {
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--primary);
+      border-radius: 50%;
+      padding: 0;
+      background: var(--surface);
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+      touch-action: manipulation;
+      position: relative;
+    }
+
+    .user-avatar-btn:hover { box-shadow: var(--shadow-md); }
+
+    .user-avatar-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+    }
+
+    /* User dropdown */
+    .user-menu {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 8px 0;
+      min-width: 180px;
+      z-index: 100;
+      animation: slideUp 200ms ease;
+      transition: background var(--transition);
+    }
+
+    .user-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 16px;
+      border: none;
+      background: none;
+      color: var(--text);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: background 150ms ease, color var(--transition);
+      text-align: left;
+    }
+
+    .user-menu-item:hover { background: var(--ring-track); }
+
+    .user-menu-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--text-secondary);
+    }
+
+    .user-menu-name {
+      padding: 8px 16px 4px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text);
+      transition: color var(--transition);
+    }
+
+    .user-menu-email {
+      padding: 0 16px 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 4px;
+      transition: color var(--transition), border-color var(--transition);
+    }
+
+    .user-menu-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+    }
+
+    /* Auth prompt card */
+    .auth-prompt {
+      width: 100%;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 28px 24px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition), box-shadow var(--transition);
+      animation: slideUp 400ms ease both;
+    }
+
+    .auth-prompt-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 12px;
+      color: var(--primary);
+      transition: color var(--transition);
+    }
+
+    .auth-prompt-text {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+      transition: color var(--transition);
+    }
+
+    .auth-prompt .auth-btn {
+      margin: 0 auto;
+      height: 42px;
+      padding: 0 20px;
+      font-size: 0.875rem;
+      background: var(--primary);
+      color: #fff;
+      box-shadow: var(--shadow-md);
+    }
+
+    .auth-prompt .auth-btn:hover {
+      box-shadow: var(--shadow-lg);
+    }
+
+    .auth-prompt .auth-btn svg {
+      color: #fff;
+    }
+
+    /* Leaderboard */
+    .leaderboard {
+      width: 100%;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition), box-shadow var(--transition);
+      animation: slideUp 400ms ease both;
+      animation-delay: 300ms;
+    }
+
+    .leaderboard-title {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      transition: color var(--transition);
+    }
+
+    .leaderboard-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .leaderboard-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      transition: background 150ms ease;
+    }
+
+    .leaderboard-row:hover {
+      background: var(--ring-track);
+    }
+
+    .leaderboard-row.current-user {
+      background: var(--ring-track);
+      outline: 2px solid var(--primary);
+      outline-offset: -2px;
+    }
+
+    .leaderboard-rank {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      transition: color var(--transition);
+    }
+
+    .leaderboard-rank.gold { color: #f1c40f; }
+    .leaderboard-rank.silver { color: #95a5a6; }
+    .leaderboard-rank.bronze { color: #cd6133; }
+
+    .leaderboard-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      background: var(--ring-track);
+    }
+
+    .leaderboard-name {
+      flex: 1;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: color var(--transition);
+    }
+
+    .leaderboard-minutes {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      transition: color var(--transition);
+    }
+
+    .leaderboard-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+      transition: background var(--transition);
+    }
+
+    .leaderboard-empty {
+      text-align: center;
+      padding: 16px 0;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+
     @media (min-width: 480px) {
       .app { padding: 24px 24px 48px; gap: 28px; }
       .stat-card { padding: 16px 12px; }
@@ -721,6 +993,15 @@
         Pomodoro
       </div>
       <div class="header-actions">
+        <button class="auth-btn" id="signInBtn" aria-label="Sign in with Google" title="Sign in">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Sign In
+        </button>
+        <div class="hidden" id="userAvatarWrap" style="position:relative;">
+          <button class="user-avatar-btn" id="userAvatarBtn" aria-label="Account menu" title="Account">
+            <img id="userAvatarImg" src="" alt="" referrerpolicy="no-referrer">
+          </button>
+        </div>
         <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
           <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
@@ -809,6 +1090,22 @@
       <div class="chart-bars" id="chartBars"></div>
     </div>
 
+    <div class="auth-prompt hidden" id="authPrompt">
+      <svg class="auth-prompt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <div class="auth-prompt-text">Sign in with Google to track your stats and compete on the leaderboard</div>
+      <button class="auth-btn" id="authPromptBtn" aria-label="Sign in with Google">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#fff"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#fff"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#fff"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#fff"/></svg>
+        Sign in with Google
+      </button>
+    </div>
+
+    <div class="leaderboard hidden" id="leaderboard">
+      <div class="leaderboard-title">Leaderboard</div>
+      <ul class="leaderboard-list" id="leaderboardList"></ul>
+    </div>
+
     <div class="kbd-hint" aria-hidden="true">Space: start/pause &middot; R: reset &middot; Esc: close settings</div>
   </div>
 
@@ -859,6 +1156,26 @@
     </form>
   </dialog>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script>
+    // Firebase config — replace these placeholder values with your project's config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJIAgGQQHhKFO4xXFVg25pb1nb8nY3e9M",
+      authDomain: "pomodoro-timer-82980.firebaseapp.com",
+      projectId: "pomodoro-timer-82980",
+      storageBucket: "pomodoro-timer-82980.firebasestorage.app",
+      messagingSenderId: "785507725684",
+      appId: "1:785507725684:web:90549bfb8776be5920bc21",
+      measurementId: "G-G14JMRPL39"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const fbAuth = firebase.auth();
+    const fbDb = firebase.firestore();
+    fbDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+  </script>
   <script>
     (() => {
       'use strict';
@@ -901,6 +1218,17 @@
       const closeSettingsBtn = $('#closeSettings');
       const cancelSettingsBtn = $('#cancelSettings');
       const themeColorMeta = $('meta[name="theme-color"]');
+      const signInBtn = $('#signInBtn');
+      const userAvatarWrap = $('#userAvatarWrap');
+      const userAvatarBtn = $('#userAvatarBtn');
+      const userAvatarImg = $('#userAvatarImg');
+      const authPrompt = $('#authPrompt');
+      const authPromptBtn = $('#authPromptBtn');
+      const todayProgressEl = $('#todayProgress');
+      const statsEl = $('.stats');
+      const weeklyChartEl = $('#weeklyChart');
+      const leaderboardEl = $('#leaderboard');
+      const leaderboardList = $('#leaderboardList');
 
       // --- Default settings ---
       const DEFAULTS = {
@@ -923,6 +1251,8 @@
         completedInCycle: 0,
         settings: { ...DEFAULTS },
         stats: { totalPomodoros: 0, dailyCounts: {}, dailyMinutes: {}, bestStreak: 0 },
+        user: null, // Firebase user object
+        userMenuOpen: false,
       };
 
       // --- Storage ---
@@ -1226,6 +1556,246 @@
         }
       }
 
+      // --- Auth UI ---
+      function updateAuthUI() {
+        const loggedIn = !!state.user;
+        signInBtn.classList.toggle('hidden', loggedIn);
+        userAvatarWrap.classList.toggle('hidden', !loggedIn);
+        authPrompt.classList.toggle('hidden', loggedIn);
+        todayProgressEl.classList.toggle('hidden', !loggedIn);
+        statsEl.classList.toggle('hidden', !loggedIn);
+        weeklyChartEl.classList.toggle('hidden', !loggedIn);
+        leaderboardEl.classList.toggle('hidden', !loggedIn);
+        if (loggedIn) {
+          userAvatarImg.src = state.user.photoURL || '';
+          userAvatarImg.alt = state.user.displayName || '';
+        }
+      }
+
+      function showUserMenu() {
+        if (state.userMenuOpen) { hideUserMenu(); return; }
+        state.userMenuOpen = true;
+        // Remove existing menu
+        const old = document.querySelector('.user-menu-backdrop');
+        if (old) old.remove();
+
+        const backdrop = document.createElement('div');
+        backdrop.className = 'user-menu-backdrop';
+        backdrop.addEventListener('click', hideUserMenu);
+
+        const menu = document.createElement('div');
+        menu.className = 'user-menu';
+
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'user-menu-name';
+        nameDiv.textContent = state.user.displayName || 'User';
+        menu.appendChild(nameDiv);
+
+        const emailDiv = document.createElement('div');
+        emailDiv.className = 'user-menu-email';
+        emailDiv.textContent = state.user.email || '';
+        menu.appendChild(emailDiv);
+
+        const signOutItem = document.createElement('button');
+        signOutItem.className = 'user-menu-item';
+        signOutItem.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign out';
+        signOutItem.addEventListener('click', () => {
+          hideUserMenu();
+          fbAuth.signOut();
+        });
+        menu.appendChild(signOutItem);
+
+        document.body.appendChild(backdrop);
+        userAvatarWrap.appendChild(menu);
+      }
+
+      function hideUserMenu() {
+        state.userMenuOpen = false;
+        const backdrop = document.querySelector('.user-menu-backdrop');
+        if (backdrop) backdrop.remove();
+        const menu = document.querySelector('.user-menu');
+        if (menu) menu.remove();
+      }
+
+      function signInWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        fbAuth.signInWithPopup(provider).catch(() => {});
+      }
+
+      // --- Firestore Sync ---
+      async function syncStatsToFirestore() {
+        if (!state.user) return;
+        const uid = state.user.uid;
+        const ref = fbDb.collection('users').doc(uid);
+        try {
+          const doc = await ref.get();
+          const cloud = doc.exists ? doc.data() : {};
+          // Merge local into cloud
+          const mergedDailyCounts = { ...(cloud.dailyCounts || {}) };
+          const mergedDailyMinutes = { ...(cloud.dailyMinutes || {}) };
+          const localCounts = state.stats.dailyCounts || {};
+          const localMinutes = state.stats.dailyMinutes || {};
+          for (const key of Object.keys(localCounts)) {
+            mergedDailyCounts[key] = (mergedDailyCounts[key] || 0) + (localCounts[key] || 0);
+          }
+          for (const key of Object.keys(localMinutes)) {
+            mergedDailyMinutes[key] = (mergedDailyMinutes[key] || 0) + (localMinutes[key] || 0);
+          }
+          const totalSessions = Object.values(mergedDailyCounts).reduce((a, b) => a + b, 0);
+          const totalMinutes = Object.values(mergedDailyMinutes).reduce((a, b) => a + b, 0);
+          const bestStreak = Math.max(state.stats.bestStreak || 0, cloud.bestStreak || 0);
+
+          await ref.set({
+            displayName: state.user.displayName || '',
+            photoURL: state.user.photoURL || '',
+            totalMinutes,
+            totalSessions,
+            bestStreak,
+            dailyCounts: mergedDailyCounts,
+            dailyMinutes: mergedDailyMinutes,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          }, { merge: true });
+
+          // Update local state from merged cloud data and clear local
+          // so we don't double-count on next sign-in
+          state.stats.dailyCounts = {};
+          state.stats.dailyMinutes = {};
+          state.stats.totalPomodoros = 0;
+          state.stats.bestStreak = 0;
+          saveStats();
+        } catch {}
+      }
+
+      async function pullStatsFromFirestore() {
+        if (!state.user) return;
+        const uid = state.user.uid;
+        try {
+          const doc = await fbDb.collection('users').doc(uid).get();
+          if (doc.exists) {
+            const data = doc.data();
+            state.stats.dailyCounts = data.dailyCounts || {};
+            state.stats.dailyMinutes = data.dailyMinutes || {};
+            state.stats.totalPomodoros = data.totalSessions || 0;
+            state.stats.bestStreak = data.bestStreak || 0;
+            saveStats();
+            updateStats();
+          }
+        } catch {}
+      }
+
+      async function updateFirestoreOnComplete() {
+        if (!state.user) return;
+        const uid = state.user.uid;
+        const ref = fbDb.collection('users').doc(uid);
+        const today = todayKey();
+        try {
+          const doc = await ref.get();
+          const cloud = doc.exists ? doc.data() : {};
+          const dailyCounts = cloud.dailyCounts || {};
+          const dailyMinutes = cloud.dailyMinutes || {};
+          dailyCounts[today] = (dailyCounts[today] || 0) + 1;
+          dailyMinutes[today] = (dailyMinutes[today] || 0) + state.settings.focusDuration;
+          const totalSessions = Object.values(dailyCounts).reduce((a, b) => a + b, 0);
+          const totalMinutes = Object.values(dailyMinutes).reduce((a, b) => a + b, 0);
+          const bestStreak = Math.max(state.stats.bestStreak || 0, cloud.bestStreak || 0);
+
+          await ref.set({
+            displayName: state.user.displayName || '',
+            photoURL: state.user.photoURL || '',
+            totalMinutes,
+            totalSessions,
+            bestStreak,
+            dailyCounts,
+            dailyMinutes,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          }, { merge: true });
+        } catch {}
+      }
+
+      // --- Leaderboard ---
+      async function loadLeaderboard() {
+        if (!state.user) return;
+        try {
+          const snap = await fbDb.collection('users')
+            .orderBy('totalMinutes', 'desc')
+            .limit(10)
+            .get();
+
+          leaderboardList.innerHTML = '';
+          let currentInTop10 = false;
+          let rank = 0;
+
+          snap.forEach((doc) => {
+            rank++;
+            const d = doc.data();
+            const isCurrent = doc.id === state.user.uid;
+            if (isCurrent) currentInTop10 = true;
+            leaderboardList.appendChild(createLeaderboardRow(rank, d, isCurrent));
+          });
+
+          if (rank === 0) {
+            const li = document.createElement('li');
+            li.className = 'leaderboard-empty';
+            li.textContent = 'No data yet. Complete a focus session!';
+            leaderboardList.appendChild(li);
+            return;
+          }
+
+          // If current user not in top 10, find their rank and append
+          if (!currentInTop10) {
+            const userDoc = await fbDb.collection('users').doc(state.user.uid).get();
+            if (userDoc.exists) {
+              const userData = userDoc.data();
+              const userMinutes = userData.totalMinutes || 0;
+              // Count how many users have more minutes
+              const countSnap = await fbDb.collection('users')
+                .where('totalMinutes', '>', userMinutes)
+                .get();
+              const userRank = countSnap.size + 1;
+
+              const divider = document.createElement('li');
+              divider.className = 'leaderboard-divider';
+              divider.setAttribute('aria-hidden', 'true');
+              leaderboardList.appendChild(divider);
+              leaderboardList.appendChild(createLeaderboardRow(userRank, userData, true));
+            }
+          }
+        } catch {}
+      }
+
+      function createLeaderboardRow(rank, data, isCurrent) {
+        const li = document.createElement('li');
+        li.className = 'leaderboard-row' + (isCurrent ? ' current-user' : '');
+
+        const rankEl = document.createElement('span');
+        rankEl.className = 'leaderboard-rank';
+        if (rank === 1) rankEl.classList.add('gold');
+        else if (rank === 2) rankEl.classList.add('silver');
+        else if (rank === 3) rankEl.classList.add('bronze');
+        rankEl.textContent = rank;
+
+        const avatar = document.createElement('img');
+        avatar.className = 'leaderboard-avatar';
+        avatar.src = data.photoURL || '';
+        avatar.alt = '';
+        avatar.referrerPolicy = 'no-referrer';
+        avatar.onerror = function() { this.style.display = 'none'; };
+
+        const name = document.createElement('span');
+        name.className = 'leaderboard-name';
+        name.textContent = data.displayName || 'Anonymous';
+
+        const mins = document.createElement('span');
+        mins.className = 'leaderboard-minutes';
+        mins.textContent = (data.totalMinutes || 0) + ' min';
+
+        li.appendChild(rankEl);
+        li.appendChild(avatar);
+        li.appendChild(name);
+        li.appendChild(mins);
+        return li;
+      }
+
       function updateThemeIcons() {
         const isDark = root.dataset.theme === 'dark';
         sunIcon.classList.toggle('hidden', isDark);
@@ -1241,6 +1811,7 @@
         updateStats();
         updateDocumentTitle();
         updateThemeIcons();
+        updateAuthUI();
       }
 
       // --- Timer Engine ---
@@ -1314,6 +1885,7 @@
 
           playChime('focus');
           sendNotification('Pomodoro Complete!', 'Time for a break.');
+          updateFirestoreOnComplete().then(() => loadLeaderboard());
 
           // Switch to break
           if (state.completedInCycle >= state.settings.longBreakInterval) {
@@ -1451,6 +2023,25 @@
           case 'Escape':
             if (settingsDialog.open) settingsDialog.close();
             break;
+        }
+      });
+
+      // --- Auth event listeners ---
+      signInBtn.addEventListener('click', signInWithGoogle);
+      authPromptBtn.addEventListener('click', signInWithGoogle);
+      userAvatarBtn.addEventListener('click', showUserMenu);
+
+      // Firebase auth state observer
+      fbAuth.onAuthStateChanged(async (user) => {
+        state.user = user;
+        updateAuthUI();
+        if (user) {
+          // On first sign-in: merge local stats into Firestore
+          await syncStatsToFirestore();
+          // Then pull the merged data back
+          await pullStatsFromFirestore();
+          updateStats();
+          loadLeaderboard();
         }
       });
 
