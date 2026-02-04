@@ -145,14 +145,53 @@
     .icon-btn:hover { color: var(--primary); box-shadow: var(--shadow-md); }
     .icon-btn svg { width: 20px; height: 20px; }
 
-    /* Mode indicator */
-    .mode-label {
-      font-size: 0.875rem;
+    /* Mode tabs */
+    .mode-tabs {
+      display: flex;
+      background: var(--surface);
+      border-radius: var(--radius-full);
+      padding: 4px;
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition), box-shadow var(--transition);
+      width: 100%;
+      max-width: 340px;
+    }
+
+    .mode-tab {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--primary);
-      transition: color var(--transition);
+      padding: 8px 4px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background 300ms ease, color 300ms ease;
+      touch-action: manipulation;
+      white-space: nowrap;
+    }
+
+    .mode-tab:hover {
+      color: var(--text);
+    }
+
+    .mode-tab.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Mode indicator (sr-only, kept for aria-live) */
+    .mode-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
     }
 
     /* Timer ring */
@@ -277,18 +316,85 @@
       animation: pulse 1.5s ease infinite;
     }
 
+    /* Today's progress */
+    .today-progress {
+      width: 100%;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition), box-shadow var(--transition);
+      animation: slideUp 400ms ease both;
+    }
+
+    .today-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .today-title {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+
+    .today-summary {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      transition: color var(--transition);
+    }
+
+    .today-summary strong {
+      color: var(--primary);
+      font-weight: 700;
+      transition: color var(--transition);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--ring-track);
+      border-radius: 4px;
+      overflow: hidden;
+      transition: background var(--transition);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 4px;
+      transition: width 400ms ease, background var(--transition);
+      min-width: 0;
+    }
+
+    .today-detail {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      transition: color var(--transition);
+    }
+
     /* Stats */
     .stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
       width: 100%;
     }
 
     .stat-card {
       background: var(--surface);
       border-radius: var(--radius-md);
-      padding: 16px;
+      padding: 14px 8px;
       text-align: center;
       box-shadow: var(--shadow-sm);
       transition: background var(--transition), box-shadow var(--transition);
@@ -297,9 +403,10 @@
 
     .stat-card:nth-child(2) { animation-delay: 60ms; }
     .stat-card:nth-child(3) { animation-delay: 120ms; }
+    .stat-card:nth-child(4) { animation-delay: 180ms; }
 
     .stat-value {
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: var(--primary);
       font-variant-numeric: tabular-nums;
@@ -307,12 +414,118 @@
     }
 
     .stat-label {
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
       color: var(--text-secondary);
       margin-top: 4px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       transition: color var(--transition);
+    }
+
+    /* Weekly chart */
+    .weekly-chart {
+      width: 100%;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition), box-shadow var(--transition);
+      animation: slideUp 400ms ease both;
+      animation-delay: 240ms;
+    }
+
+    .weekly-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+
+    .weekly-title {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+
+    .weekly-total {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      transition: color var(--transition);
+    }
+
+    .weekly-total strong {
+      color: var(--primary);
+      font-weight: 700;
+      transition: color var(--transition);
+    }
+
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      height: 80px;
+      width: 100%;
+    }
+
+    .chart-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+    }
+
+    .chart-bar-wrap {
+      flex: 1;
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .chart-bar {
+      width: 100%;
+      max-width: 32px;
+      background: var(--primary);
+      border-radius: 4px 4px 2px 2px;
+      min-height: 2px;
+      transition: height 400ms ease, background var(--transition);
+      position: relative;
+    }
+
+    .chart-bar.empty {
+      background: var(--ring-track);
+      height: 2px !important;
+    }
+
+    .chart-bar-value {
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.625rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      transition: color var(--transition);
+    }
+
+    .chart-day {
+      font-size: 0.625rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      transition: color var(--transition);
+    }
+
+    .chart-day.today {
+      color: var(--primary);
+      font-weight: 700;
     }
 
     /* Settings dialog */
@@ -441,13 +654,18 @@
       padding-top: 8px;
     }
 
-    /* Keyboard hint */
+    /* Keyboard hint — hidden on touch-only devices */
     .kbd-hint {
       font-size: 0.6875rem;
       color: var(--text-secondary);
       text-align: center;
       opacity: 0.7;
       transition: color var(--transition);
+      display: none;
+    }
+
+    @media (hover: hover) {
+      .kbd-hint { display: block; }
     }
 
     /* Animations */
@@ -475,7 +693,9 @@
 
     @media (min-width: 480px) {
       .app { padding: 24px 24px 48px; gap: 28px; }
-      .stat-card { padding: 20px; }
+      .stat-card { padding: 16px 12px; }
+      .stat-value { font-size: 1.75rem; }
+      .chart-bars { height: 100px; }
     }
 
     @media (min-width: 768px) {
@@ -517,6 +737,11 @@
       </div>
     </header>
 
+    <div class="mode-tabs" role="tablist" aria-label="Timer mode">
+      <button class="mode-tab active" role="tab" data-mode="focus" aria-selected="true">Focus</button>
+      <button class="mode-tab" role="tab" data-mode="break" aria-selected="false">Short Break</button>
+      <button class="mode-tab" role="tab" data-mode="longbreak" aria-selected="false">Long Break</button>
+    </div>
     <div class="mode-label" id="modeLabel" aria-live="polite">Focus Time</div>
 
     <div class="timer-container" role="timer" aria-label="Timer">
@@ -543,19 +768,45 @@
       <div class="dot" data-dot="3"></div>
     </div>
 
+    <div class="today-progress" id="todayProgress">
+      <div class="today-header">
+        <span class="today-title">Today's Progress</span>
+        <span class="today-summary"><strong id="todayMinutes">0</strong> min focused</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+      <div class="today-detail">
+        <span><span id="todaySessions">0</span> sessions</span>
+        <span>Goal: <span id="dailyGoal">100</span> min</span>
+      </div>
+    </div>
+
     <div class="stats">
       <div class="stat-card">
-        <div class="stat-value" id="statToday">0</div>
-        <div class="stat-label">Today</div>
+        <div class="stat-value" id="statTodayMin">0</div>
+        <div class="stat-label">Min Today</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="statTotal">0</div>
-        <div class="stat-label">Total</div>
+        <div class="stat-value" id="statTodaySessions">0</div>
+        <div class="stat-label">Sessions</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value" id="statStreak">0</div>
-        <div class="stat-label">Day Streak</div>
+        <div class="stat-value" id="statWeekTotal">0</div>
+        <div class="stat-label">This Week</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statBestStreak">0</div>
+        <div class="stat-label">Best Streak</div>
+      </div>
+    </div>
+
+    <div class="weekly-chart" id="weeklyChart">
+      <div class="weekly-header">
+        <span class="weekly-title">This Week</span>
+        <span class="weekly-total"><strong id="weekTotalMin">0</strong> min total</span>
+      </div>
+      <div class="chart-bars" id="chartBars"></div>
     </div>
 
     <div class="kbd-hint" aria-hidden="true">Space: start/pause &middot; R: reset &middot; Esc: close settings</div>
@@ -630,9 +881,17 @@
       const pauseBtn = $('#pauseBtn');
       const resetBtn = $('#resetBtn');
       const sessionDotsEl = $('#sessionDots');
-      const statToday = $('#statToday');
-      const statTotal = $('#statTotal');
-      const statStreak = $('#statStreak');
+      const todayMinutesEl = $('#todayMinutes');
+      const todaySessionsEl = $('#todaySessions');
+      const progressFill = $('#progressFill');
+      const dailyGoalEl = $('#dailyGoal');
+      const statTodayMin = $('#statTodayMin');
+      const statTodaySessions = $('#statTodaySessions');
+      const statWeekTotal = $('#statWeekTotal');
+      const statBestStreak = $('#statBestStreak');
+      const weekTotalMin = $('#weekTotalMin');
+      const chartBars = $('#chartBars');
+      const modeTabs = document.querySelectorAll('.mode-tab');
       const themeToggle = $('#themeToggle');
       const sunIcon = $('#sunIcon');
       const moonIcon = $('#moonIcon');
@@ -663,7 +922,7 @@
         intervalId: null,
         completedInCycle: 0,
         settings: { ...DEFAULTS },
-        stats: { totalPomodoros: 0, dailyCounts: {} },
+        stats: { totalPomodoros: 0, dailyCounts: {}, dailyMinutes: {}, bestStreak: 0 },
       };
 
       // --- Storage ---
@@ -831,6 +1090,11 @@
         modeLabel.textContent = getModeName(state.mode);
         root.dataset.mode = state.mode;
         themeColorMeta.content = getThemeColor();
+        modeTabs.forEach((tab) => {
+          const isActive = tab.dataset.mode === state.mode;
+          tab.classList.toggle('active', isActive);
+          tab.setAttribute('aria-selected', isActive);
+        });
       }
 
       function updateSessionDots() {
@@ -852,11 +1116,106 @@
         });
       }
 
+      function getWeekData() {
+        const days = [];
+        const d = new Date();
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(d);
+          date.setDate(d.getDate() - i);
+          const key = date.toISOString().slice(0, 10);
+          const dayName = date.toLocaleDateString('en', { weekday: 'short' }).slice(0, 3);
+          days.push({
+            key,
+            dayName,
+            minutes: state.stats.dailyMinutes[key] || 0,
+            sessions: state.stats.dailyCounts[key] || 0,
+            isToday: i === 0,
+          });
+        }
+        return days;
+      }
+
+      function getWeekTotalMinutes() {
+        return getWeekData().reduce((sum, d) => sum + d.minutes, 0);
+      }
+
+      function getDailyGoal() {
+        return state.settings.focusDuration * state.settings.longBreakInterval;
+      }
+
+      function updateBestStreak() {
+        const current = calculateStreak();
+        if (current > state.stats.bestStreak) {
+          state.stats.bestStreak = current;
+          saveStats();
+        }
+      }
+
+      function updateTodayProgress() {
+        const today = todayKey();
+        const minutes = state.stats.dailyMinutes[today] || 0;
+        const sessions = state.stats.dailyCounts[today] || 0;
+        const goal = getDailyGoal();
+        const pct = Math.min(100, Math.round((minutes / goal) * 100));
+
+        todayMinutesEl.textContent = minutes;
+        todaySessionsEl.textContent = sessions;
+        dailyGoalEl.textContent = goal;
+        progressFill.style.width = pct + '%';
+      }
+
+      function updateWeeklyChart() {
+        const week = getWeekData();
+        const maxMin = Math.max(...week.map((d) => d.minutes), 1);
+        const weekTotal = week.reduce((s, d) => s + d.minutes, 0);
+
+        weekTotalMin.textContent = weekTotal;
+        chartBars.innerHTML = '';
+
+        week.forEach((day) => {
+          const col = document.createElement('div');
+          col.className = 'chart-col';
+
+          const barWrap = document.createElement('div');
+          barWrap.className = 'chart-bar-wrap';
+
+          const bar = document.createElement('div');
+          const heightPct = day.minutes > 0 ? Math.max(8, (day.minutes / maxMin) * 100) : 0;
+          bar.className = 'chart-bar' + (day.minutes === 0 ? ' empty' : '');
+          bar.style.height = heightPct + '%';
+
+          if (day.minutes > 0) {
+            const val = document.createElement('span');
+            val.className = 'chart-bar-value';
+            val.textContent = day.minutes;
+            bar.appendChild(val);
+          }
+
+          barWrap.appendChild(bar);
+          col.appendChild(barWrap);
+
+          const label = document.createElement('span');
+          label.className = 'chart-day' + (day.isToday ? ' today' : '');
+          label.textContent = day.dayName;
+          col.appendChild(label);
+
+          chartBars.appendChild(col);
+        });
+      }
+
       function updateStats() {
         const today = todayKey();
-        statToday.textContent = state.stats.dailyCounts[today] || 0;
-        statTotal.textContent = state.stats.totalPomodoros;
-        statStreak.textContent = calculateStreak();
+        const sessions = state.stats.dailyCounts[today] || 0;
+        const minutes = state.stats.dailyMinutes[today] || 0;
+
+        statTodayMin.textContent = minutes;
+        statTodaySessions.textContent = sessions;
+        statWeekTotal.textContent = getWeekTotalMinutes();
+        updateBestStreak();
+        statBestStreak.textContent = state.stats.bestStreak;
+
+        updateTodayProgress();
+        updateWeeklyChart();
       }
 
       function updateDocumentTitle() {
@@ -950,6 +1309,7 @@
           const today = todayKey();
           state.stats.totalPomodoros++;
           state.stats.dailyCounts[today] = (state.stats.dailyCounts[today] || 0) + 1;
+          state.stats.dailyMinutes[today] = (state.stats.dailyMinutes[today] || 0) + state.settings.focusDuration;
           saveStats();
 
           playChime('focus');
@@ -998,6 +1358,18 @@
       startBtn.addEventListener('click', start);
       pauseBtn.addEventListener('click', pause);
       resetBtn.addEventListener('click', reset);
+
+      // Mode tabs
+      modeTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const newMode = tab.dataset.mode;
+          if (newMode === state.mode) return;
+          clearInterval(state.intervalId);
+          state.intervalId = null;
+          switchMode(newMode);
+          updateAll();
+        });
+      });
 
       // Theme toggle
       themeToggle.addEventListener('click', () => {
