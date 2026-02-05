@@ -383,6 +383,149 @@
       animation: pulse 1.5s ease infinite;
     }
 
+    /* Task List */
+    .tasks-section {
+      width: 100%;
+      max-width: 340px;
+      margin-top: 8px;
+    }
+
+    .tasks-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tasks-header:hover {
+      color: var(--text);
+    }
+
+    .tasks-toggle-icon {
+      transition: transform 200ms ease;
+    }
+
+    .tasks-section.expanded .tasks-toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .tasks-body {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tasks-section.expanded .tasks-body {
+      display: flex;
+    }
+
+    .task-input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .task-input-row input {
+      flex: 1;
+      height: 38px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0 12px;
+      font-size: 0.875rem;
+      background: var(--surface);
+      color: var(--text);
+      transition: border-color 200ms ease;
+    }
+
+    .task-input-row input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .task-input-row input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    .task-input-row button {
+      padding: 0 16px;
+      height: 38px;
+      font-size: 0.875rem;
+    }
+
+    .task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface);
+      border-radius: var(--radius-sm);
+      transition: background 150ms ease, opacity 150ms ease;
+      animation: slideUp 200ms ease;
+    }
+
+    .task-item:hover {
+      background: var(--ring-track);
+    }
+
+    .task-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .task-text {
+      flex: 1;
+      font-size: 0.9rem;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+
+    .task-delete {
+      opacity: 0;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 0.75rem;
+      transition: opacity 150ms ease, color 150ms ease;
+    }
+
+    .task-item:hover .task-delete {
+      opacity: 1;
+    }
+
+    .task-delete:hover {
+      color: #e74c3c;
+    }
+
+    .tasks-empty {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      padding: 12px;
+    }
+
     /* Today's progress */
     .today-progress {
       width: 100%;
@@ -1231,6 +1374,22 @@
       <div class="dot" data-dot="3"></div>
     </div>
 
+    <div class="tasks-section" id="tasksSection">
+      <div class="tasks-header" id="tasksHeader">
+        <span>Tasks (<span id="taskCount">0</span>)</span>
+        <svg class="tasks-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <div class="tasks-body">
+        <div class="task-input-row">
+          <input type="text" id="taskInput" placeholder="What are you working on?" maxlength="100">
+          <button class="btn btn-primary" id="addTaskBtn">Add</button>
+        </div>
+        <ul class="task-list" id="taskList"></ul>
+      </div>
+    </div>
+
     <div class="auth-prompt hidden" id="authPrompt">
       <svg class="auth-prompt-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
@@ -1419,6 +1578,7 @@
         settings: 'pomodoro-settings',
         stats: 'pomodoro-stats',
         theme: 'pomodoro-theme',
+        tasks: 'pomodoro-tasks',
       };
       const CONFETTI_COLORS = ['#e74c3c', '#f39c12', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c', '#e91e63'];
 
@@ -1476,6 +1636,12 @@
       const leaderboardDialog = $('#leaderboardDialog');
       const closeLeaderboardBtn = $('#closeLeaderboard');
       const celebrationContainer = $('#celebrationContainer');
+      const tasksSection = $('#tasksSection');
+      const tasksHeader = $('#tasksHeader');
+      const taskInput = $('#taskInput');
+      const addTaskBtn = $('#addTaskBtn');
+      const taskList = $('#taskList');
+      const taskCount = $('#taskCount');
 
       // --- Default settings ---
       const DEFAULTS = {
@@ -1502,6 +1668,7 @@
         stats: { totalPomodoros: 0, dailyCounts: {}, dailyMinutes: {}, bestStreak: 0 },
         user: null, // Firebase user object
         userMenuOpen: false,
+        tasks: [], // [{ id, title, completed }]
       };
 
       // --- Storage ---
@@ -1535,6 +1702,71 @@
 
       function saveTheme(theme) {
         localStorage.setItem(STORAGE_KEYS.theme, theme);
+      }
+
+      // --- Tasks ---
+      function loadTasks() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.tasks);
+          if (raw) state.tasks = JSON.parse(raw);
+        } catch {}
+      }
+
+      function saveTasks() {
+        localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(state.tasks));
+      }
+
+      function addTask() {
+        const title = taskInput.value.trim();
+        if (!title || state.tasks.length >= 10) return;
+
+        state.tasks.push({
+          id: Date.now().toString(),
+          title,
+          completed: false,
+        });
+        saveTasks();
+        taskInput.value = '';
+        renderTasks();
+      }
+
+      function toggleTask(id) {
+        const task = state.tasks.find(t => t.id === id);
+        if (task) {
+          task.completed = !task.completed;
+          saveTasks();
+          renderTasks();
+        }
+      }
+
+      function deleteTask(id) {
+        state.tasks = state.tasks.filter(t => t.id !== id);
+        saveTasks();
+        renderTasks();
+      }
+
+      function renderTasks() {
+        taskCount.textContent = state.tasks.filter(t => !t.completed).length;
+        taskList.innerHTML = '';
+
+        if (state.tasks.length === 0) {
+          taskList.innerHTML = '<li class="tasks-empty">No tasks yet</li>';
+          return;
+        }
+
+        // Sort: incomplete first, then completed
+        const sorted = [...state.tasks].sort((a, b) => a.completed - b.completed);
+
+        sorted.forEach(task => {
+          const li = document.createElement('li');
+          li.className = 'task-item' + (task.completed ? ' completed' : '');
+          li.innerHTML = `
+            <input type="checkbox" class="task-checkbox" data-id="${task.id}" ${task.completed ? 'checked' : ''}>
+            <span class="task-text">${task.title.replace(/</g, '&lt;')}</span>
+            <button class="task-delete" data-id="${task.id}">remove</button>
+          `;
+          taskList.appendChild(li);
+        });
       }
 
       // --- Helpers ---
@@ -2418,6 +2650,32 @@
       statsDialog.addEventListener('close', () => statsBtn.classList.remove('active'));
       leaderboardDialog.addEventListener('close', () => leaderboardBtn.classList.remove('active'));
 
+      // --- Task event listeners ---
+      tasksHeader.addEventListener('click', () => {
+        tasksSection.classList.toggle('expanded');
+      });
+
+      addTaskBtn.addEventListener('click', addTask);
+
+      taskInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') addTask();
+      });
+
+      taskList.addEventListener('click', (e) => {
+        const id = e.target.dataset.id;
+        if (!id) return;
+
+        if (e.target.classList.contains('task-delete')) {
+          deleteTask(id);
+        }
+      });
+
+      taskList.addEventListener('change', (e) => {
+        if (e.target.classList.contains('task-checkbox')) {
+          toggleTask(e.target.dataset.id);
+        }
+      });
+
       // --- Auth event listeners ---
       signInBtn.addEventListener('click', signInWithGoogle);
       authPromptBtn.addEventListener('click', signInWithGoogle);
@@ -2444,6 +2702,8 @@
       function init() {
         loadSettings();
         loadStats();
+        loadTasks();
+        renderTasks();
 
         const theme = loadTheme();
         root.dataset.theme = theme;
