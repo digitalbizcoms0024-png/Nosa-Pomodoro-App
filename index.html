@@ -752,10 +752,90 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Confetti celebration */
+    .confetti-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 200;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      top: -20px;
+      animation: confettiFall 3s ease-out forwards;
+    }
+
+    .celebration-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      z-index: 199;
+      animation: fadeIn 200ms ease;
+    }
+
+    .celebration-message {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--surface);
+      color: var(--text);
+      padding: 24px 32px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      z-index: 201;
+      text-align: center;
+      animation: celebrationPop 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      max-width: 320px;
+    }
+
+    .celebration-message .celebration-emoji {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .celebration-message .celebration-text {
+      font-size: 1.125rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes celebrationPop {
+      0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
         transition-duration: 0.01ms !important;
+      }
+      .confetti-overlay,
+      .confetti-piece {
+        display: none !important;
       }
     }
 
@@ -1150,6 +1230,8 @@
     </svg>
   </button>
 
+  <div id="celebrationContainer"></div>
+
   <dialog id="settingsDialog" aria-labelledby="settingsTitle">
     <div class="dialog-header">
       <h2 id="settingsTitle">Settings</h2>
@@ -1297,6 +1379,7 @@
         stats: 'pomodoro-stats',
         theme: 'pomodoro-theme',
       };
+      const CONFETTI_COLORS = ['#e74c3c', '#f39c12', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c', '#e91e63'];
 
       // --- DOM refs ---
       const $ = (s) => document.querySelector(s);
@@ -1345,6 +1428,7 @@
       const closeStatsBtn = $('#closeStats');
       const leaderboardDialog = $('#leaderboardDialog');
       const closeLeaderboardBtn = $('#closeLeaderboard');
+      const celebrationContainer = $('#celebrationContainer');
 
       // --- Default settings ---
       const DEFAULTS = {
@@ -1500,6 +1584,64 @@
             osc.stop(now + i * 0.15 + 0.4);
           });
         } catch {}
+      }
+
+      // --- Celebration ---
+      function showCelebration(message) {
+        // Respect reduced motion preference
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Clear any existing celebration
+        celebrationContainer.innerHTML = '';
+
+        // Create backdrop
+        const backdrop = document.createElement('div');
+        backdrop.className = 'celebration-backdrop';
+
+        // Create message modal
+        const modal = document.createElement('div');
+        modal.className = 'celebration-message';
+        modal.setAttribute('role', 'alert');
+        modal.setAttribute('aria-live', 'polite');
+        modal.innerHTML = `
+          <span class="celebration-emoji" aria-hidden="true">🎉</span>
+          <span class="celebration-text">${message}</span>
+        `;
+
+        // Create confetti overlay (only if motion is allowed)
+        if (!prefersReducedMotion) {
+          const confettiOverlay = document.createElement('div');
+          confettiOverlay.className = 'confetti-overlay';
+
+          for (let i = 0; i < 50; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            piece.style.left = Math.random() * 100 + '%';
+            piece.style.backgroundColor = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+            piece.style.width = (Math.random() * 8 + 6) + 'px';
+            piece.style.height = (Math.random() * 8 + 6) + 'px';
+            piece.style.animationDelay = (Math.random() * 0.5) + 's';
+            piece.style.animationDuration = (Math.random() * 1 + 2.5) + 's';
+            piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            confettiOverlay.appendChild(piece);
+          }
+
+          celebrationContainer.appendChild(confettiOverlay);
+        }
+
+        celebrationContainer.appendChild(backdrop);
+        celebrationContainer.appendChild(modal);
+
+        // Dismiss function
+        function dismiss() {
+          celebrationContainer.innerHTML = '';
+        }
+
+        // Click backdrop to dismiss
+        backdrop.addEventListener('click', dismiss);
+
+        // Auto-dismiss after 4 seconds
+        setTimeout(dismiss, 4000);
       }
 
       // --- Notifications ---
@@ -2009,9 +2151,12 @@
         updateProgressRing();
 
         if (state.mode === 'focus') {
+          // Check if first pomodoro of day BEFORE incrementing
+          const today = todayKey();
+          const isFirstOfDay = !state.stats.dailyCounts[today] || state.stats.dailyCounts[today] === 0;
+
           // Completed a pomodoro
           state.completedInCycle++;
-          const today = todayKey();
           state.stats.totalPomodoros++;
           state.stats.dailyCounts[today] = (state.stats.dailyCounts[today] || 0) + 1;
           state.stats.dailyMinutes[today] = (state.stats.dailyMinutes[today] || 0) + state.settings.focusDuration;
@@ -2020,6 +2165,11 @@
           playChime('focus');
           sendNotification('Pomodoro Complete!', 'Time for a break.');
           updateFirestoreOnComplete().then(() => loadLeaderboard());
+
+          // Show celebration for first pomodoro of the day
+          if (isFirstOfDay) {
+            showCelebration("You just completed your 1st pomodoro, keep going!");
+          }
 
           // Switch to break
           if (state.completedInCycle >= state.settings.longBreakInterval) {
