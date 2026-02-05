@@ -291,6 +291,16 @@
       transition: stroke var(--transition), stroke-dashoffset 0.3s linear;
     }
 
+    .ring-spark {
+      fill: var(--primary);
+      transition: fill var(--transition);
+      opacity: 0;
+    }
+
+    .ring-spark.active {
+      opacity: 1;
+    }
+
     .timer-display {
       position: absolute;
       inset: 0;
@@ -1360,9 +1370,19 @@
 
     <div class="timer-container" role="timer" aria-label="Timer">
       <svg class="timer-svg" viewBox="0 0 200 200">
+        <defs>
+          <filter id="sparkGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
         <circle class="ring-track" cx="100" cy="100" r="90"/>
         <circle class="ring-progress" id="progressRing" cx="100" cy="100" r="90"
                 stroke-dasharray="565.49" stroke-dashoffset="0"/>
+        <circle class="ring-spark" id="ringSpark" cx="100" cy="10" r="6" filter="url(#sparkGlow)"/>
       </svg>
       <div class="timer-display">
         <span class="time-text" id="timeDisplay">25:00</span>
@@ -1596,6 +1616,7 @@
       const modeLabel = $('#modeLabel');
       const timeDisplay = $('#timeDisplay');
       const progressRing = $('#progressRing');
+      const ringSpark = $('#ringSpark');
       const startBtn = $('#startBtn');
       const pauseBtn = $('#pauseBtn');
       const resetBtn = $('#resetBtn');
@@ -1958,6 +1979,20 @@
           : 1;
         const offset = CIRCUMFERENCE * fraction - CIRCUMFERENCE;
         progressRing.setAttribute('stroke-dashoffset', offset);
+
+        // Position spark at the leading edge of remaining progress
+        const angle = 2 * Math.PI * (1 - fraction);
+        const x = 100 + 90 * Math.sin(angle);
+        const y = 100 - 90 * Math.cos(angle);
+        ringSpark.setAttribute('cx', x);
+        ringSpark.setAttribute('cy', y);
+
+        // Show spark only when timer is running
+        if (state.status === 'running') {
+          ringSpark.classList.add('active');
+        } else {
+          ringSpark.classList.remove('active');
+        }
       }
 
       function updateControls() {
