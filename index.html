@@ -276,10 +276,9 @@
 
     .ring-track {
       fill: none;
-      stroke: #ffffff;
-      stroke-width: 10;
-      stroke-dasharray: 565.49;
-      stroke-dashoffset: 0;
+      stroke: var(--ring-track);
+      stroke-width: 8;
+      transition: stroke var(--transition);
     }
 
     .ring-progress {
@@ -1957,8 +1956,8 @@
         const fraction = state.totalTime > 0
           ? state.timeRemaining / state.totalTime
           : 1;
-        // As time passes, offset increases, revealing white track underneath
-        const offset = CIRCUMFERENCE * (1 - fraction);
+        // Negative offset makes it go clockwise (right)
+        const offset = -CIRCUMFERENCE * (1 - fraction);
         progressRing.setAttribute('stroke-dashoffset', offset);
       }
 
