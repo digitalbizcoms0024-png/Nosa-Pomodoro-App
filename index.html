@@ -1956,7 +1956,8 @@
         const fraction = state.totalTime > 0
           ? state.timeRemaining / state.totalTime
           : 1;
-        progressRing.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+        const offset = CIRCUMFERENCE * (1 - fraction);
+        progressRing.setAttribute('stroke-dashoffset', offset);
       }
 
       function updateControls() {
