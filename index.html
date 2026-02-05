@@ -505,7 +505,7 @@
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      margin-bottom: 12px;
+      margin-bottom: 24px;
     }
 
     .weekly-title {
@@ -1333,7 +1333,7 @@
       <div class="today-progress" id="todayProgress">
         <div class="today-header">
           <span class="today-title">Today's Progress</span>
-          <span class="today-summary"><strong id="todayMinutes">0</strong> min focused</span>
+          <span class="today-summary"><strong id="todayMinutes">0</strong> <span id="todayMinutesUnit">min</span> focused</span>
         </div>
         <div class="progress-bar">
           <div class="progress-fill" id="progressFill" style="width: 0%"></div>
@@ -1347,7 +1347,7 @@
       <div class="stats">
         <div class="stat-card">
           <div class="stat-value" id="statTodayMin">0</div>
-          <div class="stat-label">Min Today</div>
+          <div class="stat-label" id="statTodayMinLabel">Min Today</div>
         </div>
         <div class="stat-card">
           <div class="stat-value" id="statTodaySessions">0</div>
@@ -1355,7 +1355,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-value" id="statWeekTotal">0</div>
-          <div class="stat-label">This Week</div>
+          <div class="stat-label" id="statWeekTotalLabel">Min This Week</div>
         </div>
         <div class="stat-card">
           <div class="stat-value" id="statBestStreak">0</div>
@@ -1366,7 +1366,7 @@
       <div class="weekly-chart" id="weeklyChart">
         <div class="weekly-header">
           <span class="weekly-title">This Week</span>
-          <span class="weekly-total"><strong id="weekTotalMin">0</strong> min total</span>
+          <span class="weekly-total"><strong id="weekTotalMin">0</strong> <span id="weekTotalUnit">min</span> total</span>
         </div>
         <div class="chart-bars" id="chartBars"></div>
       </div>
@@ -1433,15 +1433,19 @@
       const resetBtn = $('#resetBtn');
       const sessionDotsEl = $('#sessionDots');
       const todayMinutesEl = $('#todayMinutes');
+      const todayMinutesUnit = $('#todayMinutesUnit');
       const todaySessionsEl = $('#todaySessions');
       const progressFill = $('#progressFill');
       const dailyGoalEl = $('#dailyGoal');
       const dailyGoalUnitLabel = $('#dailyGoalUnitLabel');
       const statTodayMin = $('#statTodayMin');
+      const statTodayMinLabel = $('#statTodayMinLabel');
       const statTodaySessions = $('#statTodaySessions');
       const statWeekTotal = $('#statWeekTotal');
+      const statWeekTotalLabel = $('#statWeekTotalLabel');
       const statBestStreak = $('#statBestStreak');
       const weekTotalMin = $('#weekTotalMin');
+      const weekTotalUnit = $('#weekTotalUnit');
       const chartBars = $('#chartBars');
       const modeTabs = document.querySelectorAll('.mode-tab');
       const themeToggle = $('#themeToggle');
@@ -1782,6 +1786,16 @@
         return state.settings.dailyGoal;
       }
 
+      // Format minutes based on unit setting (returns { value, unit, label })
+      function formatTimeByUnit(minutes) {
+        const unit = state.settings.dailyGoalUnit;
+        if (unit === 'hours') {
+          const hrs = Math.round(minutes / 6) / 10; // one decimal place
+          return { value: hrs, unit: hrs === 1 ? 'hr' : 'hrs', label: 'Hrs' };
+        }
+        return { value: minutes, unit: 'min', label: 'Min' };
+      }
+
       function updateBestStreak() {
         const current = calculateStreak();
         if (current > state.stats.bestStreak) {
@@ -1796,24 +1810,26 @@
         const sessions = state.stats.dailyCounts[today] || 0;
         const goal = getDailyGoal();
         const unit = state.settings.dailyGoalUnit;
+        const formatted = formatTimeByUnit(minutes);
 
         let pct;
-        let unitLabel;
+        let goalUnitLabel;
         if (unit === 'hours') {
           pct = Math.min(100, Math.round((minutes / (goal * 60)) * 100));
-          unitLabel = goal === 1 ? 'hr' : 'hrs';
+          goalUnitLabel = goal === 1 ? 'hr' : 'hrs';
         } else if (unit === 'pomodoros') {
           pct = Math.min(100, Math.round((sessions / goal) * 100));
-          unitLabel = goal === 1 ? 'pomodoro' : 'pomodoros';
+          goalUnitLabel = goal === 1 ? 'pomodoro' : 'pomodoros';
         } else {
           pct = Math.min(100, Math.round((minutes / goal) * 100));
-          unitLabel = 'min';
+          goalUnitLabel = 'min';
         }
 
-        todayMinutesEl.textContent = minutes;
+        todayMinutesEl.textContent = formatted.value;
+        todayMinutesUnit.textContent = formatted.unit;
         todaySessionsEl.textContent = sessions;
         dailyGoalEl.textContent = goal;
-        dailyGoalUnitLabel.textContent = unitLabel;
+        dailyGoalUnitLabel.textContent = goalUnitLabel;
         progressFill.style.width = pct + '%';
       }
 
@@ -1821,8 +1837,10 @@
         const week = getWeekData();
         const maxMin = Math.max(...week.map((d) => d.minutes), 1);
         const weekTotal = week.reduce((s, d) => s + d.minutes, 0);
+        const formatted = formatTimeByUnit(weekTotal);
 
-        weekTotalMin.textContent = weekTotal;
+        weekTotalMin.textContent = formatted.value;
+        weekTotalUnit.textContent = formatted.unit;
         chartBars.innerHTML = '';
 
         week.forEach((day) => {
@@ -1840,7 +1858,8 @@
           if (day.minutes > 0) {
             const val = document.createElement('span');
             val.className = 'chart-bar-value';
-            val.textContent = day.minutes;
+            const dayFormatted = formatTimeByUnit(day.minutes);
+            val.textContent = dayFormatted.value;
             bar.appendChild(val);
           }
 
@@ -1860,10 +1879,16 @@
         const today = todayKey();
         const sessions = state.stats.dailyCounts[today] || 0;
         const minutes = state.stats.dailyMinutes[today] || 0;
+        const weekMinutes = getWeekTotalMinutes();
 
-        statTodayMin.textContent = minutes;
+        const todayFormatted = formatTimeByUnit(minutes);
+        const weekFormatted = formatTimeByUnit(weekMinutes);
+
+        statTodayMin.textContent = todayFormatted.value;
+        statTodayMinLabel.textContent = todayFormatted.label + ' Today';
         statTodaySessions.textContent = sessions;
-        statWeekTotal.textContent = getWeekTotalMinutes();
+        statWeekTotal.textContent = weekFormatted.value;
+        statWeekTotalLabel.textContent = weekFormatted.label + ' This Week';
         updateBestStreak();
         statBestStreak.textContent = state.stats.bestStreak;
 
