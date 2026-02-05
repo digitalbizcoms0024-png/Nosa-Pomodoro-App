@@ -388,13 +388,18 @@
       width: 100%;
       max-width: 340px;
       margin-top: 8px;
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      transition: background var(--transition), box-shadow var(--transition);
+      animation: slideUp 400ms ease both;
     }
 
     .tasks-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 0;
       cursor: pointer;
       color: var(--text-secondary);
       font-size: 0.8125rem;
@@ -423,6 +428,7 @@
 
     .tasks-section.expanded .tasks-body {
       display: flex;
+      margin-top: 12px;
     }
 
     .task-input-row {
@@ -1374,7 +1380,7 @@
       <div class="dot" data-dot="3"></div>
     </div>
 
-    <div class="tasks-section" id="tasksSection">
+    <div class="tasks-section expanded" id="tasksSection">
       <div class="tasks-header" id="tasksHeader">
         <span>Tasks (<span id="taskCount">0</span>)</span>
         <svg class="tasks-toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
