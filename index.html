@@ -1841,11 +1841,13 @@
 
         todayMinutesEl.textContent = formatted.value;
         todayMinutesUnit.textContent = formatted.unit;
-        // Show hours on left side when unit is hours, otherwise show sessions
+        // Show value matching the selected unit under progress bar
         if (unit === 'hours') {
           todayDetailLeft.innerHTML = `<span>${formatted.value}</span> ${formatted.unit}`;
+        } else if (unit === 'pomodoros') {
+          todayDetailLeft.innerHTML = `<span>${sessions}</span> ${sessions === 1 ? 'pomodoro' : 'pomodoros'}`;
         } else {
-          todayDetailLeft.innerHTML = `<span id="todaySessions">${sessions}</span> sessions`;
+          todayDetailLeft.innerHTML = `<span>${minutes}</span> min`;
         }
         dailyGoalEl.textContent = goal;
         dailyGoalUnitLabel.textContent = goalUnitLabel;
