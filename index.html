@@ -356,6 +356,17 @@
 
     .btn-ghost:hover { color: var(--text); background: var(--surface); }
 
+    .btn-danger-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      padding: 8px 16px;
+      margin-top: 16px;
+      width: 100%;
+    }
+
+    .btn-danger-ghost:hover { color: #e74c3c; background: rgba(231, 76, 60, 0.1); }
+
     .hidden { display: none !important; }
 
     /* Session dots */
@@ -1370,6 +1381,7 @@
         </div>
         <div class="chart-bars" id="chartBars"></div>
       </div>
+      <button class="btn btn-danger-ghost" id="resetStatsBtn">Reset Stats</button>
     </div>
   </dialog>
 
@@ -1473,6 +1485,7 @@
       const leaderboardBtn = $('#leaderboardBtn');
       const statsDialog = $('#statsDialog');
       const closeStatsBtn = $('#closeStats');
+      const resetStatsBtn = $('#resetStatsBtn');
       const leaderboardDialog = $('#leaderboardDialog');
       const closeLeaderboardBtn = $('#closeLeaderboard');
       const celebrationContainer = $('#celebrationContainer');
@@ -1900,6 +1913,32 @@
 
         updateTodayProgress();
         updateWeeklyChart();
+      }
+
+      async function resetStats() {
+        if (!confirm('Are you sure you want to reset all stats? This cannot be undone.')) return;
+
+        state.stats = { totalPomodoros: 0, dailyCounts: {}, dailyMinutes: {}, bestStreak: 0 };
+        saveStats();
+
+        // Also clear Firestore if signed in
+        if (state.user) {
+          try {
+            const ref = fbDb.collection('users').doc(state.user.uid);
+            await ref.set({
+              displayName: state.user.displayName || '',
+              photoURL: state.user.photoURL || '',
+              totalMinutes: 0,
+              totalSessions: 0,
+              bestStreak: 0,
+              dailyCounts: {},
+              dailyMinutes: {},
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          } catch {}
+        }
+
+        updateStats();
       }
 
       function updateDocumentTitle() {
@@ -2410,6 +2449,7 @@
       statsBtn.addEventListener('click', openStatsDialog);
       leaderboardBtn.addEventListener('click', openLeaderboardDialog);
       closeStatsBtn.addEventListener('click', () => statsDialog.close());
+      resetStatsBtn.addEventListener('click', resetStats);
       closeLeaderboardBtn.addEventListener('click', () => leaderboardDialog.close());
       statsDialog.addEventListener('click', (e) => { if (e.target === statsDialog) statsDialog.close(); });
       leaderboardDialog.addEventListener('click', (e) => { if (e.target === leaderboardDialog) leaderboardDialog.close(); });
