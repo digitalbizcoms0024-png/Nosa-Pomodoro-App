@@ -182,42 +182,63 @@
       box-shadow: var(--shadow-sm);
     }
 
-    /* Page navigation */
-    .page-nav {
-      display: flex;
-      background: var(--surface);
-      border-radius: var(--radius-full);
-      padding: 4px;
-      box-shadow: var(--shadow-sm);
-      transition: background var(--transition), box-shadow var(--transition);
-      width: 100%;
-      max-width: 340px;
+    /* Active icon button (page nav highlight) */
+    .icon-btn.active { color: var(--primary); }
+
+    /* Tooltip for icon buttons */
+    .icon-btn[data-tooltip],
+    .theme-toggle-fixed[data-tooltip] {
+      position: relative;
     }
 
-    .page-tab {
-      flex: 1;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      font-size: 0.8125rem;
+    .icon-btn[data-tooltip]::after,
+    .theme-toggle-fixed[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text);
+      color: var(--bg);
+      font-size: 0.6875rem;
       font-weight: 600;
-      padding: 8px 4px;
-      border-radius: var(--radius-full);
-      cursor: pointer;
-      transition: background 300ms ease, color 300ms ease;
-      touch-action: manipulation;
+      padding: 4px 10px;
+      border-radius: 6px;
       white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 150ms ease;
+      z-index: 60;
     }
 
-    .page-tab:hover {
-      color: var(--text);
+    .icon-btn[data-tooltip]:hover::after,
+    .theme-toggle-fixed[data-tooltip]:hover::after {
+      opacity: 1;
     }
 
-    .page-tab.active {
-      background: var(--primary);
-      color: #fff;
-      box-shadow: var(--shadow-sm);
+    /* Fixed dark mode toggle */
+    .theme-toggle-fixed {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 50;
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: var(--surface);
+      color: var(--text-secondary);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow-md);
+      touch-action: manipulation;
     }
+
+    .theme-toggle-fixed:hover { color: var(--primary); box-shadow: var(--shadow-lg); }
+    .theme-toggle-fixed svg { width: 20px; height: 20px; }
 
     /* Page sections */
     .page-section {
@@ -585,6 +606,7 @@
       width: calc(100% - 32px);
       box-shadow: var(--shadow-lg);
       animation: slideUp 300ms ease;
+      margin: auto;
     }
 
     dialog::backdrop {
@@ -1011,16 +1033,18 @@
 
     @media (min-width: 480px) {
       .app { padding: 24px 24px 48px; gap: 28px; }
-      .page-section { gap: 28px; }
       .stat-card { padding: 16px 12px; }
       .stat-value { font-size: 1.75rem; }
       .chart-bars { height: 100px; }
     }
 
     @media (min-width: 768px) {
-      .app { padding: 32px 24px 56px; gap: 32px; }
-      .page-section { gap: 32px; }
+      .app { max-width: 560px; padding: 32px 24px 56px; gap: 32px; }
       .timer-container { width: 320px; height: 320px; }
+    }
+
+    @media (min-width: 1024px) {
+      .app { max-width: 640px; }
     }
   </style>
 </head>
@@ -1045,32 +1069,28 @@
           <svg viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18A10.96 10.96 0 0 0 1 12c0 1.77.42 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
           Sign In
         </button>
+        <button class="icon-btn hidden" id="statsBtn" aria-label="Stats" data-tooltip="Stats">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </button>
+        <button class="icon-btn hidden" id="leaderboardBtn" aria-label="Leaderboard" data-tooltip="Leaderboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 22V8a2 2 0 0 0-2-2H6v0a2 2 0 0 0-2 2v4a4 4 0 0 0 4 4h0"/><path d="M14 22V8a2 2 0 0 1 2-2h2v0a2 2 0 0 1 2 2v4a4 4 0 0 1-4 4h0"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="settingsBtn" aria-label="Open settings" data-tooltip="Settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
         <div class="hidden" id="userAvatarWrap" style="position:relative;">
           <button class="user-avatar-btn" id="userAvatarBtn" aria-label="Account menu" title="Account">
             <img id="userAvatarImg" src="" alt="" referrerpolicy="no-referrer">
           </button>
         </div>
-        <button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
-          <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-          </svg>
-          <svg id="moonIcon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-          </svg>
-        </button>
-        <button class="icon-btn" id="settingsBtn" aria-label="Open settings" title="Settings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-        </button>
       </div>
     </header>
-
-    <div class="page-nav hidden" id="pageNav">
-      <button class="page-tab active" data-page="timer">Timer</button>
-      <button class="page-tab" data-page="stats">Stats</button>
-      <button class="page-tab" data-page="leaderboard">Leaderboard</button>
-    </div>
 
     <div id="pageTimer" class="page-section">
     <div class="mode-tabs" role="tablist" aria-label="Timer mode">
@@ -1118,56 +1138,17 @@
     <div class="kbd-hint" aria-hidden="true">Space: start/pause &middot; R: reset &middot; Esc: close settings</div>
     </div>
 
-    <div id="pageStats" class="page-section hidden">
-    <div class="today-progress" id="todayProgress">
-      <div class="today-header">
-        <span class="today-title">Today's Progress</span>
-        <span class="today-summary"><strong id="todayMinutes">0</strong> min focused</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-      </div>
-      <div class="today-detail">
-        <span><span id="todaySessions">0</span> sessions</span>
-        <span>Goal: <span id="dailyGoal">100</span> min</span>
-      </div>
-    </div>
-
-    <div class="stats">
-      <div class="stat-card">
-        <div class="stat-value" id="statTodayMin">0</div>
-        <div class="stat-label">Min Today</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="statTodaySessions">0</div>
-        <div class="stat-label">Sessions</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="statWeekTotal">0</div>
-        <div class="stat-label">This Week</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value" id="statBestStreak">0</div>
-        <div class="stat-label">Best Streak</div>
-      </div>
-    </div>
-
-    <div class="weekly-chart" id="weeklyChart">
-      <div class="weekly-header">
-        <span class="weekly-title">This Week</span>
-        <span class="weekly-total"><strong id="weekTotalMin">0</strong> min total</span>
-      </div>
-      <div class="chart-bars" id="chartBars"></div>
-    </div>
-    </div>
-
-    <div id="pageLeaderboard" class="page-section hidden">
-    <div class="leaderboard" id="leaderboard">
-      <div class="leaderboard-title">Leaderboard</div>
-      <ul class="leaderboard-list" id="leaderboardList"></ul>
-    </div>
     </div>
   </div>
+
+  <button class="theme-toggle-fixed" id="themeToggle" aria-label="Toggle dark mode" data-tooltip="Dark mode">
+    <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+    <svg id="moonIcon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  </button>
 
   <dialog id="settingsDialog" aria-labelledby="settingsTitle">
     <div class="dialog-header">
@@ -1214,6 +1195,75 @@
         <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog id="statsDialog" aria-labelledby="statsTitle">
+    <div class="dialog-header">
+      <h2 id="statsTitle">Stats</h2>
+      <button class="icon-btn" id="closeStats" aria-label="Close stats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="today-progress" id="todayProgress">
+        <div class="today-header">
+          <span class="today-title">Today's Progress</span>
+          <span class="today-summary"><strong id="todayMinutes">0</strong> min focused</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div class="today-detail">
+          <span><span id="todaySessions">0</span> sessions</span>
+          <span>Goal: <span id="dailyGoal">100</span> min</span>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-value" id="statTodayMin">0</div>
+          <div class="stat-label">Min Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statTodaySessions">0</div>
+          <div class="stat-label">Sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statWeekTotal">0</div>
+          <div class="stat-label">This Week</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="statBestStreak">0</div>
+          <div class="stat-label">Best Streak</div>
+        </div>
+      </div>
+
+      <div class="weekly-chart" id="weeklyChart">
+        <div class="weekly-header">
+          <span class="weekly-title">This Week</span>
+          <span class="weekly-total"><strong id="weekTotalMin">0</strong> min total</span>
+        </div>
+        <div class="chart-bars" id="chartBars"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="leaderboardDialog" aria-labelledby="leaderboardTitle">
+    <div class="dialog-header">
+      <h2 id="leaderboardTitle">Leaderboard</h2>
+      <button class="icon-btn" id="closeLeaderboard" aria-label="Close leaderboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="leaderboard" id="leaderboard">
+        <ul class="leaderboard-list" id="leaderboardList"></ul>
+      </div>
+    </div>
   </dialog>
 
   <!-- Firebase SDK -->
@@ -1289,11 +1339,12 @@
       const weeklyChartEl = $('#weeklyChart');
       const leaderboardEl = $('#leaderboard');
       const leaderboardList = $('#leaderboardList');
-      const pageNav = $('#pageNav');
-      const pageTimer = $('#pageTimer');
-      const pageStats = $('#pageStats');
-      const pageLeaderboard = $('#pageLeaderboard');
-      const pageTabs = document.querySelectorAll('.page-tab');
+      const statsBtn = $('#statsBtn');
+      const leaderboardBtn = $('#leaderboardBtn');
+      const statsDialog = $('#statsDialog');
+      const closeStatsBtn = $('#closeStats');
+      const leaderboardDialog = $('#leaderboardDialog');
+      const closeLeaderboardBtn = $('#closeLeaderboard');
 
       // --- Default settings ---
       const DEFAULTS = {
@@ -1318,7 +1369,6 @@
         stats: { totalPomodoros: 0, dailyCounts: {}, dailyMinutes: {}, bestStreak: 0 },
         user: null, // Firebase user object
         userMenuOpen: false,
-        page: 'timer', // 'timer' | 'stats' | 'leaderboard'
       };
 
       // --- Storage ---
@@ -1622,15 +1672,17 @@
         }
       }
 
-      // --- Page switching ---
-      function switchPage(page) {
-        state.page = page;
-        pageTimer.classList.toggle('hidden', page !== 'timer');
-        pageStats.classList.toggle('hidden', page !== 'stats');
-        pageLeaderboard.classList.toggle('hidden', page !== 'leaderboard');
-        pageTabs.forEach((tab) => {
-          tab.classList.toggle('active', tab.dataset.page === page);
-        });
+      // --- Dialog openers for Stats / Leaderboard ---
+      function openStatsDialog() {
+        updateStats();
+        statsDialog.showModal();
+        statsBtn.classList.add('active');
+      }
+
+      function openLeaderboardDialog() {
+        loadLeaderboard();
+        leaderboardDialog.showModal();
+        leaderboardBtn.classList.add('active');
       }
 
       // --- Auth UI ---
@@ -1639,17 +1691,11 @@
         signInBtn.classList.toggle('hidden', loggedIn);
         userAvatarWrap.classList.toggle('hidden', !loggedIn);
         authPrompt.classList.toggle('hidden', loggedIn);
+        statsBtn.classList.toggle('hidden', !loggedIn);
+        leaderboardBtn.classList.toggle('hidden', !loggedIn);
         if (loggedIn) {
-          pageNav.classList.remove('hidden');
-          switchPage(state.page);
           userAvatarImg.src = state.user.photoURL || '';
           userAvatarImg.alt = state.user.displayName || '';
-        } else {
-          pageNav.classList.add('hidden');
-          state.page = 'timer';
-          pageTimer.classList.remove('hidden');
-          pageStats.classList.add('hidden');
-          pageLeaderboard.classList.add('hidden');
         }
       }
 
@@ -2107,12 +2153,15 @@
         }
       });
 
-      // --- Page tab event listeners ---
-      pageTabs.forEach((tab) => {
-        tab.addEventListener('click', () => {
-          switchPage(tab.dataset.page);
-        });
-      });
+      // --- Stats / Leaderboard dialog buttons ---
+      statsBtn.addEventListener('click', openStatsDialog);
+      leaderboardBtn.addEventListener('click', openLeaderboardDialog);
+      closeStatsBtn.addEventListener('click', () => statsDialog.close());
+      closeLeaderboardBtn.addEventListener('click', () => leaderboardDialog.close());
+      statsDialog.addEventListener('click', (e) => { if (e.target === statsDialog) statsDialog.close(); });
+      leaderboardDialog.addEventListener('click', (e) => { if (e.target === leaderboardDialog) leaderboardDialog.close(); });
+      statsDialog.addEventListener('close', () => statsBtn.classList.remove('active'));
+      leaderboardDialog.addEventListener('close', () => leaderboardBtn.classList.remove('active'));
 
       // --- Auth event listeners ---
       signInBtn.addEventListener('click', signInWithGoogle);
