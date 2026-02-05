@@ -271,14 +271,13 @@
     .timer-svg {
       width: 100%;
       height: 100%;
-      transform: rotate(-90deg);
+      transform: rotate(-90deg) scaleX(-1);
     }
 
     .ring-track {
       fill: none;
-      stroke: var(--ring-track);
+      stroke: #ffffff;
       stroke-width: 8;
-      transition: stroke var(--transition);
     }
 
     .ring-progress {
@@ -1956,8 +1955,7 @@
         const fraction = state.totalTime > 0
           ? state.timeRemaining / state.totalTime
           : 1;
-        // Negative offset makes it go clockwise (right)
-        const offset = -CIRCUMFERENCE * (1 - fraction);
+        const offset = CIRCUMFERENCE * (1 - fraction);
         progressRing.setAttribute('stroke-dashoffset', offset);
       }
 
