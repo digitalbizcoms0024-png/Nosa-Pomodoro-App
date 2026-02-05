@@ -1339,7 +1339,7 @@
           <div class="progress-fill" id="progressFill" style="width: 0%"></div>
         </div>
         <div class="today-detail">
-          <span><span id="todaySessions">0</span> sessions</span>
+          <span id="todayDetailLeft"><span id="todaySessions">0</span> sessions</span>
           <span>Goal: <span id="dailyGoal">100</span> <span id="dailyGoalUnitLabel">min</span></span>
         </div>
       </div>
@@ -1435,6 +1435,7 @@
       const todayMinutesEl = $('#todayMinutes');
       const todayMinutesUnit = $('#todayMinutesUnit');
       const todaySessionsEl = $('#todaySessions');
+      const todayDetailLeft = $('#todayDetailLeft');
       const progressFill = $('#progressFill');
       const dailyGoalEl = $('#dailyGoal');
       const dailyGoalUnitLabel = $('#dailyGoalUnitLabel');
@@ -1827,7 +1828,12 @@
 
         todayMinutesEl.textContent = formatted.value;
         todayMinutesUnit.textContent = formatted.unit;
-        todaySessionsEl.textContent = sessions;
+        // Show hours on left side when unit is hours, otherwise show sessions
+        if (unit === 'hours') {
+          todayDetailLeft.innerHTML = `<span>${formatted.value}</span> ${formatted.unit}`;
+        } else {
+          todayDetailLeft.innerHTML = `<span id="todaySessions">${sessions}</span> sessions`;
+        }
         dailyGoalEl.textContent = goal;
         dailyGoalUnitLabel.textContent = goalUnitLabel;
         progressFill.style.width = pct + '%';
@@ -1976,9 +1982,12 @@
         if (menu) menu.remove();
       }
 
+      let isNewSignIn = false; // Track fresh sign-ins vs page refreshes
+
       function signInWithGoogle() {
+        isNewSignIn = true; // Mark as fresh sign-in
         const provider = new firebase.auth.GoogleAuthProvider();
-        fbAuth.signInWithPopup(provider).catch(() => {});
+        fbAuth.signInWithPopup(provider).catch(() => { isNewSignIn = false; });
       }
 
       // --- Firestore Sync ---
@@ -2417,9 +2426,12 @@
         state.user = user;
         updateAuthUI();
         if (user) {
-          // On first sign-in: merge local stats into Firestore
-          await syncStatsToFirestore();
-          // Then pull the merged data back
+          if (isNewSignIn) {
+            // Only merge local stats on fresh sign-in, not page refresh
+            await syncStatsToFirestore();
+            isNewSignIn = false;
+          }
+          // Pull latest data from Firestore
           await pullStatsFromFirestore();
           updateStats();
           loadLeaderboard();
