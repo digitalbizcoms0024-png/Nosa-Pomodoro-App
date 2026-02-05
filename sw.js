@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pomodoro-v21';
+const CACHE_NAME = 'pomodoro-v22';
 const ASSETS = ['./', 'index.html', 'manifest.json'];
 
 self.addEventListener('install', (e) => {
