@@ -662,6 +662,33 @@
       border-color: var(--primary);
     }
 
+    .field select {
+      height: 42px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0 12px;
+      font-size: 1rem;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color 200ms ease;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .field select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .field-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .field-row .field {
+      flex: 1;
+    }
+
     .toggle-row {
       display: flex;
       align-items: center;
@@ -1258,6 +1285,20 @@
         <label for="longBreakInterval">Long Break Interval</label>
         <input type="number" id="longBreakInterval" min="2" max="10" value="4">
       </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="dailyGoalInput">Daily Goal</label>
+          <input type="number" id="dailyGoalInput" min="1" max="480" value="100">
+        </div>
+        <div class="field">
+          <label for="dailyGoalUnit">Unit</label>
+          <select id="dailyGoalUnit">
+            <option value="minutes">Minutes</option>
+            <option value="hours">Hours</option>
+            <option value="pomodoros">Pomodoros</option>
+          </select>
+        </div>
+      </div>
       <div class="toggle-row">
         <span>Auto-start next session</span>
         <label class="toggle">
@@ -1299,7 +1340,7 @@
         </div>
         <div class="today-detail">
           <span><span id="todaySessions">0</span> sessions</span>
-          <span>Goal: <span id="dailyGoal">100</span> min</span>
+          <span>Goal: <span id="dailyGoal">100</span> <span id="dailyGoalUnitLabel">min</span></span>
         </div>
       </div>
 
@@ -1395,6 +1436,7 @@
       const todaySessionsEl = $('#todaySessions');
       const progressFill = $('#progressFill');
       const dailyGoalEl = $('#dailyGoal');
+      const dailyGoalUnitLabel = $('#dailyGoalUnitLabel');
       const statTodayMin = $('#statTodayMin');
       const statTodaySessions = $('#statTodaySessions');
       const statWeekTotal = $('#statWeekTotal');
@@ -1438,6 +1480,8 @@
         longBreakInterval: 4,
         autoStart: false,
         soundEnabled: true,
+        dailyGoal: 100,
+        dailyGoalUnit: 'minutes', // 'minutes' | 'hours' | 'pomodoros'
       };
 
       // --- State ---
@@ -1735,7 +1779,7 @@
       }
 
       function getDailyGoal() {
-        return state.settings.focusDuration * state.settings.longBreakInterval;
+        return state.settings.dailyGoal;
       }
 
       function updateBestStreak() {
@@ -1751,11 +1795,25 @@
         const minutes = state.stats.dailyMinutes[today] || 0;
         const sessions = state.stats.dailyCounts[today] || 0;
         const goal = getDailyGoal();
-        const pct = Math.min(100, Math.round((minutes / goal) * 100));
+        const unit = state.settings.dailyGoalUnit;
+
+        let pct;
+        let unitLabel;
+        if (unit === 'hours') {
+          pct = Math.min(100, Math.round((minutes / (goal * 60)) * 100));
+          unitLabel = goal === 1 ? 'hr' : 'hrs';
+        } else if (unit === 'pomodoros') {
+          pct = Math.min(100, Math.round((sessions / goal) * 100));
+          unitLabel = goal === 1 ? 'pomodoro' : 'pomodoros';
+        } else {
+          pct = Math.min(100, Math.round((minutes / goal) * 100));
+          unitLabel = 'min';
+        }
 
         todayMinutesEl.textContent = minutes;
         todaySessionsEl.textContent = sessions;
         dailyGoalEl.textContent = goal;
+        dailyGoalUnitLabel.textContent = unitLabel;
         progressFill.style.width = pct + '%';
       }
 
@@ -2242,6 +2300,8 @@
         $('#breakDuration').value = state.settings.breakDuration;
         $('#longBreakDuration').value = state.settings.longBreakDuration;
         $('#longBreakInterval').value = state.settings.longBreakInterval;
+        $('#dailyGoalInput').value = state.settings.dailyGoal;
+        $('#dailyGoalUnit').value = state.settings.dailyGoalUnit;
         $('#autoStart').checked = state.settings.autoStart;
         $('#soundEnabled').checked = state.settings.soundEnabled;
         settingsDialog.showModal();
@@ -2256,6 +2316,8 @@
         state.settings.breakDuration = parseInt($('#breakDuration').value) || DEFAULTS.breakDuration;
         state.settings.longBreakDuration = parseInt($('#longBreakDuration').value) || DEFAULTS.longBreakDuration;
         state.settings.longBreakInterval = parseInt($('#longBreakInterval').value) || DEFAULTS.longBreakInterval;
+        state.settings.dailyGoal = parseInt($('#dailyGoalInput').value) || DEFAULTS.dailyGoal;
+        state.settings.dailyGoalUnit = $('#dailyGoalUnit').value || DEFAULTS.dailyGoalUnit;
         state.settings.autoStart = $('#autoStart').checked;
         state.settings.soundEnabled = $('#soundEnabled').checked;
         saveSettings();
