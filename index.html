@@ -1555,6 +1555,9 @@
     </div>
   </dialog>
 
+  <!-- Background Audio -->
+  <audio id="bgAudio" preload="none" crossorigin="anonymous"></audio>
+
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -1660,6 +1663,42 @@
         soundEnabled: true,
         dailyGoal: 100,
         dailyGoalUnit: 'minutes', // 'minutes' | 'hours' | 'pomodoros'
+        audioVolume: 70,
+        audioMuted: false,
+        audioCategory: 'lofi',
+        audioStationIndex: 0,
+      };
+
+      // --- Audio station data ---
+      const AUDIO_STATIONS = {
+        lofi: [
+          { name: 'Groove Salad', url: 'https://ice5.somafm.com/groovesalad-256-mp3', genre: 'Ambient/Downtempo' },
+          { name: 'Fluid', url: 'https://ice1.somafm.com/fluid-128-mp3', genre: 'Instrumental Hip Hop' },
+          { name: 'Illinois Street Lounge', url: 'https://ice1.somafm.com/illstreet-128-mp3', genre: 'Classic Lounge' },
+          { name: 'Lush', url: 'https://ice1.somafm.com/lush-128-mp3', genre: 'Lush Electronica' },
+        ],
+        ambient: [
+          { name: 'Drone Zone', url: 'https://ice5.somafm.com/dronezone-256-mp3', genre: 'Ambient Drone' },
+          { name: 'Deep Space One', url: 'https://ice1.somafm.com/deepspaceone-128-mp3', genre: 'Deep Ambient' },
+          { name: 'Space Station Soma', url: 'https://ice1.somafm.com/spacestation-128-mp3', genre: 'Space Music' },
+          { name: 'Mission Control', url: 'https://ice1.somafm.com/missioncontrol-128-mp3', genre: 'Downtempo Space' },
+        ],
+        nature: [
+          { name: 'Fluid (Organic)', url: 'https://ice1.somafm.com/fluid-128-mp3', genre: 'Organic Sounds' },
+          { name: 'Suburbs of Goa', url: 'https://ice1.somafm.com/suburbsofgoa-128-mp3', genre: 'Organic Trance' },
+        ],
+        binaural: [
+          { name: 'Drone Zone (Focus)', url: 'https://ice5.somafm.com/dronezone-256-mp3', genre: 'Focus Enhancement' },
+          { name: 'Deep Space One (Concentration)', url: 'https://ice1.somafm.com/deepspaceone-128-mp3', genre: 'Deep Focus' },
+          { name: 'Dark Zone', url: 'https://ice1.somafm.com/darkzone-256-mp3', genre: 'Dark Ambient' },
+        ],
+      };
+
+      const AUDIO_CATEGORY_LABELS = {
+        lofi: 'Lofi',
+        ambient: 'Ambient',
+        nature: 'Nature Sounds',
+        binaural: 'Focus Beats',
       };
 
       // --- State ---
@@ -1676,6 +1715,14 @@
         user: null, // Firebase user object
         userMenuOpen: false,
         tasks: [], // [{ id, title, completed }]
+        audio: {
+          isPlaying: false,
+          currentCategory: 'lofi',
+          currentStationIndex: 0,
+          volume: 0.7,
+          isMuted: false,
+          isExpanded: false,
+        },
       };
 
       // --- Storage ---
@@ -2537,6 +2584,178 @@
         updateModeIndicator();
       }
 
+      // --- Audio ---
+      let bgAudio = null;
+
+      function initAudio() {
+        bgAudio = document.getElementById('bgAudio');
+
+        // Restore audio settings
+        state.audio.volume = state.settings.audioVolume / 100;
+        state.audio.currentCategory = state.settings.audioCategory || 'lofi';
+        state.audio.currentStationIndex = state.settings.audioStationIndex || 0;
+        state.audio.isMuted = state.settings.audioMuted || false;
+
+        bgAudio.volume = state.audio.volume;
+        bgAudio.muted = state.audio.isMuted;
+
+        // Event listeners
+        bgAudio.addEventListener('error', handleAudioError);
+        bgAudio.addEventListener('play', () => {
+          state.audio.isPlaying = true;
+          updateAudioUI();
+        });
+        bgAudio.addEventListener('pause', () => {
+          state.audio.isPlaying = false;
+          updateAudioUI();
+        });
+        bgAudio.addEventListener('ended', () => {
+          nextAudioStation();
+        });
+      }
+
+      function handleAudioError(e) {
+        const errorCodes = {
+          1: 'Playback aborted',
+          2: 'Network error',
+          3: 'Decoding error',
+          4: 'Format not supported'
+        };
+        const error = bgAudio.error;
+        console.error('Audio error:', errorCodes[error?.code] || 'Unknown error');
+
+        if (error?.code === 2) {
+          // Network error - notify user
+          if (typeof sendNotification === 'function') {
+            sendNotification('Stream unavailable', 'Try another station');
+          }
+        }
+      }
+
+      function toggleAudioPlayback() {
+        if (!bgAudio) return;
+
+        if (bgAudio.paused) {
+          // Set source if not already set
+          if (!bgAudio.src) {
+            const station = getCurrentAudioStation();
+            if (station) {
+              bgAudio.src = station.url;
+            }
+          }
+          // Must call play() synchronously from user interaction
+          bgAudio.play().catch(err => {
+            console.error('Playback failed:', err);
+            if (err.name === 'NotAllowedError') {
+              console.warn('User interaction required to start audio');
+            }
+          });
+        } else {
+          bgAudio.pause();
+        }
+      }
+
+      function setAudioVolume(value) {
+        // value: 0-100
+        const normalizedVolume = Math.max(0, Math.min(100, value)) / 100;
+        state.audio.volume = normalizedVolume;
+        if (bgAudio) {
+          bgAudio.volume = normalizedVolume;
+        }
+        state.settings.audioVolume = value;
+        saveSettings();
+      }
+
+      function toggleAudioMute() {
+        if (!bgAudio) return;
+        bgAudio.muted = !bgAudio.muted;
+        state.audio.isMuted = bgAudio.muted;
+        state.settings.audioMuted = bgAudio.muted;
+        saveSettings();
+        updateAudioUI();
+      }
+
+      function switchAudioCategory(category) {
+        if (!AUDIO_STATIONS[category]) {
+          console.error('Invalid audio category:', category);
+          return;
+        }
+
+        const wasPlaying = state.audio.isPlaying;
+
+        state.audio.currentCategory = category;
+        state.audio.currentStationIndex = 0;
+        state.settings.audioCategory = category;
+        state.settings.audioStationIndex = 0;
+        saveSettings();
+
+        loadAudioStation();
+
+        if (wasPlaying) {
+          bgAudio.play().catch(err => console.error('Failed to play new category:', err));
+        }
+
+        updateAudioUI();
+      }
+
+      function nextAudioStation() {
+        const stations = AUDIO_STATIONS[state.audio.currentCategory];
+        if (!stations || stations.length === 0) return;
+
+        state.audio.currentStationIndex = (state.audio.currentStationIndex + 1) % stations.length;
+        state.settings.audioStationIndex = state.audio.currentStationIndex;
+        saveSettings();
+
+        loadAudioStation();
+      }
+
+      function prevAudioStation() {
+        const stations = AUDIO_STATIONS[state.audio.currentCategory];
+        if (!stations || stations.length === 0) return;
+
+        state.audio.currentStationIndex = (state.audio.currentStationIndex - 1 + stations.length) % stations.length;
+        state.settings.audioStationIndex = state.audio.currentStationIndex;
+        saveSettings();
+
+        loadAudioStation();
+      }
+
+      function loadAudioStation(station) {
+        if (!bgAudio) return;
+
+        if (!station) {
+          station = getCurrentAudioStation();
+        }
+
+        if (!station) {
+          console.error('No station to load');
+          return;
+        }
+
+        const wasPlaying = state.audio.isPlaying;
+
+        bgAudio.src = station.url;
+
+        if (wasPlaying) {
+          bgAudio.play().catch(err => console.error('Failed to load station:', err));
+        }
+
+        updateAudioUI();
+      }
+
+      function getCurrentAudioStation() {
+        const stations = AUDIO_STATIONS[state.audio.currentCategory];
+        if (!stations || stations.length === 0) return null;
+
+        const index = Math.min(state.audio.currentStationIndex, stations.length - 1);
+        return stations[index];
+      }
+
+      function updateAudioUI() {
+        // Stub for Plan 02 - UI controls will be added in next plan
+        // This prevents errors from event listeners that call it
+      }
+
       // --- Visibility change (catch-up on tab switch) ---
       document.addEventListener('visibilitychange', () => {
         if (!document.hidden && state.status === 'running') {
@@ -2719,6 +2938,8 @@
         state.mode = 'focus';
         state.totalTime = getDurationForMode('focus');
         state.timeRemaining = state.totalTime;
+
+        initAudio();
 
         updateAll();
 
