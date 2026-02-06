@@ -1,0 +1,83 @@
+# Requirements: Pomodoro Timer — Background Audio
+
+**Defined:** 2026-02-06
+**Core Value:** Background audio that helps users stay focused during pomodoro sessions, with zero friction to start.
+
+## v1 Requirements
+
+### Audio Playback
+
+- [x] **AUDIO-01**: User can play/pause background audio
+- [x] **AUDIO-02**: User can adjust background music volume
+- [x] **AUDIO-03**: User can mute/unmute background audio
+- [x] **AUDIO-04**: Audio player integrated into UI (no visible video player)
+- [ ] **AUDIO-05**: Music volume ducks automatically during timer chime alerts
+
+### Categories
+
+- [x] **CAT-01**: User can select from 4 audio categories (Lofi, Binaural Beats, Nature Sounds, Ambient)
+- [x] **CAT-02**: Each category has 3-5 curated streaming tracks
+- [x] **CAT-03**: Tracks auto-advance to next when one ends
+
+### UI
+
+- [x] **UI-01**: Audio controls appear as minimal indicator on main screen
+- [x] **UI-02**: Audio indicator expands to full controls on interaction
+
+## v2 Requirements
+
+### Timer Integration
+
+- **SYNC-01**: Audio auto-plays when focus timer starts
+- **SYNC-02**: Audio auto-pauses when break begins
+- **SYNC-03**: User can configure break audio behavior (keep playing vs pause)
+- **SYNC-04**: Separate volume slider for timer alerts vs music
+
+### Enhanced Playback
+
+- **PLAY-01**: Next/previous track buttons
+- **PLAY-02**: Remember last played category and track across sessions
+- **PLAY-03**: Per-category volume memory
+- **PLAY-04**: Fade in/out transitions on play/pause
+- **PLAY-05**: Shuffle within category
+
+### Enhanced UI
+
+- **EUI-01**: Audio panel matches light/dark theme and focus/break mode colors
+- **EUI-02**: Now-playing indicator shows track title
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| YouTube embeds | Visible 200x200px player requirement is intrusive |
+| Audio mixing/layering | High complexity, defer to future |
+| User-uploaded audio | Moderation and legal concerns |
+| Spotify/Apple Music integration | Requires OAuth, premium accounts, API costs |
+| Audio visualizer | Not core to productivity value |
+| Offline audio playback | Conflicts with streaming approach |
+| Complex equalizer | Overwhelming for a focus app |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| AUDIO-01 | Phase 1 | Complete |
+| AUDIO-02 | Phase 1 | Complete |
+| AUDIO-03 | Phase 1 | Complete |
+| AUDIO-04 | Phase 1 | Complete |
+| AUDIO-05 | Phase 2 | Pending |
+| CAT-01 | Phase 1 | Complete |
+| CAT-02 | Phase 1 | Complete |
+| CAT-03 | Phase 1 | Complete |
+| UI-01 | Phase 1 | Complete |
+| UI-02 | Phase 1 | Complete |
+
+**Coverage:**
+- v1 requirements: 10 total
+- Mapped to phases: 10
+- Unmapped: 0
+
+---
+*Requirements defined: 2026-02-06*
+*Last updated: 2026-02-06 after pivot from YouTube to streaming audio*

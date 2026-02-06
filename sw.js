@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pomodoro-v33';
+const CACHE_NAME = 'pomodoro-v36';
 const ASSETS = ['./', 'index.html', 'manifest.json'];
 
 self.addEventListener('install', (e) => {
@@ -18,6 +18,17 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  const url = e.request.url;
+
+  // Don't cache streaming audio URLs — they are continuous/infinite
+  const streamingDomains = ['somafm.com'];
+
+  if (streamingDomains.some(domain => url.includes(domain))) {
+    e.respondWith(fetch(e.request));
+    return;
+  }
+
+  // Cache-first for static assets
   e.respondWith(
     caches.match(e.request).then((cached) => cached || fetch(e.request))
   );
