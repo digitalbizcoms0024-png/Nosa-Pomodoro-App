@@ -35,14 +35,14 @@ Plans:
 **Requirements**: AUDIO-05
 **Success Criteria** (what must be TRUE):
   1. Music volume automatically ducks during timer chime alerts
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 02-01: TBD during planning
+- [ ] 02-01-PLAN.md — Volume ducking with smooth RAF fades during timer chimes
 
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Streaming Audio & Categories | 2/2 | Complete | 2026-02-06 |
-| 2. Polish & Integration | 0/? | Not started | - |
+| 2. Polish & Integration | 0/1 | Not started | - |
