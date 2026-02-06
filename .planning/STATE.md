@@ -5,33 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** Background audio that helps users stay focused during pomodoro sessions, with zero friction to start and smart timer integration.
-**Current focus:** Phase 1 - Streaming Audio & Categories
+**Current focus:** Phase 1 complete. Phase 2 (Polish & Integration) ready to plan.
 
 ## Current Position
 
-Phase: 1 of 2 (Streaming Audio & Categories)
-Plan: 1 of 2 (01-01 complete, 01-02 ready)
-Status: In progress
-Last activity: 2026-02-06 — Completed 01-01-PLAN.md
+Phase: 2 of 2 (Polish & Integration)
+Plan: 0 (not yet planned)
+Status: Ready to plan
+Last activity: 2026-02-06 — Completed Phase 1 (all 9 requirements met)
 
-Progress: [█░░░░░░░░░] 50% (phase 1: 1/2 plans)
+Progress: [█████░░░░░] 50% (1/2 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 2 min
-- Total execution time: 0.03 hours
+- Total plans completed: 2
+- Average duration: 2.5 min
+- Total execution time: 0.08 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 01-streaming-audio-and-categories | 1/2 | 2 min | 2 min |
+| 01-streaming-audio-and-categories | 2/2 | 5 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2m)
-- Trend: N/A (insufficient data)
+- Last 5 plans: 01-01 (2m), 01-02 (3m)
+- Trend: Stable
 
 *Updated after each plan completion*
 
@@ -53,6 +53,8 @@ Recent decisions affecting current work:
 - All audio.play() calls include .catch() for iOS Safari compatibility (01-01)
 - Nature category limited to 2 stations due to SomaFM's limited nature content (01-01)
 - Binaural category uses ambient/drone stations for focus enhancement (01-01)
+- Pulsing dot indicator for playing state when collapsed (01-02)
+- Dynamic category button generation from AUDIO_CATEGORY_LABELS data (01-02)
 
 ### Pending Todos
 
@@ -64,6 +66,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-06 (phase 1 execution)
-Stopped at: Completed 01-01-PLAN.md (audio engine)
-Resume file: .planning/phases/01-streaming-audio-and-categories/01-02-PLAN.md
+Last session: 2026-02-06 (phase 1 complete)
+Stopped at: Phase 1 fully executed and verified
+Next action: Plan Phase 2 (volume ducking during timer alerts)

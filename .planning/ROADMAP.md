@@ -6,7 +6,7 @@ This roadmap delivers background audio capabilities to the existing pomodoro tim
 
 ## Phases
 
-- [ ] **Phase 1: Streaming Audio & Categories** - HTML5 audio with category selection and UI controls
+- [x] **Phase 1: Streaming Audio & Categories** - HTML5 audio with category selection and UI controls
 - [ ] **Phase 2: Polish & Integration** - Volume ducking and refinements
 
 ## Phase Details
@@ -26,8 +26,8 @@ This roadmap delivers background audio capabilities to the existing pomodoro tim
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Audio engine, station data, and service worker update
-- [ ] 01-02-PLAN.md — Audio controls UI and app integration
+- [x] 01-01-PLAN.md — Audio engine, station data, and service worker update
+- [x] 01-02-PLAN.md — Audio controls UI and app integration
 
 ### Phase 2: Polish & Integration
 **Goal**: Audio integrates seamlessly with timer lifecycle and app theme
@@ -44,5 +44,5 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Streaming Audio & Categories | 0/2 | Not started | - |
+| 1. Streaming Audio & Categories | 2/2 | Complete | 2026-02-06 |
 | 2. Polish & Integration | 0/? | Not started | - |

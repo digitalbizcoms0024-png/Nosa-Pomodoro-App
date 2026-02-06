@@ -7,22 +7,22 @@
 
 ### Audio Playback
 
-- [ ] **AUDIO-01**: User can play/pause background audio
-- [ ] **AUDIO-02**: User can adjust background music volume
-- [ ] **AUDIO-03**: User can mute/unmute background audio
-- [ ] **AUDIO-04**: Audio player integrated into UI (no visible video player)
+- [x] **AUDIO-01**: User can play/pause background audio
+- [x] **AUDIO-02**: User can adjust background music volume
+- [x] **AUDIO-03**: User can mute/unmute background audio
+- [x] **AUDIO-04**: Audio player integrated into UI (no visible video player)
 - [ ] **AUDIO-05**: Music volume ducks automatically during timer chime alerts
 
 ### Categories
 
-- [ ] **CAT-01**: User can select from 4 audio categories (Lofi, Binaural Beats, Nature Sounds, Ambient)
-- [ ] **CAT-02**: Each category has 3-5 curated streaming tracks
-- [ ] **CAT-03**: Tracks auto-advance to next when one ends
+- [x] **CAT-01**: User can select from 4 audio categories (Lofi, Binaural Beats, Nature Sounds, Ambient)
+- [x] **CAT-02**: Each category has 3-5 curated streaming tracks
+- [x] **CAT-03**: Tracks auto-advance to next when one ends
 
 ### UI
 
-- [ ] **UI-01**: Audio controls appear as minimal indicator on main screen
-- [ ] **UI-02**: Audio indicator expands to full controls on interaction
+- [x] **UI-01**: Audio controls appear as minimal indicator on main screen
+- [x] **UI-02**: Audio indicator expands to full controls on interaction
 
 ## v2 Requirements
 
@@ -62,16 +62,16 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUDIO-01 | Phase 1 | Pending |
-| AUDIO-02 | Phase 1 | Pending |
-| AUDIO-03 | Phase 1 | Pending |
-| AUDIO-04 | Phase 1 | Pending |
+| AUDIO-01 | Phase 1 | Complete |
+| AUDIO-02 | Phase 1 | Complete |
+| AUDIO-03 | Phase 1 | Complete |
+| AUDIO-04 | Phase 1 | Complete |
 | AUDIO-05 | Phase 2 | Pending |
-| CAT-01 | Phase 1 | Pending |
-| CAT-02 | Phase 1 | Pending |
-| CAT-03 | Phase 1 | Pending |
-| UI-01 | Phase 1 | Pending |
-| UI-02 | Phase 1 | Pending |
+| CAT-01 | Phase 1 | Complete |
+| CAT-02 | Phase 1 | Complete |
+| CAT-03 | Phase 1 | Complete |
+| UI-01 | Phase 1 | Complete |
+| UI-02 | Phase 1 | Complete |
 
 **Coverage:**
 - v1 requirements: 10 total
