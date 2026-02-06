@@ -23,10 +23,11 @@ This roadmap delivers background audio capabilities to the existing pomodoro tim
   5. Audio controls appear as minimal indicator that expands to full controls
   6. Tracks auto-advance when one ends
   7. No visible video player — audio only
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: TBD during planning
+- [ ] 01-01-PLAN.md — Audio engine, station data, and service worker update
+- [ ] 01-02-PLAN.md — Audio controls UI and app integration
 
 ### Phase 2: Polish & Integration
 **Goal**: Audio integrates seamlessly with timer lifecycle and app theme
@@ -43,5 +44,5 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Streaming Audio & Categories | 0/? | Not started | - |
+| 1. Streaming Audio & Categories | 0/2 | Not started | - |
 | 2. Polish & Integration | 0/? | Not started | - |
