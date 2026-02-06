@@ -20,10 +20,10 @@ This roadmap delivers background audio capabilities to the existing pomodoro tim
   1. User can play and pause background audio
   2. YouTube player is visible on screen (compact, ToS compliant)
   3. Audio continues playing during focus sessions
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 01-01: TBD during planning
+- [ ] 01-01-PLAN.md — YouTube player integration with play/pause and visible player
 
 ### Phase 2: Categories & Controls
 **Goal**: Users can select from curated playlists and control playback
