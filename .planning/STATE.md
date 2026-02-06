@@ -10,28 +10,29 @@ See: .planning/PROJECT.md (updated 2026-02-06)
 ## Current Position
 
 Phase: 2 of 2 (Polish & Integration)
-Plan: 0 (not yet planned)
-Status: Ready to plan
-Last activity: 2026-02-06 — Completed Phase 1 (all 9 requirements met)
+Plan: 1 of 1 (volume ducking)
+Status: Phase complete — ALL PHASES COMPLETE
+Last activity: 2026-02-06 — Completed 02-01-PLAN.md (volume ducking during timer alerts)
 
-Progress: [█████░░░░░] 50% (1/2 phases complete)
+Progress: [██████████] 100% (2/2 phases complete, 3/3 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 2.5 min
-- Total execution time: 0.08 hours
+- Total plans completed: 3
+- Average duration: 2.3 min
+- Total execution time: 0.12 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-streaming-audio-and-categories | 2/2 | 5 min | 2.5 min |
+| 02-polish-and-integration | 1/1 | 2 min | 2.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (2m), 01-02 (3m)
-- Trend: Stable
+- Last 5 plans: 01-01 (2m), 01-02 (3m), 02-01 (2m)
+- Trend: Stable, efficient execution
 
 *Updated after each plan completion*
 
@@ -55,6 +56,9 @@ Recent decisions affecting current work:
 - Binaural category uses ambient/drone stations for focus enhancement (01-01)
 - Pulsing dot indicator for playing state when collapsed (01-02)
 - Dynamic category button generation from AUDIO_CATEGORY_LABELS data (01-02)
+- Duck to 20% of current volume (relative, not absolute) to preserve user's preferred level (02-01)
+- Exponential easing for volume fades (1 - 2^(-10*t)) for natural audio perception (02-01)
+- Manual volume changes during ducking cancel the duck to respect user intent (02-01)
 
 ### Pending Todos
 
@@ -66,6 +70,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-06 (phase 1 complete)
-Stopped at: Phase 1 fully executed and verified
-Next action: Plan Phase 2 (volume ducking during timer alerts)
+Last session: 2026-02-06 (all phases complete)
+Stopped at: Completed 02-01-PLAN.md (volume ducking during timer alerts)
+Next action: Background audio feature is production-ready — all AUDIO requirements (01-05) implemented
