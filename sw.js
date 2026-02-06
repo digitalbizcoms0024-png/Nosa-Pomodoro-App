@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pomodoro-v34';
+const CACHE_NAME = 'pomodoro-v33';
 const ASSETS = ['./', 'index.html', 'manifest.json'];
 
 self.addEventListener('install', (e) => {
@@ -18,17 +18,6 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-  const url = new URL(e.request.url);
-
-  // Never cache YouTube/Google Video domains
-  if (url.hostname.includes('youtube.com') ||
-      url.hostname.includes('youtube-nocookie.com') ||
-      url.hostname.includes('googlevideo.com') ||
-      url.hostname.includes('ytimg.com')) {
-    e.respondWith(fetch(e.request));
-    return;
-  }
-
   e.respondWith(
     caches.match(e.request).then((cached) => cached || fetch(e.request))
   );
