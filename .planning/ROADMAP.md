@@ -57,6 +57,6 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Audio Foundation | 0/? | Not started | - |
+| 1. Audio Foundation | 0/1 | Planned | - |
 | 2. Categories & Controls | 0/? | Not started | - |
 | 3. Polish & Integration | 0/? | Not started | - |
