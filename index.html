@@ -1303,6 +1303,48 @@
     @media (min-width: 1024px) {
       .app { max-width: 640px; }
     }
+
+    /* --- Audio --- */
+    .youtube-player-wrapper {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 200px;
+      height: 200px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+      z-index: 100;
+      transition: opacity 0.3s ease;
+    }
+
+    .youtube-player-wrapper.visible {
+      display: block;
+    }
+
+    .youtube-player-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .audio-toggle {
+      position: relative;
+    }
+
+    .audio-toggle.active {
+      color: var(--primary);
+    }
+
+    @media (max-width: 480px) {
+      .youtube-player-wrapper {
+        bottom: 70px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+      }
+    }
   </style>
 </head>
 <body>
@@ -1372,6 +1414,16 @@
       <button class="btn btn-primary" id="startBtn">Start</button>
       <button class="btn btn-secondary hidden" id="pauseBtn">Pause</button>
       <button class="btn btn-ghost" id="resetBtn">Reset</button>
+      <button class="icon-btn audio-toggle" id="audioToggle" aria-label="Toggle background audio" data-tooltip="Background audio">
+        <svg class="audio-icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
+        </svg>
+        <svg class="audio-icon-on hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+        </svg>
+      </button>
     </div>
 
     <div class="session-dots" id="sessionDots" aria-label="Session progress">
@@ -1424,6 +1476,8 @@
   </button>
 
   <div id="celebrationContainer"></div>
+
+  <div id="youtube-player-container" class="youtube-player-wrapper"></div>
 
   <dialog id="settingsDialog" aria-labelledby="settingsTitle">
     <div class="dialog-header">
@@ -1586,6 +1640,7 @@
         stats: 'pomodoro-stats',
         theme: 'pomodoro-theme',
         tasks: 'pomodoro-tasks',
+        audio: 'pomodoro-audio',
       };
       const CONFETTI_COLORS = ['#e74c3c', '#f39c12', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c', '#e91e63'];
 
@@ -1649,6 +1704,10 @@
       const addTaskBtn = $('#addTaskBtn');
       const taskList = $('#taskList');
       const taskCount = $('#taskCount');
+      const audioToggle = $('#audioToggle');
+      const audioIconOff = $('.audio-icon-off');
+      const audioIconOn = $('.audio-icon-on');
+      const youtubePlayerWrapper = $('.youtube-player-wrapper');
 
       // --- Default settings ---
       const DEFAULTS = {
@@ -1676,6 +1735,12 @@
         user: null, // Firebase user object
         userMenuOpen: false,
         tasks: [], // [{ id, title, completed }]
+        audio: {
+          enabled: false,
+          playing: false,
+          volume: 50,
+          currentVideoId: 'jfKfPfyJRdk',
+        },
       };
 
       // --- Storage ---
@@ -1721,6 +1786,153 @@
 
       function saveTasks() {
         localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(state.tasks));
+      }
+
+      // --- Audio ---
+      function loadAudioSettings() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.audio);
+          if (raw) {
+            const saved = JSON.parse(raw);
+            state.audio.enabled = saved.enabled ?? false;
+            state.audio.volume = saved.volume ?? 50;
+          }
+        } catch {}
+      }
+
+      function saveAudioSettings() {
+        localStorage.setItem(STORAGE_KEYS.audio, JSON.stringify({
+          enabled: state.audio.enabled,
+          volume: state.audio.volume,
+        }));
+      }
+
+      // --- YouTube Player ---
+      let youtubePlayer = null;
+      let youtubeAPIReady = false;
+      let youtubeInitQueue = [];
+
+      // CRITICAL: Global callback bridge for IIFE
+      window.onYouTubeIframeAPIReady = function() {
+        youtubeAPIReady = true;
+        while (youtubeInitQueue.length > 0) {
+          const initFn = youtubeInitQueue.shift();
+          initFn();
+        }
+      };
+
+      function loadYouTubeAPI() {
+        if (window.YT || document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+          if (window.YT && window.YT.Player) {
+            youtubeAPIReady = true;
+          }
+          return;
+        }
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      }
+
+      function initYouTubePlayer() {
+        if (!youtubeAPIReady) {
+          youtubeInitQueue.push(initYouTubePlayer);
+          return;
+        }
+        if (youtubePlayer) return;
+
+        youtubePlayer = new YT.Player('youtube-player-container', {
+          height: '200',
+          width: '200',
+          videoId: state.audio.currentVideoId,
+          playerVars: {
+            autoplay: 0,
+            controls: 1,
+            disablekb: 1,
+            fs: 0,
+            modestbranding: 1,
+            playsinline: 1,
+            rel: 0,
+            enablejsapi: 1,
+          },
+          events: {
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange,
+            onError: onPlayerError,
+          },
+        });
+      }
+
+      function onPlayerReady(event) {
+        event.target.setVolume(state.audio.volume);
+        // If user had already clicked play before player was ready, start playing
+        if (state.audio.playing) {
+          event.target.playVideo();
+        }
+      }
+
+      function onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.PLAYING) {
+          state.audio.playing = true;
+          updateAudioUI();
+        } else if (event.data === YT.PlayerState.PAUSED) {
+          state.audio.playing = false;
+          updateAudioUI();
+        } else if (event.data === YT.PlayerState.ENDED) {
+          // For Phase 1, just replay the same video (loop)
+          if (youtubePlayer && typeof youtubePlayer.seekTo === 'function') {
+            youtubePlayer.seekTo(0);
+            youtubePlayer.playVideo();
+          }
+        }
+      }
+
+      function onPlayerError(event) {
+        console.error('YouTube player error:', event.data);
+        state.audio.playing = false;
+        updateAudioUI();
+      }
+
+      function toggleAudio() {
+        if (!state.audio.enabled) {
+          // First time enabling audio: load API and init player
+          state.audio.enabled = true;
+          saveAudioSettings();
+          loadYouTubeAPI();
+          initYouTubePlayer();
+          youtubePlayerWrapper.classList.add('visible');
+          // Set playing intent — player will start when ready
+          state.audio.playing = true;
+          updateAudioUI();
+        } else if (state.audio.playing) {
+          // Pause
+          if (youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
+            youtubePlayer.pauseVideo();
+          }
+          state.audio.playing = false;
+          updateAudioUI();
+        } else {
+          // Resume
+          if (youtubePlayer && typeof youtubePlayer.playVideo === 'function') {
+            youtubePlayer.playVideo();
+          }
+          state.audio.playing = true;
+          // Show player wrapper in case it was hidden
+          youtubePlayerWrapper.classList.add('visible');
+          updateAudioUI();
+        }
+      }
+
+      function updateAudioUI() {
+        if (state.audio.playing) {
+          audioIconOff.classList.add('hidden');
+          audioIconOn.classList.remove('hidden');
+          audioToggle.classList.add('active');
+        } else {
+          audioIconOff.classList.remove('hidden');
+          audioIconOn.classList.add('hidden');
+          audioToggle.classList.remove('active');
+        }
       }
 
       function addTask() {
@@ -2548,6 +2760,7 @@
       startBtn.addEventListener('click', start);
       pauseBtn.addEventListener('click', pause);
       resetBtn.addEventListener('click', reset);
+      audioToggle.addEventListener('click', toggleAudio);
 
       // Mode tabs
       modeTabs.forEach((tab) => {
@@ -2712,6 +2925,12 @@
         loadStats();
         loadTasks();
         renderTasks();
+        loadAudioSettings();
+        if (state.audio.enabled) {
+          loadYouTubeAPI();
+          initYouTubePlayer();
+          youtubePlayerWrapper.classList.add('visible');
+        }
 
         const theme = loadTheme();
         root.dataset.theme = theme;
