@@ -1966,6 +1966,12 @@
         binaural: 'Focus Beats',
       };
 
+      // --- Audio ducking constants ---
+      const DUCK_RATIO = 0.2;          // Duck to 20% of current volume
+      const DUCK_FADE_DOWN_MS = 100;   // Quick fade down when chime starts
+      const DUCK_FADE_UP_MS = 300;     // Slower fade up after chime ends
+      const DUCK_DELAY_MS = 800;       // Restore after chime completes (chime is 0.7s + buffer)
+
       // --- State ---
       const state = {
         mode: 'focus', // 'focus' | 'break' | 'longbreak'
@@ -2163,6 +2169,10 @@
 
       function playChime(type) {
         if (!state.settings.soundEnabled) return;
+
+        // Duck background audio before chime
+        duckBackgroundAudio();
+
         try {
           const ctx = getAudioCtx();
           const now = ctx.currentTime;
@@ -2852,6 +2862,14 @@
       // --- Audio ---
       let bgAudio = null;
 
+      // Ducking state
+      let duckingState = {
+        originalVolume: null,
+        isActive: false,
+        restoreTimerId: null,
+        fadeAnimationId: null
+      };
+
       function initAudio() {
         bgAudio = document.getElementById('bgAudio');
 
@@ -2946,6 +2964,9 @@
       }
 
       function setAudioVolume(value) {
+        // Cancel ducking if user changes volume manually
+        cancelDucking();
+
         // value: 0-100
         const normalizedVolume = Math.max(0, Math.min(100, value)) / 100;
         state.audio.volume = normalizedVolume;
@@ -3039,6 +3060,109 @@
 
         const index = Math.min(state.audio.currentStationIndex, stations.length - 1);
         return stations[index];
+      }
+
+      // --- Audio ducking functions ---
+      /**
+       * Smoothly transition audio volume over time
+       * @param {number} targetVolume - Target volume (0.0 to 1.0)
+       * @param {number} durationMs - Fade duration in milliseconds
+       */
+      function fadeVolumeTo(targetVolume, durationMs) {
+        if (!bgAudio || bgAudio.paused) return;
+
+        // Cancel any ongoing fade
+        if (duckingState.fadeAnimationId) {
+          cancelAnimationFrame(duckingState.fadeAnimationId);
+        }
+
+        const startVolume = bgAudio.volume;
+        const startTime = performance.now();
+
+        function animate(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / durationMs, 1);
+
+          // Exponential easing (ease-out) for natural sound
+          const easedProgress = 1 - Math.pow(2, -10 * progress);
+
+          // Interpolate volume
+          const currentVolume = startVolume + (targetVolume - startVolume) * easedProgress;
+          bgAudio.volume = Math.max(0, Math.min(1, currentVolume));
+
+          if (progress < 1) {
+            duckingState.fadeAnimationId = requestAnimationFrame(animate);
+          } else {
+            duckingState.fadeAnimationId = null;
+          }
+        }
+
+        duckingState.fadeAnimationId = requestAnimationFrame(animate);
+      }
+
+      /**
+       * Duck background audio volume when timer chime plays
+       */
+      function duckBackgroundAudio() {
+        // Skip if audio isn't playing
+        if (!bgAudio || bgAudio.paused) return;
+
+        // Skip if already ducking
+        if (duckingState.isActive) return;
+
+        // Store original volume
+        duckingState.originalVolume = bgAudio.volume;
+        duckingState.isActive = true;
+
+        // Duck to 20% of current volume
+        const duckedVolume = duckingState.originalVolume * DUCK_RATIO;
+        fadeVolumeTo(duckedVolume, DUCK_FADE_DOWN_MS);
+
+        // Schedule restoration after chime completes
+        duckingState.restoreTimerId = setTimeout(() => {
+          restoreBackgroundAudio();
+        }, DUCK_DELAY_MS);
+      }
+
+      /**
+       * Restore background audio volume after chime finishes
+       */
+      function restoreBackgroundAudio() {
+        if (!duckingState.isActive) return;
+
+        // Restore to original volume
+        if (duckingState.originalVolume !== null) {
+          fadeVolumeTo(duckingState.originalVolume, DUCK_FADE_UP_MS);
+        }
+
+        // Reset state
+        duckingState.originalVolume = null;
+        duckingState.isActive = false;
+        duckingState.restoreTimerId = null;
+      }
+
+      /**
+       * Cancel ducking if user manually changes volume
+       * Call this from volume slider event handler
+       */
+      function cancelDucking() {
+        if (!duckingState.isActive) return;
+
+        // Cancel scheduled restoration
+        if (duckingState.restoreTimerId) {
+          clearTimeout(duckingState.restoreTimerId);
+          duckingState.restoreTimerId = null;
+        }
+
+        // Cancel ongoing fade animation
+        if (duckingState.fadeAnimationId) {
+          cancelAnimationFrame(duckingState.fadeAnimationId);
+          duckingState.fadeAnimationId = null;
+        }
+
+        // Reset state
+        duckingState.originalVolume = null;
+        duckingState.isActive = false;
       }
 
       function updateAudioUI() {
