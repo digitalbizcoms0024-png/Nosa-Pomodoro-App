@@ -7,7 +7,7 @@ This roadmap delivers background audio capabilities to the existing pomodoro tim
 ## Phases
 
 - [x] **Phase 1: Streaming Audio & Categories** - HTML5 audio with category selection and UI controls
-- [ ] **Phase 2: Polish & Integration** - Volume ducking and refinements
+- [x] **Phase 2: Polish & Integration** - Volume ducking and refinements
 
 ## Phase Details
 
@@ -38,11 +38,13 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 02-01-PLAN.md — Volume ducking with smooth RAF fades during timer chimes
+- [x] 02-01-PLAN.md — Volume ducking with smooth RAF fades during timer chimes
 
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Streaming Audio & Categories | 2/2 | Complete | 2026-02-06 |
-| 2. Polish & Integration | 0/1 | Not started | - |
+| 2. Polish & Integration | 1/1 | Complete | 2026-02-06 |
+
+**🎉 ALL PHASES COMPLETE — Background audio feature ready for production**
