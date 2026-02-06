@@ -10,13 +10,13 @@
 - [ ] **AUDIO-01**: User can play/pause background audio
 - [ ] **AUDIO-02**: User can adjust background music volume
 - [ ] **AUDIO-03**: User can mute/unmute background audio
-- [ ] **AUDIO-04**: YouTube player visible on screen (compact, ToS compliant)
+- [ ] **AUDIO-04**: Audio player integrated into UI (no visible video player)
 - [ ] **AUDIO-05**: Music volume ducks automatically during timer chime alerts
 
 ### Categories
 
 - [ ] **CAT-01**: User can select from 4 audio categories (Lofi, Binaural Beats, Nature Sounds, Ambient)
-- [ ] **CAT-02**: Each category has 3-5 curated YouTube tracks
+- [ ] **CAT-02**: Each category has 3-5 curated streaming tracks
 - [ ] **CAT-03**: Tracks auto-advance to next when one ends
 
 ### UI
@@ -50,8 +50,8 @@
 
 | Feature | Reason |
 |---------|--------|
-| Self-hosted audio files | Streaming from YouTube keeps app lightweight |
-| Audio mixing/layering | High complexity with YouTube embeds |
+| YouTube embeds | Visible 200x200px player requirement is intrusive |
+| Audio mixing/layering | High complexity, defer to future |
 | User-uploaded audio | Moderation and legal concerns |
 | Spotify/Apple Music integration | Requires OAuth, premium accounts, API costs |
 | Audio visualizer | Not core to productivity value |
@@ -63,15 +63,15 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AUDIO-01 | Phase 1 | Pending |
-| AUDIO-02 | Phase 2 | Pending |
-| AUDIO-03 | Phase 2 | Pending |
+| AUDIO-02 | Phase 1 | Pending |
+| AUDIO-03 | Phase 1 | Pending |
 | AUDIO-04 | Phase 1 | Pending |
-| AUDIO-05 | Phase 3 | Pending |
-| CAT-01 | Phase 2 | Pending |
-| CAT-02 | Phase 2 | Pending |
-| CAT-03 | Phase 2 | Pending |
-| UI-01 | Phase 2 | Pending |
-| UI-02 | Phase 2 | Pending |
+| AUDIO-05 | Phase 2 | Pending |
+| CAT-01 | Phase 1 | Pending |
+| CAT-02 | Phase 1 | Pending |
+| CAT-03 | Phase 1 | Pending |
+| UI-01 | Phase 1 | Pending |
+| UI-02 | Phase 1 | Pending |
 
 **Coverage:**
 - v1 requirements: 10 total
@@ -80,4 +80,4 @@
 
 ---
 *Requirements defined: 2026-02-06*
-*Last updated: 2026-02-06 after roadmap creation*
+*Last updated: 2026-02-06 after pivot from YouTube to streaming audio*

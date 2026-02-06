@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-06)
 
 **Core value:** Background audio that helps users stay focused during pomodoro sessions, with zero friction to start and smart timer integration.
-**Current focus:** Phase 1 - Audio Foundation
+**Current focus:** Phase 1 - Streaming Audio & Categories
 
 ## Current Position
 
-Phase: 1 of 3 (Audio Foundation)
-Plan: 01-01 planned (ready to execute)
-Status: Ready to execute
-Last activity: 2026-02-06 — Phase 1 planned (1 plan, 1 wave)
+Phase: 1 of 2 (Streaming Audio & Categories)
+Plan: Not yet planned (needs /gsd:plan-phase 1 --research)
+Status: Ready to plan
+Last activity: 2026-02-06 — Pivoted from YouTube to free streaming audio; reverted YouTube commits, updated docs, collapsed roadmap to 2 phases
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -42,10 +42,11 @@ Progress: [░░░░░░░░░░] 0%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- YouTube embeds chosen for audio (free, huge library, no hosting costs)
+- Free streaming URLs (SomaFM etc.) chosen for audio — no visible player needed, multiple categories, free
 - Minimal + expandable UI pattern (keeps timer screen clean)
 - Pause on break by default (breaks feel distinct from focus)
 - Separate volume controls (timer alerts audible even with loud music)
+- YouTube embeds rejected — visible 200x200px player requirement is intrusive
 
 ### Pending Todos
 
@@ -57,6 +58,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-06 (phase 1 planning)
-Stopped at: Phase 1 planned, ready for execution
-Resume file: .planning/phases/01-audio-foundation/01-01-PLAN.md
+Last session: 2026-02-06 (pivot from YouTube to streaming audio)
+Stopped at: Docs updated, ready to plan Phase 1 with new streaming approach
+Resume file: N/A (old plan deleted, new plan needed)
