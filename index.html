@@ -1942,27 +1942,17 @@
         dailyGoalUnit: 'minutes', // 'minutes' | 'hours' | 'pomodoros'
         audioVolume: 70,
         audioMuted: false,
-        audioCategory: 'lofi',
+        audioCategory: 'ambient',
         audioStationIndex: 0,
       };
 
       // --- Audio station data ---
       const AUDIO_STATIONS = {
-        lofi: [
-          { name: 'Groove Salad', url: 'https://ice5.somafm.com/groovesalad-256-mp3', genre: 'Ambient/Downtempo' },
-          { name: 'Fluid', url: 'https://ice1.somafm.com/fluid-128-mp3', genre: 'Instrumental Hip Hop' },
-          { name: 'Illinois Street Lounge', url: 'https://ice1.somafm.com/illstreet-128-mp3', genre: 'Classic Lounge' },
-          { name: 'Lush', url: 'https://ice1.somafm.com/lush-128-mp3', genre: 'Lush Electronica' },
-        ],
         ambient: [
           { name: 'Drone Zone', url: 'https://ice5.somafm.com/dronezone-256-mp3', genre: 'Ambient Drone' },
           { name: 'Deep Space One', url: 'https://ice1.somafm.com/deepspaceone-128-mp3', genre: 'Deep Ambient' },
           { name: 'Space Station Soma', url: 'https://ice1.somafm.com/spacestation-128-mp3', genre: 'Space Music' },
           { name: 'Mission Control', url: 'https://ice1.somafm.com/missioncontrol-128-mp3', genre: 'Downtempo Space' },
-        ],
-        nature: [
-          { name: 'Fluid (Organic)', url: 'https://ice1.somafm.com/fluid-128-mp3', genre: 'Organic Sounds' },
-          { name: 'Suburbs of Goa', url: 'https://ice1.somafm.com/suburbsofgoa-128-mp3', genre: 'Organic Trance' },
         ],
         binaural: [
           { name: 'Drone Zone (Focus)', url: 'https://ice5.somafm.com/dronezone-256-mp3', genre: 'Focus Enhancement' },
@@ -1972,9 +1962,7 @@
       };
 
       const AUDIO_CATEGORY_LABELS = {
-        lofi: 'Lofi',
         ambient: 'Ambient',
-        nature: 'Nature Sounds',
         binaural: 'Focus Beats',
       };
 
@@ -1994,7 +1982,7 @@
         tasks: [], // [{ id, title, completed }]
         audio: {
           isPlaying: false,
-          currentCategory: 'lofi',
+          currentCategory: 'ambient',
           currentStationIndex: 0,
           volume: 0.7,
           isMuted: false,
@@ -2869,7 +2857,12 @@
 
         // Restore audio settings
         state.audio.volume = state.settings.audioVolume / 100;
-        state.audio.currentCategory = state.settings.audioCategory || 'lofi';
+        state.audio.currentCategory = state.settings.audioCategory || 'ambient';
+        // Fallback if saved category no longer exists
+        if (!AUDIO_STATIONS[state.audio.currentCategory]) {
+          state.audio.currentCategory = 'ambient';
+          state.audio.currentStationIndex = 0;
+        }
         state.audio.currentStationIndex = state.settings.audioStationIndex || 0;
         state.audio.isMuted = state.settings.audioMuted || false;
 

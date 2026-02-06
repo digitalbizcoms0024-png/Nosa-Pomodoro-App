@@ -58,7 +58,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-1. **Fix lofi and nature category station curation** — Current stations don't match category labels (SomaFM limitation). See `.planning/todos/pending/2026-02-06-fix-lofi-nature-station-curation.md`
+None.
 
 ### Blockers/Concerns
 
