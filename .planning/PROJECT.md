@@ -1,12 +1,31 @@
-# Pomodoro Timer — Background Audio
+# Pomodoro Timer — Monetization
 
 ## What This Is
 
-A pomodoro timer PWA (pomodorotimer.vip) with background audio for focus sessions. Users can choose from curated SomaFM streaming stations across 2 categories (Ambient, Focus Beats) with an expandable controls panel. Music volume automatically ducks during timer chime alerts.
+A pomodoro timer PWA (pomodorotimer.vip) with background audio, now adding a premium subscription model. Stripe-powered payments with 3 tiers ($2/month, $15/year, $47 lifetime), 7-day free trial, and 11 premium features including Projects, Smart Insights, Focus Forecast, automation rules, and more. Backend powered by Firebase Cloud Functions.
 
 ## Core Value
 
-Background audio that helps users stay focused during pomodoro sessions, with zero friction to start and smart timer integration.
+A seamless upgrade path from free to premium that feels valuable — users should hit the trial wall wanting to pay, not feeling nickeled.
+
+## Current Milestone: v2.0 Monetization
+
+**Goal:** Add Stripe-powered subscription payments with premium feature gating and 11 premium features.
+
+**Target features:**
+- Stripe integration (3 pricing tiers + 7-day free trial)
+- Feature gating framework with backend verification
+- Projects (project-based task organization)
+- Smart Insights (best focus times, productivity score)
+- Focus Forecast (predict next week's output)
+- Project analytics (time per project, trends)
+- Yearly productivity report
+- CSV + PDF export
+- Todoist import
+- Webhook triggers after focus sessions
+- Automation rules (if-this-then-that)
+- Custom themes + focus sounds
+- No ads ever (premium guarantee)
 
 ## Requirements
 
@@ -35,7 +54,21 @@ Background audio that helps users stay focused during pomodoro sessions, with ze
 
 ### Active
 
-(None — next milestone requirements TBD)
+- [ ] Stripe payment integration (monthly/yearly/lifetime tiers)
+- [ ] 7-day free trial with expiry gating
+- [ ] Firebase Cloud Functions for Stripe webhooks and subscription verification
+- [ ] Feature gating framework (premium vs free)
+- [ ] Project-based task organization
+- [ ] Smart Insights (best focus times, productivity score)
+- [ ] Focus Forecast (predict next week's output based on history)
+- [ ] Project analytics (time per project, trends)
+- [ ] Yearly productivity report
+- [ ] CSV + PDF report export
+- [ ] Todoist task import
+- [ ] Webhook triggers after completed focus sessions
+- [ ] Automation rules (simple if-this-then-that logic)
+- [ ] Custom themes + focus sounds
+- [ ] Ad-free guarantee for premium users
 
 ### Out of Scope
 
@@ -55,12 +88,17 @@ Background audio that helps users stay focused during pomodoro sessions, with ze
 - App deployed on GitHub Pages (pomodorotimer.vip)
 - Service worker excludes streaming domains from cache
 - Shipped v1.0: background audio with 2 categories and volume ducking
+- Firebase Auth (Google Sign-In) and Firestore already integrated
+- Firestore stores user stats at `users/{uid}` — will extend for subscription data
+- v2.0 introduces backend (Firebase Cloud Functions) for Stripe webhook handling
 
 ## Constraints
 
-- **Tech stack**: Vanilla HTML/CSS/JS only — no frameworks, no build tools
-- **Single file**: All code stays in `index.html` (established pattern)
-- **No dependencies**: Native HTML5 `<audio>` element — no external API scripts
+- **Frontend tech stack**: Vanilla HTML/CSS/JS only — no frameworks, no build tools
+- **Single file**: All frontend code stays in `index.html` (established pattern)
+- **Backend**: Firebase Cloud Functions (Node.js) — keeps ecosystem unified
+- **Payments**: Stripe only — Checkout for payment flow, webhooks for verification
+- **Security**: Subscription status verified server-side, cached client-side
 - **Streaming only**: No audio file hosting — uses free streaming URLs (SomaFM, etc.)
 - **CORS/Mixed content**: Stream URLs must be HTTPS and allow cross-origin playback
 
@@ -77,6 +115,10 @@ Background audio that helps users stay focused during pomodoro sessions, with ze
 | Duck to 20% with exponential easing | Natural sound perception, chime clearly audible | ✓ Good |
 | Manual volume changes cancel ducking | Respects user intent over automation | ✓ Good |
 | iOS Safari .catch() on all play() calls | Prevents NotAllowedError crashes | ✓ Good |
+| Firebase Cloud Functions for backend | Unified ecosystem with existing Firebase Auth/Firestore | — Pending |
+| Stripe for payments | Industry standard, good docs, handles PCI compliance | — Pending |
+| 3 pricing tiers ($2/mo, $15/yr, $47 lifetime) | Covers all buyer types, lifetime creates urgency | — Pending |
+| 7-day free trial | Low friction entry, enough time to experience premium value | — Pending |
 
 ---
-*Last updated: 2026-02-07 after v1.0 milestone*
+*Last updated: 2026-02-07 after v2.0 milestone start*

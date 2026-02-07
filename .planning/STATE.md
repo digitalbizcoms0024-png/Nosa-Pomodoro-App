@@ -4,22 +4,22 @@
 
 See: .planning/PROJECT.md (updated 2026-02-07)
 
-**Core value:** Background audio that helps users stay focused during pomodoro sessions, with zero friction to start and smart timer integration.
-**Current focus:** v1.0 complete. Planning next milestone.
+**Core value:** A seamless upgrade path from free to premium that feels valuable — users should hit the trial wall wanting to pay, not feeling nickeled.
+**Current focus:** v2.0 Monetization — defining requirements
 
 ## Current Position
 
-Phase: All complete
-Plan: N/A
-Status: Milestone v1.0 shipped
-Last activity: 2026-02-07 — v1.0 Background Audio milestone complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-07 — Milestone v2.0 started
 
-Progress: [██████████] 100% (v1.0 shipped)
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
+- Total plans completed: 3 (from v1.0)
 - Average duration: 2.3 min
 - Total execution time: 0.12 hours
 
@@ -44,10 +44,12 @@ None.
 
 ### Blockers/Concerns
 
-None.
+- Firebase Cloud Functions requires Blaze (pay-as-you-go) plan — user needs to upgrade Firebase project
+- Stripe account needed with API keys
+- PCI compliance handled by Stripe Checkout (no card data touches our code)
 
 ## Session Continuity
 
-Last session: 2026-02-07 (v1.0 milestone complete)
-Stopped at: Milestone v1.0 archived and tagged
-Next action: /gsd:new-milestone to start next version
+Last session: 2026-02-07 (v2.0 milestone started)
+Stopped at: Defining requirements for monetization
+Next action: Complete research → requirements → roadmap
