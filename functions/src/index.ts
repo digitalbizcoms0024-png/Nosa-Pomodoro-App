@@ -4,3 +4,4 @@
 export { stripeWebhook } from './stripe/webhooks.js';
 export { createCheckoutSession } from './stripe/checkout.js';
 export { createPortalSession } from './stripe/portal.js';
+export { verifySubscription } from './stripe/verify-subscription.js';
