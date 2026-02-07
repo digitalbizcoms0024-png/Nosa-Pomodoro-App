@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A pomodoro timer PWA (pomodorotimer.vip) adding background audio for focus sessions. Users can choose from curated playlists of lofi hip hop, binaural beats, nature sounds, and ambient music — streamed from free internet radio services — that syncs with the timer automatically.
+A pomodoro timer PWA (pomodorotimer.vip) with background audio for focus sessions. Users can choose from curated SomaFM streaming stations across 2 categories (Ambient, Focus Beats) with an expandable controls panel. Music volume automatically ducks during timer chime alerts.
 
 ## Core Value
 
@@ -23,23 +23,24 @@ Background audio that helps users stay focused during pomodoro sessions, with ze
 - ✓ Desktop notifications on timer completion — existing
 - ✓ Keyboard shortcuts (Space, R, Esc) — existing
 - ✓ Configurable daily goals with unit selection — existing
+- ✓ Audio category selection (Ambient, Focus Beats) — v1.0
+- ✓ Curated streaming stations per category (SomaFM) — v1.0
+- ✓ Free streaming audio via HTML5 `<audio>` element — v1.0
+- ✓ Minimal audio indicator that expands to full controls — v1.0
+- ✓ Volume controls for background audio — v1.0
+- ✓ Audio mute/unmute toggle — v1.0
+- ✓ Audio preference persistence (category, station, volume, mute) — v1.0
+- ✓ Station switching within categories (prev/next) — v1.0
+- ✓ Volume ducking during timer chime alerts — v1.0
 
 ### Active
 
-- [ ] Audio category selection (Lofi, Binaural Beats, Nature, Ambient)
-- [ ] Curated playlists per category (3-5 tracks each)
-- [ ] Free streaming audio (SomaFM, etc.)
-- [ ] Minimal audio indicator on main screen that expands to full controls
-- [ ] Separate volume controls for background audio vs timer alerts
-- [ ] Smart timer sync: auto-play on focus start, pause on break
-- [ ] User can override break pause behavior
-- [ ] Audio preference persistence (last played category/track)
-- [ ] Track switching within a playlist
+(None — next milestone requirements TBD)
 
 ### Out of Scope
 
 - YouTube embeds — visible player requirement (200x200px min) is intrusive for a timer app
-- Audio mixing/layering (e.g., lofi + rain simultaneously) — adds complexity, defer
+- Audio mixing/layering (e.g., ambient + rain simultaneously) — adds complexity, defer
 - User-uploaded audio — moderation and storage concerns
 - Spotify/Apple Music integration — requires OAuth, premium accounts, API costs
 - Audio visualization/equalizer — not core to productivity value
@@ -47,12 +48,13 @@ Background audio that helps users stay focused during pomodoro sessions, with ze
 
 ## Context
 
-- Single-file architecture: all HTML/CSS/JS in `index.html` (~2700 lines)
+- Single-file architecture: all HTML/CSS/JS in `index.html` (~3,449 lines)
 - No build tools, no frameworks — vanilla JS only
-- Already uses Web Audio API for timer chime sounds
-- HTML5 Audio API with free streaming URLs (SomaFM, etc.)
+- Web Audio API for timer chime sounds
+- HTML5 Audio API with SomaFM streaming URLs
 - App deployed on GitHub Pages (pomodorotimer.vip)
-- No external API scripts needed — native `<audio>` element handles streaming
+- Service worker excludes streaming domains from cache
+- Shipped v1.0: background audio with 2 categories and volume ducking
 
 ## Constraints
 
@@ -66,11 +68,15 @@ Background audio that helps users stay focused during pomodoro sessions, with ze
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Free streaming URLs (SomaFM etc.) | No visible player needed, multiple categories available, free | — Accepted |
-| Minimal + expandable UI | Keeps timer screen clean, audio is secondary to timer | — Pending |
-| Pause on break by default | Breaks should feel distinct from focus sessions | — Pending |
-| Separate volume controls | Timer alerts must be audible even with loud music | — Pending |
-| Curated playlists not single streams | Gives users choice within each category | — Pending |
+| Free streaming URLs (SomaFM etc.) | No visible player needed, multiple categories available, free | ✓ Good |
+| Minimal + expandable UI | Keeps timer screen clean, audio is secondary to timer | ✓ Good |
+| Separate volume controls | Timer alerts must be audible even with loud music | ✓ Good |
+| Curated stations not single streams | Gives users choice within each category | ✓ Good |
+| Reduced to 2 categories (Ambient, Focus Beats) | SomaFM lacks dedicated lofi/nature content | ✓ Good |
+| Hidden `<audio>` element with custom JS controls | No native player chrome, full control over UI | ✓ Good |
+| Duck to 20% with exponential easing | Natural sound perception, chime clearly audible | ✓ Good |
+| Manual volume changes cancel ducking | Respects user intent over automation | ✓ Good |
+| iOS Safari .catch() on all play() calls | Prevents NotAllowedError crashes | ✓ Good |
 
 ---
-*Last updated: 2026-02-06 after pivot from YouTube to streaming audio*
+*Last updated: 2026-02-07 after v1.0 milestone*
