@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** A seamless upgrade path from free to premium that feels valuable -- users should hit the trial wall wanting to pay, not feeling nickeled.
-**Current focus:** v2.0 Monetization -- Phase 3 (Payment Infrastructure & Feature Gating)
+**Current focus:** v2.0 Monetization -- Phase 3 Complete, ready for Phase 4
 
 ## Current Position
 
-Phase: 3 of 7 (Payment Infrastructure & Feature Gating)
-Plan: 2 of 4 complete
-Status: In progress
-Last activity: 2026-02-07 -- Completed 03-02-PLAN.md (Callable Cloud Functions for checkout & verification)
+Phase: 3 of 7 (Payment Infrastructure & Feature Gating) -- COMPLETE
+Plan: 3 of 3 complete
+Status: Phase complete
+Last activity: 2026-02-07 -- Completed 03-03-PLAN.md (Frontend pricing UI & feature gating)
 
-Progress: [##░░░░░░░░] 20% (2/7 phases complete from v1.0, 2/4 plans in Phase 3)
+Progress: [###░░░░░░░] 30% (3/7 phases complete, Phase 3 done)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 2.4 min
-- Total execution time: 0.21 hours
+- Total plans completed: 6
+- Average duration: 2.5 min
+- Total execution time: 0.25 hours
 
 **By Phase:**
 
@@ -29,7 +29,7 @@ Progress: [##░░░░░░░░] 20% (2/7 phases complete from v1.0, 2/4 p
 |-------|-------|-------|----------|
 | 01-streaming-audio-and-categories | 2/2 | 5 min | 2.5 min |
 | 02-polish-and-integration | 1/1 | 2 min | 2.0 min |
-| 03-payment-infrastructure-and-feature-gating | 2/4 | 5 min | 2.5 min |
+| 03-payment-infrastructure-and-feature-gating | 3/3 | 10 min | 3.3 min |
 
 *Updated after each plan completion*
 
@@ -50,6 +50,8 @@ Recent decisions affecting current work:
 - 7-day trial only for subscription mode (monthly/yearly), not lifetime purchases
 - All onCall functions reject unauthenticated requests with HttpsError
 - Portal requires existing customerId in Firestore (stored by webhook)
+- addEventListener inside IIFE instead of inline onclick handlers (scoping)
+- <dialog> elements for pricing page and upgrade prompt modals
 
 ### Pending Todos
 
@@ -62,11 +64,11 @@ None.
 - Stripe products need to be created for 3 pricing tiers -- priceIds required for frontend
 - Webhook secret only available AFTER Cloud Function is deployed (chicken-egg: deploy with placeholder, then update)
 - Webhook endpoint URL must be added to Stripe Dashboard after first deployment
-- Frontend needs priceIds stored in env vars or constants to call checkout function
+- Frontend STRIPE_PRICES config has placeholder values -- must replace with real price IDs
 
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed 03-02-PLAN.md (Callable Cloud Functions for checkout & verification)
+Stopped at: Completed Phase 3 (all 3 plans done)
 Resume file: None
-Next action: Execute 03-03-PLAN.md (Frontend payment UI integration) or wait for user to complete Firebase/Stripe setup
+Next action: Plan and execute Phase 4 (Data Foundation & Projects) via /gsd:plan-phase 4
