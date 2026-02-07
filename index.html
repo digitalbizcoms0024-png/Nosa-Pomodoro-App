@@ -3199,6 +3199,30 @@
         }
       }
 
+      async function saveProjectsToFirestore() {
+        if (!state.user) return;
+        const uid = state.user.uid;
+        try {
+          await fbDb.collection('users').doc(uid).set({
+            projects: state.projects,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        } catch {}
+      }
+
+      async function loadProjectsFromFirestore() {
+        if (!state.user) return;
+        const uid = state.user.uid;
+        try {
+          const doc = await fbDb.collection('users').doc(uid).get();
+          if (doc.exists) {
+            const data = doc.data();
+            state.projects = data.projects || [];
+            saveProjects(); // Cache locally
+          }
+        } catch {}
+      }
+
       // --- Leaderboard ---
       async function loadLeaderboard() {
         if (!state.user) return;
@@ -3324,6 +3348,10 @@
         if (state.status === 'idle') {
           state.totalTime = getDurationForMode(state.mode);
           state.timeRemaining = state.totalTime;
+
+          // Capture session start time and current task for analytics
+          state.sessionStartTime = Date.now();
+          state.currentTaskId = state.tasks.find(t => !t.completed)?.id || null;
         }
 
         state.endTime = Date.now() + state.timeRemaining * 1000;
@@ -3375,7 +3403,7 @@
 
           playChime('focus');
           sendNotification('Pomodoro Complete!', 'Time for a break.');
-          updateFirestoreOnComplete().then(() => loadLeaderboard());
+          recordSessionData().then(() => loadLeaderboard());
 
           // Show celebration for first pomodoro of the day
           if (isFirstOfDay) {
@@ -3970,6 +3998,7 @@
           }
           // Pull latest data from Firestore
           await pullStatsFromFirestore();
+          await loadProjectsFromFirestore();
           updateStats();
           loadLeaderboard();
         } else {
@@ -3985,6 +4014,7 @@
         loadSettings();
         loadStats();
         loadTasks();
+        loadProjects();
         renderTasks();
 
         const theme = loadTheme();
