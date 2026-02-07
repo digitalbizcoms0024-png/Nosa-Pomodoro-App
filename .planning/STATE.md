@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 3 of 7 (Payment Infrastructure & Feature Gating)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-07 -- Roadmap created for v2.0 Monetization
+Plan: 1 of 4 complete
+Status: In progress
+Last activity: 2026-02-07 -- Completed 03-01-PLAN.md (Firebase Cloud Functions & Stripe webhooks)
 
-Progress: [##░░░░░░░░] 20% (2/7 phases complete from v1.0)
+Progress: [##░░░░░░░░] 20% (2/7 phases complete from v1.0, 1/4 plans in Phase 3)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3 (from v1.0)
-- Average duration: 2.3 min
-- Total execution time: 0.12 hours
+- Total plans completed: 4
+- Average duration: 2.8 min
+- Total execution time: 0.19 hours
 
 **By Phase:**
 
@@ -29,6 +29,7 @@ Progress: [##░░░░░░░░] 20% (2/7 phases complete from v1.0)
 |-------|-------|-------|----------|
 | 01-streaming-audio-and-categories | 2/2 | 5 min | 2.5 min |
 | 02-polish-and-integration | 1/1 | 2 min | 2.0 min |
+| 03-payment-infrastructure-and-feature-gating | 1/4 | 4 min | 4.0 min |
 
 *Updated after each plan completion*
 
@@ -42,6 +43,10 @@ Recent decisions affecting current work:
 - Firebase Cloud Functions v2 (Node.js 22) for backend -- unified ecosystem
 - Stripe Checkout redirect mode -- zero payment UI to build
 - 3 pricing tiers ($2/mo, $15/yr, $47 lifetime) with 7-day trial
+- Stripe API version 2025-02-24.acacia (latest stable)
+- Idempotency via stripe_events/{event.id} Firestore collection
+- Return 200 to Stripe immediately, process events asynchronously
+- Store firebaseUid in subscription.metadata for reverse webhook lookups
 
 ### Pending Todos
 
@@ -49,12 +54,15 @@ None.
 
 ### Blockers/Concerns
 
-- Firebase Cloud Functions requires Blaze (pay-as-you-go) plan -- user needs to upgrade Firebase project
-- Stripe account needed with API keys configured
-- CORS setup for GitHub Pages + Cloud Functions needs validation during Phase 3
+- Firebase Cloud Functions requires Blaze (pay-as-you-go) plan -- user needs to upgrade Firebase project (REQUIRED BEFORE DEPLOYMENT)
+- Stripe account needed with API keys configured (REQUIRED BEFORE DEPLOYMENT)
+- Webhook secret only available AFTER Cloud Function is deployed (chicken-egg: deploy with placeholder, then update)
+- CORS configuration needed when frontend calls checkout session creation endpoint (Plan 02)
+- Webhook endpoint URL must be added to Stripe Dashboard after first deployment
 
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Roadmap created for v2.0 Monetization (5 phases, 33 requirements)
-Next action: `/gsd:plan-phase 3` to plan Payment Infrastructure & Feature Gating
+Stopped at: Completed 03-01-PLAN.md (Firebase Cloud Functions & Stripe webhook handler)
+Resume file: None
+Next action: Execute 03-02-PLAN.md (Create checkout sessions) or wait for user to complete Firebase/Stripe setup
