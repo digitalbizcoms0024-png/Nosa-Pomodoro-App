@@ -37,7 +37,11 @@
   3. Free user who taps a premium feature sees an upgrade prompt with pricing comparison, not a broken UI or error
   4. Subscription status persists across page reloads and devices -- verified server-side, not just client-cached
   5. User with an expired trial or failed payment loses access to premium features (grace period for past_due)
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+  - [ ] 03-01-PLAN.md — Firebase Cloud Functions setup + Stripe webhook handler
+  - [ ] 03-02-PLAN.md — Checkout, Portal, and subscription verification functions
+  - [ ] 03-03-PLAN.md — Client-side pricing UI, upgrade prompts, and feature gating
 
 ### Phase 4: Data Foundation & Projects
 **Goal**: Users can organize work into projects with per-session data recording, establishing the data layer that powers all analytics and export features.
@@ -93,7 +97,7 @@ Phases execute in numeric order: 3 -> 4 -> 5 -> 6 -> 7
 |-------|-----------|----------------|--------|-----------|
 | 1. Streaming Audio & Categories | v1.0 | 2/2 | Complete | 2026-02-06 |
 | 2. Polish & Integration | v1.0 | 1/1 | Complete | 2026-02-06 |
-| 3. Payment Infrastructure & Feature Gating | v2.0 | 0/TBD | Not started | - |
+| 3. Payment Infrastructure & Feature Gating | v2.0 | 0/3 | Planned | - |
 | 4. Data Foundation & Projects | v2.0 | 0/TBD | Not started | - |
 | 5. Premium Personalization & Export | v2.0 | 0/TBD | Not started | - |
 | 6. Analytics Suite | v2.0 | 0/TBD | Not started | - |
