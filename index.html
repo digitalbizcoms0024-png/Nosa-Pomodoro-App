@@ -2361,6 +2361,14 @@
       const taskList = $('#taskList');
       const taskCount = $('#taskCount');
 
+      // Project UI refs
+      const projectDialog = $('#projectDialog');
+      const projectForm = $('#projectForm');
+      const projectNameInput = $('#projectNameInput');
+      const projectSelect = $('#projectSelect');
+      const manageProjectsDialog = $('#manageProjectsDialog');
+      const projectListManage = $('#projectListManage');
+
       // Audio UI refs
       const audioIndicatorEl = $('#audioIndicator');
       const audioTogglePanelBtn = $('#audioTogglePanel');
@@ -2519,6 +2527,7 @@
           id: Date.now().toString(),
           title,
           completed: false,
+          projectId: state.activeProjectId || null,
         });
         saveTasks();
         taskInput.value = '';
@@ -2541,27 +2550,147 @@
       }
 
       function renderTasks() {
-        taskCount.textContent = state.tasks.filter(t => !t.completed).length;
+        // Filter tasks if premium user has active project
+        let tasksToShow = state.tasks;
+        if (isPremium() && state.activeProjectId) {
+          tasksToShow = state.tasks.filter(t => t.projectId === state.activeProjectId);
+        }
+
+        taskCount.textContent = tasksToShow.filter(t => !t.completed).length;
         taskList.innerHTML = '';
 
-        if (state.tasks.length === 0) {
+        if (tasksToShow.length === 0) {
           taskList.innerHTML = '<li class="tasks-empty">No tasks yet</li>';
           return;
         }
 
         // Sort: incomplete first, then completed
-        const sorted = [...state.tasks].sort((a, b) => a.completed - b.completed);
+        const sorted = [...tasksToShow].sort((a, b) => a.completed - b.completed);
 
         sorted.forEach(task => {
           const li = document.createElement('li');
           li.className = 'task-item' + (task.completed ? ' completed' : '');
+
+          // Add project badge if task has a project and we're not filtering
+          const project = task.projectId ? state.projects.find(p => p.id === task.projectId) : null;
+          const projectLabel = (project && !state.activeProjectId) ? `<span class="task-project-badge">${project.name.replace(/</g, '&lt;')}</span>` : '';
+
           li.innerHTML = `
             <input type="checkbox" class="task-checkbox" data-id="${task.id}" ${task.completed ? 'checked' : ''}>
             <span class="task-text">${task.title.replace(/</g, '&lt;')}</span>
+            ${projectLabel}
             <button class="task-delete" data-id="${task.id}">remove</button>
           `;
           taskList.appendChild(li);
         });
+      }
+
+      // --- Project Management ---
+
+      function renderProjectDropdown() {
+        projectSelect.innerHTML = '<option value="">All Tasks</option>';
+
+        // Sort projects alphabetically
+        const sorted = [...state.projects].sort((a, b) => a.name.localeCompare(b.name));
+
+        sorted.forEach(project => {
+          const option = document.createElement('option');
+          option.value = project.id;
+          option.textContent = project.name;
+          if (project.id === state.activeProjectId) {
+            option.selected = true;
+          }
+          projectSelect.appendChild(option);
+        });
+      }
+
+      function renderManageProjectsList() {
+        projectListManage.innerHTML = '';
+
+        if (state.projects.length === 0) {
+          projectListManage.innerHTML = '<li style="padding:16px;text-align:center;color:var(--text-secondary);">No projects yet</li>';
+          return;
+        }
+
+        state.projects.forEach(project => {
+          const li = document.createElement('li');
+          li.className = 'project-item';
+          li.innerHTML = `
+            <span class="project-name">${project.name.replace(/</g, '&lt;')}</span>
+            <button class="btn-icon" data-action="edit" data-id="${project.id}" aria-label="Edit project">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+            <button class="btn-icon" data-action="delete" data-id="${project.id}" aria-label="Delete project">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          `;
+          projectListManage.appendChild(li);
+        });
+      }
+
+      function createProject(name) {
+        if (!requirePremium('Projects')) return;
+        if (state.projects.length >= 100) {
+          alert('Maximum 100 projects');
+          return;
+        }
+
+        state.projects.push({
+          id: crypto.randomUUID(),
+          name: name.trim(),
+          createdAt: Date.now()
+        });
+
+        saveProjects();
+        saveProjectsToFirestore();
+        renderProjectDropdown();
+        renderManageProjectsList();
+      }
+
+      function renameProject(projectId, newName) {
+        if (!requirePremium('Projects')) return;
+
+        const project = state.projects.find(p => p.id === projectId);
+        if (project) {
+          project.name = newName.trim();
+          saveProjects();
+          saveProjectsToFirestore();
+          renderProjectDropdown();
+          renderManageProjectsList();
+        }
+      }
+
+      function deleteProject(projectId) {
+        if (!requirePremium('Projects')) return;
+        if (!confirm('Delete this project? Tasks will be unassigned.')) return;
+
+        // Unassign tasks from this project
+        state.tasks.forEach(t => {
+          if (t.projectId === projectId) {
+            t.projectId = null;
+          }
+        });
+
+        // Remove project
+        state.projects = state.projects.filter(p => p.id !== projectId);
+
+        // Clear active project if it's the deleted one
+        if (state.activeProjectId === projectId) {
+          state.activeProjectId = null;
+        }
+
+        saveProjects();
+        saveTasks();
+        saveProjectsToFirestore();
+        renderProjectDropdown();
+        renderTasks();
+        renderManageProjectsList();
       }
 
       // --- Helpers ---
@@ -3325,6 +3454,7 @@
             const data = doc.data();
             state.projects = data.projects || [];
             saveProjects(); // Cache locally
+            renderProjectDropdown(); // Update dropdown when cloud data loads
           }
         } catch {}
       }
@@ -4051,6 +4181,66 @@
         }
       });
 
+      // --- Project event listeners ---
+      projectSelect.addEventListener('change', (e) => {
+        state.activeProjectId = e.target.value || null;
+        renderTasks();
+      });
+
+      document.getElementById('manageProjectsBtn').addEventListener('click', () => {
+        if (!requirePremium('Projects')) return;
+        renderManageProjectsList();
+        manageProjectsDialog.showModal();
+      });
+
+      document.getElementById('closeManageProjectsBtn').addEventListener('click', () => manageProjectsDialog.close());
+      manageProjectsDialog.querySelector('.dialog-close').addEventListener('click', () => manageProjectsDialog.close());
+      manageProjectsDialog.addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) manageProjectsDialog.close();
+      });
+
+      projectListManage.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'edit') {
+          const project = state.projects.find(p => p.id === id);
+          if (!project) return;
+          projectNameInput.value = project.name;
+          projectDialog.querySelector('h2').textContent = 'Rename Project';
+          projectDialog.dataset.editId = id;
+          projectDialog.showModal();
+        } else if (btn.dataset.action === 'delete') {
+          deleteProject(id);
+        }
+      });
+
+      document.getElementById('newProjectBtn').addEventListener('click', () => {
+        projectNameInput.value = '';
+        projectDialog.querySelector('h2').textContent = 'Create Project';
+        delete projectDialog.dataset.editId;
+        projectDialog.showModal();
+      });
+
+      projectForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = projectNameInput.value.trim();
+        if (!name) return;
+        if (projectDialog.dataset.editId) {
+          renameProject(projectDialog.dataset.editId, name);
+          delete projectDialog.dataset.editId;
+        } else {
+          createProject(name);
+        }
+        projectDialog.close();
+      });
+
+      document.getElementById('projectCancelBtn').addEventListener('click', () => projectDialog.close());
+      projectDialog.querySelector('.dialog-close').addEventListener('click', () => projectDialog.close());
+      projectDialog.addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) projectDialog.close();
+      });
+
       // --- Audio UI event listeners ---
       audioTogglePanelBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -4122,6 +4312,7 @@
         loadTasks();
         loadProjects();
         renderTasks();
+        renderProjectDropdown();
 
         const theme = loadTheme();
         root.dataset.theme = theme;
