@@ -52,7 +52,10 @@ Plans:
   2. Premium user can create a project, assign tasks to it, and select it before starting a focus session
   3. Completed focus session time is attributed to the selected project and visible in the task/project list
   4. Premium user can filter their task list by project to see only relevant tasks
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+  - [ ] 04-01-PLAN.md — Session data recording layer + state extensions
+  - [ ] 04-02-PLAN.md — Project management UI, task integration, and filtering
 
 ### Phase 5: Premium Personalization & Export
 **Goal**: Users get immediate visual and auditory customization plus data portability -- the "feel premium on day one" features.
@@ -98,7 +101,7 @@ Phases execute in numeric order: 3 -> 4 -> 5 -> 6 -> 7
 | 1. Streaming Audio & Categories | v1.0 | 2/2 | Complete | 2026-02-06 |
 | 2. Polish & Integration | v1.0 | 1/1 | Complete | 2026-02-06 |
 | 3. Payment Infrastructure & Feature Gating | v2.0 | 3/3 | Complete | 2026-02-07 |
-| 4. Data Foundation & Projects | v2.0 | 0/TBD | Not started | - |
+| 4. Data Foundation & Projects | v2.0 | 0/2 | Not started | - |
 | 5. Premium Personalization & Export | v2.0 | 0/TBD | Not started | - |
 | 6. Analytics Suite | v2.0 | 0/TBD | Not started | - |
 | 7. Integrations | v2.0 | 0/TBD | Not started | - |
