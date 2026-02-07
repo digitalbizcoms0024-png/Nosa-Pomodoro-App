@@ -1,7 +1,7 @@
 # Requirements: Pomodoro Timer v2.0 Monetization
 
 **Defined:** 2026-02-07
-**Core Value:** A seamless upgrade path from free to premium that feels valuable — users should hit the trial wall wanting to pay, not feeling nickeled.
+**Core Value:** A seamless upgrade path from free to premium that feels valuable -- users should hit the trial wall wanting to pay, not feeling nickeled.
 
 ## v2.0 Requirements
 
@@ -67,14 +67,14 @@
 Deferred beyond v2.0. Tracked but not in current roadmap.
 
 ### Automation
-- **AUTO-01**: User can configure if-this-then-that automation rules — *Descoped: replaced by webhook triggers (INTG-02) + smart behavior toggles. Custom rule engine is high effort, low usage.*
+- **AUTO-01**: User can configure if-this-then-that automation rules -- *Descoped: replaced by webhook triggers (INTG-02) + smart behavior toggles. Custom rule engine is high effort, low usage.*
 
 ### Advanced Integrations
-- **AINT-01**: Bidirectional Todoist sync — *Descoped: complex conflict resolution, one-way import sufficient for v2.0*
-- **AINT-02**: Spotify/Apple Music integration — *Descoped: requires OAuth, premium accounts, API costs, DRM*
+- **AINT-01**: Bidirectional Todoist sync -- *Descoped: complex conflict resolution, one-way import sufficient for v2.0*
+- **AINT-02**: Spotify/Apple Music integration -- *Descoped: requires OAuth, premium accounts, API costs, DRM*
 
 ### Social
-- **SOCL-01**: Team/collaboration features — *Descoped: different product scope entirely*
+- **SOCL-01**: Team/collaboration features -- *Descoped: different product scope entirely*
 
 ## Out of Scope
 
@@ -104,6 +104,7 @@ Deferred beyond v2.0. Tracked but not in current roadmap.
 | PAY-08 | Phase 3 | Pending |
 | PAY-09 | Phase 3 | Pending |
 | PAY-10 | Phase 3 | Pending |
+| MKTG-01 | Phase 3 | Pending |
 | DATA-01 | Phase 4 | Pending |
 | DATA-02 | Phase 4 | Pending |
 | DATA-03 | Phase 4 | Pending |
@@ -112,27 +113,26 @@ Deferred beyond v2.0. Tracked but not in current roadmap.
 | PROJ-03 | Phase 4 | Pending |
 | PROJ-04 | Phase 4 | Pending |
 | PROJ-05 | Phase 4 | Pending |
+| PERS-01 | Phase 5 | Pending |
+| PERS-02 | Phase 5 | Pending |
+| PERS-03 | Phase 5 | Pending |
+| EXPT-01 | Phase 5 | Pending |
 | ANLY-01 | Phase 6 | Pending |
 | ANLY-02 | Phase 6 | Pending |
 | ANLY-03 | Phase 6 | Pending |
 | ANLY-04 | Phase 6 | Pending |
 | ANLY-05 | Phase 6 | Pending |
 | ANLY-06 | Phase 6 | Pending |
-| EXPT-01 | Phase 5 | Pending |
-| EXPT-02 | Phase 7 | Pending |
-| PERS-01 | Phase 5 | Pending |
-| PERS-02 | Phase 5 | Pending |
-| PERS-03 | Phase 5 | Pending |
 | INTG-01 | Phase 7 | Pending |
 | INTG-02 | Phase 7 | Pending |
 | INTG-03 | Phase 7 | Pending |
-| MKTG-01 | Phase 3 | Pending |
+| EXPT-02 | Phase 7 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 33 total
 - Mapped to phases: 33
-- Unmapped: 0 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-07 after initial definition*
+*Last updated: 2026-02-07 after roadmap creation*
