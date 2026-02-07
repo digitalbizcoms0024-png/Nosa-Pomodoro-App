@@ -1823,6 +1823,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-functions-compat.js"></script>
   <script>
     // Firebase config — replace these placeholder values with your project's config
     const firebaseConfig = {
@@ -1837,6 +1838,7 @@
     firebase.initializeApp(firebaseConfig);
     const fbAuth = firebase.auth();
     const fbDb = firebase.firestore();
+    const fbFunctions = firebase.functions();
     fbDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
   </script>
   <script>
@@ -1852,6 +1854,12 @@
         tasks: 'pomodoro-tasks',
       };
       const CONFETTI_COLORS = ['#e74c3c', '#f39c12', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c', '#e91e63'];
+      const STRIPE_PRICES = {
+        monthly: 'price_REPLACE_WITH_MONTHLY_PRICE_ID',
+        yearly: 'price_REPLACE_WITH_YEARLY_PRICE_ID',
+        lifetime: 'price_REPLACE_WITH_LIFETIME_PRICE_ID'
+      };
+      const PREMIUM_STATUSES = ['active', 'trialing', 'past_due', 'lifetime'];
 
       // --- DOM refs ---
       const $ = (s) => document.querySelector(s);
@@ -1994,6 +2002,14 @@
           isMuted: false,
           isExpanded: false,
         },
+        subscription: {
+          status: 'none',
+          tier: null,
+          customerId: null,
+          currentPeriodEnd: null,
+          cancelAtPeriodEnd: false,
+          gracePeriod: false
+        }
       };
 
       // --- Storage ---
@@ -2552,6 +2568,110 @@
         isNewSignIn = true; // Mark as fresh sign-in
         const provider = new firebase.auth.GoogleAuthProvider();
         fbAuth.signInWithPopup(provider).catch(() => { isNewSignIn = false; });
+      }
+
+      // --- Subscription Management ---
+      function listenToSubscription(uid) {
+        fbDb.doc(`users/${uid}/subscription`).onSnapshot((doc) => {
+          if (doc.exists) {
+            const data = doc.data();
+            state.subscription = {
+              status: data.status || 'none',
+              tier: data.status === 'lifetime' ? 'lifetime' : (data.priceId ? getTierFromPriceId(data.priceId) : null),
+              customerId: data.customerId || null,
+              currentPeriodEnd: data.currentPeriodEnd || null,
+              cancelAtPeriodEnd: data.cancelAtPeriodEnd || false,
+              gracePeriod: data.status === 'past_due'
+            };
+          } else {
+            state.subscription = { status: 'none', tier: null, customerId: null, currentPeriodEnd: null, cancelAtPeriodEnd: false, gracePeriod: false };
+          }
+          localStorage.setItem('subscriptionStatus', state.subscription.status);
+          updatePremiumUI();
+        });
+      }
+
+      function isPremium() {
+        return PREMIUM_STATUSES.includes(state.subscription.status);
+      }
+
+      function requirePremium(featureName) {
+        if (isPremium()) return true;
+        showUpgradePrompt(featureName);
+        return false;
+      }
+
+      function getTierFromPriceId(priceId) {
+        if (priceId === STRIPE_PRICES.monthly) return 'monthly';
+        if (priceId === STRIPE_PRICES.yearly) return 'yearly';
+        if (priceId === STRIPE_PRICES.lifetime) return 'lifetime';
+        return null;
+      }
+
+      async function startCheckout(priceId, mode) {
+        if (!state.user) {
+          signInWithGoogle();
+          return;
+        }
+        try {
+          const createCheckoutSession = fbFunctions.httpsCallable('createCheckoutSession');
+          const result = await createCheckoutSession({ priceId, mode });
+          window.location.href = result.data.url;
+        } catch (error) {
+          console.error('Checkout error:', error);
+          alert('Failed to start checkout. Please try again.');
+        }
+      }
+
+      async function openCustomerPortal() {
+        try {
+          const createPortalSession = fbFunctions.httpsCallable('createPortalSession');
+          const result = await createPortalSession();
+          window.location.href = result.data.url;
+        } catch (error) {
+          console.error('Portal error:', error);
+          alert('Failed to open subscription management.');
+        }
+      }
+
+      function updatePremiumUI() {
+        const premium = isPremium();
+        const badge = document.getElementById('premium-badge');
+        if (badge) {
+          badge.style.display = premium ? '' : 'none';
+          badge.textContent = state.subscription.status === 'lifetime' ? '★ Lifetime' : '★ Premium';
+        }
+        const manageBtn = document.getElementById('manage-subscription-btn');
+        if (manageBtn) {
+          manageBtn.style.display = (premium && state.subscription.status !== 'lifetime') ? '' : 'none';
+        }
+        const upgradeBtn = document.getElementById('upgrade-btn');
+        if (upgradeBtn) {
+          upgradeBtn.style.display = premium ? 'none' : '';
+        }
+      }
+
+      function showUpgradePrompt(featureName) {
+        const prompt = document.getElementById('upgrade-prompt');
+        if (!prompt) return;
+        const featureEl = prompt.querySelector('.upgrade-feature-name');
+        if (featureEl) featureEl.textContent = featureName || 'this feature';
+        prompt.classList.add('active');
+      }
+
+      function showPricingPage() {
+        const page = document.getElementById('pricing-page');
+        if (page) page.classList.add('active');
+      }
+
+      function hidePricingPage() {
+        const page = document.getElementById('pricing-page');
+        if (page) page.classList.remove('active');
+      }
+
+      function hideUpgradePrompt() {
+        const prompt = document.getElementById('upgrade-prompt');
+        if (prompt) prompt.classList.remove('active');
       }
 
       // --- Firestore Sync ---
@@ -3404,6 +3524,7 @@
         state.user = user;
         updateAuthUI();
         if (user) {
+          listenToSubscription(user.uid);
           if (isNewSignIn) {
             // Only merge local stats on fresh sign-in, not page refresh
             await syncStatsToFirestore();
@@ -3413,6 +3534,11 @@
           await pullStatsFromFirestore();
           updateStats();
           loadLeaderboard();
+        } else {
+          // Reset subscription state on sign out
+          state.subscription = { status: 'none', tier: null, customerId: null, currentPeriodEnd: null, cancelAtPeriodEnd: false, gracePeriod: false };
+          localStorage.removeItem('subscriptionStatus');
+          updatePremiumUI();
         }
       });
 
@@ -3433,6 +3559,16 @@
         initAudio();
 
         updateAll();
+
+        // Handle checkout return URLs
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('checkout') === 'success') {
+          alert('Payment successful! Premium features are activating...');
+          window.history.replaceState({}, '', window.location.pathname);
+        } else if (urlParams.get('checkout') === 'canceled') {
+          alert('Checkout canceled.');
+          window.history.replaceState({}, '', window.location.pathname);
+        }
 
         // Service worker registration
         if ('serviceWorker' in navigator) {
