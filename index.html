@@ -488,6 +488,69 @@
       background: var(--ring-track);
     }
 
+    .project-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .project-bar select {
+      flex: 1;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-icon:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .project-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+    }
+
+    .project-item .project-name {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    .project-item .btn-icon {
+      opacity: 0.6;
+    }
+
+    .project-item .btn-icon:hover {
+      opacity: 1;
+    }
+
+    .task-project-badge {
+      font-size: 0.7rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
     .task-checkbox {
       width: 18px;
       height: 18px;
@@ -1799,6 +1862,14 @@
           <polyline points="6 9 12 15 18 9"></polyline>
         </svg>
       </div>
+      <div class="project-bar" id="projectBar" style="display:none;">
+        <select id="projectSelect" aria-label="Filter by project">
+          <option value="">All Tasks</option>
+        </select>
+        <button class="btn-icon" id="manageProjectsBtn" aria-label="Manage projects" title="Manage projects">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+        </button>
+      </div>
       <div class="tasks-body">
         <div class="task-input-row">
           <input type="text" id="taskInput" placeholder="What are you working on?" maxlength="100">
@@ -2101,6 +2172,37 @@
         <button class="btn btn-ghost" id="upgrade-prompt-dismiss">Maybe Later</button>
         <button class="btn btn-primary" id="upgrade-prompt-view-plans">View Plans</button>
       </div>
+    </div>
+  </dialog>
+
+  <!-- Project Dialog -->
+  <dialog id="projectDialog" aria-labelledby="projectDialogTitle">
+    <div class="dialog-header">
+      <h2 id="projectDialogTitle">Create Project</h2>
+      <button class="dialog-close" aria-label="Close">&times;</button>
+    </div>
+    <form id="projectForm">
+      <label class="settings-label">
+        Project Name
+        <input type="text" id="projectNameInput" required minlength="1" maxlength="50" autocomplete="off" placeholder="e.g., Work, Side Project">
+      </label>
+      <div class="dialog-actions" style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+        <button type="button" class="btn" id="projectCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Manage Projects Dialog -->
+  <dialog id="manageProjectsDialog" aria-labelledby="manageProjectsTitle">
+    <div class="dialog-header">
+      <h2 id="manageProjectsTitle">Manage Projects</h2>
+      <button class="dialog-close" aria-label="Close">&times;</button>
+    </div>
+    <ul id="projectListManage" class="task-list" style="margin:0 0 16px;max-height:300px;overflow-y:auto;"></ul>
+    <div class="dialog-actions" style="display:flex;gap:8px;justify-content:flex-end;">
+      <button class="btn btn-primary" id="newProjectBtn">New Project</button>
+      <button class="btn" id="closeManageProjectsBtn">Done</button>
     </div>
   </dialog>
 
@@ -3025,6 +3127,10 @@
         const upgradeBtn = document.getElementById('upgrade-btn');
         if (upgradeBtn) {
           upgradeBtn.style.display = premium ? 'none' : '';
+        }
+        const projectBar = document.getElementById('projectBar');
+        if (projectBar) {
+          projectBar.style.display = premium ? '' : 'none';
         }
       }
 
