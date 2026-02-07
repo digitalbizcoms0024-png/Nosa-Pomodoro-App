@@ -1745,7 +1745,7 @@
             <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 22V8a2 2 0 0 0-2-2H6v0a2 2 0 0 0-2 2v4a4 4 0 0 0 4 4h0"/><path d="M14 22V8a2 2 0 0 1 2-2h2v0a2 2 0 0 1 2 2v4a4 4 0 0 1-4 4h0"/>
           </svg>
         </button>
-        <button class="btn btn-primary" id="upgrade-btn" aria-label="Upgrade to Premium" style="font-size: 0.8125rem; padding: 6px 12px;" onclick="showPricingPage()">Upgrade</button>
+        <button class="btn btn-primary" id="upgrade-btn" aria-label="Upgrade to Premium" style="font-size: 0.8125rem; padding: 6px 12px;">Upgrade</button>
         <span id="premium-badge" style="display:none; font-size: 0.8125rem; color: var(--primary); font-weight: 600;">★ Premium</span>
         <button class="icon-btn" id="settingsBtn" aria-label="Open settings" data-tooltip="Settings">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -2016,7 +2016,7 @@
             <li>✓ Webhook Triggers</li>
             <li>✓ <strong>No Ads Ever</strong></li>
           </ul>
-          <button class="pricing-btn btn-primary" onclick="startCheckout(STRIPE_PRICES.monthly, 'subscription')">Start Free Trial</button>
+          <button class="pricing-btn btn-primary" id="checkout-monthly">Start Free Trial</button>
         </div>
 
         <!-- Yearly Tier (Recommended) -->
@@ -2041,7 +2041,7 @@
             <li>✓ Webhook Triggers</li>
             <li>✓ <strong>No Ads Ever</strong></li>
           </ul>
-          <button class="pricing-btn btn-primary" onclick="startCheckout(STRIPE_PRICES.yearly, 'subscription')">Start Free Trial</button>
+          <button class="pricing-btn btn-primary" id="checkout-yearly">Start Free Trial</button>
         </div>
 
         <!-- Lifetime Tier -->
@@ -2066,7 +2066,7 @@
             <li>✓ <strong>No Ads Ever</strong></li>
             <li>✓ <strong>Pay once, own forever</strong></li>
           </ul>
-          <button class="pricing-btn btn-primary" onclick="startCheckout(STRIPE_PRICES.lifetime, 'payment')">Get Lifetime Access</button>
+          <button class="pricing-btn btn-primary" id="checkout-lifetime">Get Lifetime Access</button>
         </div>
       </div>
       <p class="pricing-guarantee">🔒 No Ads Ever • Cancel anytime • Secure payment via Stripe</p>
@@ -2098,8 +2098,8 @@
         </div>
       </div>
       <div class="dialog-actions">
-        <button class="btn btn-ghost" onclick="hideUpgradePrompt()">Maybe Later</button>
-        <button class="btn btn-primary" onclick="hideUpgradePrompt(); showPricingPage();">View Plans</button>
+        <button class="btn btn-ghost" id="upgrade-prompt-dismiss">Maybe Later</button>
+        <button class="btn btn-primary" id="upgrade-prompt-view-plans">View Plans</button>
       </div>
     </div>
   </dialog>
@@ -3035,6 +3035,19 @@
         if (prompt) prompt.close();
       }
 
+      // --- Premium UI Event Listeners ---
+      document.getElementById('upgrade-btn').addEventListener('click', showPricingPage);
+      document.getElementById('closePricing').addEventListener('click', hidePricingPage);
+      document.getElementById('checkout-monthly').addEventListener('click', () => startCheckout(STRIPE_PRICES.monthly, 'subscription'));
+      document.getElementById('checkout-yearly').addEventListener('click', () => startCheckout(STRIPE_PRICES.yearly, 'subscription'));
+      document.getElementById('checkout-lifetime').addEventListener('click', () => startCheckout(STRIPE_PRICES.lifetime, 'payment'));
+      document.getElementById('upgrade-prompt-dismiss').addEventListener('click', hideUpgradePrompt);
+      document.getElementById('upgrade-prompt-view-plans').addEventListener('click', () => { hideUpgradePrompt(); showPricingPage(); });
+
+      // Close pricing/upgrade dialogs on backdrop click
+      document.getElementById('pricing-page').addEventListener('click', (e) => { if (e.target === e.currentTarget) hidePricingPage(); });
+      document.getElementById('upgrade-prompt').addEventListener('click', (e) => { if (e.target === e.currentTarget) hideUpgradePrompt(); });
+
       // --- Firestore Sync ---
       async function syncStatsToFirestore() {
         if (!state.user) return;
@@ -3785,7 +3798,8 @@
         // Don't trigger shortcuts when typing in inputs
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         // Don't trigger when dialog is open (except Escape)
-        if (settingsDialog.open && e.key !== 'Escape') return;
+        const anyDialogOpen = settingsDialog.open || pricingPage.open || upgradePrompt.open;
+        if (anyDialogOpen && e.key !== 'Escape') return;
 
         switch (e.key) {
           case ' ':
@@ -3799,7 +3813,9 @@
             reset();
             break;
           case 'Escape':
-            if (settingsDialog.open) settingsDialog.close();
+            if (pricingPage.open) hidePricingPage();
+            else if (upgradePrompt.open) hideUpgradePrompt();
+            else if (settingsDialog.open) settingsDialog.close();
             break;
         }
       });
@@ -3809,12 +3825,8 @@
       leaderboardBtn.addEventListener('click', openLeaderboardDialog);
       closeStatsBtn.addEventListener('click', () => statsDialog.close());
       closeLeaderboardBtn.addEventListener('click', () => leaderboardDialog.close());
-      closePricingBtn.addEventListener('click', () => pricingPage.close());
-      closeUpgradePromptBtn.addEventListener('click', () => upgradePrompt.close());
       statsDialog.addEventListener('click', (e) => { if (e.target === statsDialog) statsDialog.close(); });
       leaderboardDialog.addEventListener('click', (e) => { if (e.target === leaderboardDialog) leaderboardDialog.close(); });
-      pricingPage.addEventListener('click', (e) => { if (e.target === pricingPage) pricingPage.close(); });
-      upgradePrompt.addEventListener('click', (e) => { if (e.target === upgradePrompt) upgradePrompt.close(); });
       statsDialog.addEventListener('close', () => statsBtn.classList.remove('active'));
       leaderboardDialog.addEventListener('close', () => leaderboardBtn.classList.remove('active'));
 
