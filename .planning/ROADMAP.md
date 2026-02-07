@@ -20,7 +20,7 @@
 **Milestone Goal:** Add Stripe-powered subscription payments with premium feature gating and 11 premium features, transforming the free PWA into a freemium product with 3 pricing tiers and a 7-day free trial.
 
 - [x] **Phase 3: Payment Infrastructure & Feature Gating** - Working Stripe subscriptions, server-side gating, and pricing UI
-- [ ] **Phase 4: Data Foundation & Projects** - Session-level data model and project-based task organization
+- [x] **Phase 4: Data Foundation & Projects** - Session-level data model and project-based task organization
 - [ ] **Phase 5: Premium Personalization & Export** - Custom themes, sounds, and CSV data export
 - [ ] **Phase 6: Analytics Suite** - Smart Insights, Focus Forecast, project analytics, and yearly report
 - [ ] **Phase 7: Integrations** - Todoist import, webhook triggers, and PDF export
@@ -54,8 +54,8 @@ Plans:
   4. Premium user can filter their task list by project to see only relevant tasks
 **Plans**: 2 plans
 Plans:
-  - [ ] 04-01-PLAN.md — Session data recording layer + state extensions
-  - [ ] 04-02-PLAN.md — Project management UI, task integration, and filtering
+  - [x] 04-01-PLAN.md — Session data recording layer + state extensions
+  - [x] 04-02-PLAN.md — Project management UI, task integration, and filtering
 
 ### Phase 5: Premium Personalization & Export
 **Goal**: Users get immediate visual and auditory customization plus data portability -- the "feel premium on day one" features.
@@ -101,7 +101,7 @@ Phases execute in numeric order: 3 -> 4 -> 5 -> 6 -> 7
 | 1. Streaming Audio & Categories | v1.0 | 2/2 | Complete | 2026-02-06 |
 | 2. Polish & Integration | v1.0 | 1/1 | Complete | 2026-02-06 |
 | 3. Payment Infrastructure & Feature Gating | v2.0 | 3/3 | Complete | 2026-02-07 |
-| 4. Data Foundation & Projects | v2.0 | 0/2 | Not started | - |
+| 4. Data Foundation & Projects | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 5. Premium Personalization & Export | v2.0 | 0/TBD | Not started | - |
 | 6. Analytics Suite | v2.0 | 0/TBD | Not started | - |
 | 7. Integrations | v2.0 | 0/TBD | Not started | - |

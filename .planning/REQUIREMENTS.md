@@ -20,17 +20,17 @@
 
 ### Data Foundation
 
-- [ ] **DATA-01**: App records session-level data (startedAt, duration, projectId, taskId, hourOfDay, dayOfWeek) for every completed focus session
-- [ ] **DATA-02**: Session records sync to Firestore for authenticated users
-- [ ] **DATA-03**: Session data coexists with existing daily aggregate stats (no breaking changes)
+- [x] **DATA-01**: App records session-level data (startedAt, duration, projectId, taskId, hourOfDay, dayOfWeek) for every completed focus session
+- [x] **DATA-02**: Session records sync to Firestore for authenticated users
+- [x] **DATA-03**: Session data coexists with existing daily aggregate stats (no breaking changes)
 
 ### Projects
 
-- [ ] **PROJ-01**: Premium user can create, rename, and delete projects
-- [ ] **PROJ-02**: Premium user can assign tasks to a project
-- [ ] **PROJ-03**: Premium user can select active project before starting a focus session
-- [ ] **PROJ-04**: Focus session time is attributed to the selected project
-- [ ] **PROJ-05**: Premium user can view task list filtered by project
+- [x] **PROJ-01**: Premium user can create, rename, and delete projects
+- [x] **PROJ-02**: Premium user can assign tasks to a project
+- [x] **PROJ-03**: Premium user can select active project before starting a focus session
+- [x] **PROJ-04**: Focus session time is attributed to the selected project
+- [x] **PROJ-05**: Premium user can view task list filtered by project
 
 ### Analytics
 
@@ -105,14 +105,14 @@ Deferred beyond v2.0. Tracked but not in current roadmap.
 | PAY-09 | Phase 3 | Pending |
 | PAY-10 | Phase 3 | Pending |
 | MKTG-01 | Phase 3 | Pending |
-| DATA-01 | Phase 4 | Pending |
-| DATA-02 | Phase 4 | Pending |
-| DATA-03 | Phase 4 | Pending |
-| PROJ-01 | Phase 4 | Pending |
-| PROJ-02 | Phase 4 | Pending |
-| PROJ-03 | Phase 4 | Pending |
-| PROJ-04 | Phase 4 | Pending |
-| PROJ-05 | Phase 4 | Pending |
+| DATA-01 | Phase 4 | Complete |
+| DATA-02 | Phase 4 | Complete |
+| DATA-03 | Phase 4 | Complete |
+| PROJ-01 | Phase 4 | Complete |
+| PROJ-02 | Phase 4 | Complete |
+| PROJ-03 | Phase 4 | Complete |
+| PROJ-04 | Phase 4 | Complete |
+| PROJ-05 | Phase 4 | Complete |
 | PERS-01 | Phase 5 | Pending |
 | PERS-02 | Phase 5 | Pending |
 | PERS-03 | Phase 5 | Pending |
