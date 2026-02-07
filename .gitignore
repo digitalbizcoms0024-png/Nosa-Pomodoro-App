@@ -1,0 +1,7 @@
+# Firebase Functions
+functions/lib/
+functions/node_modules/
+functions/.env.yaml
+
+# System files
+.DS_Store
