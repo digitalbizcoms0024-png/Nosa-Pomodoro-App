@@ -496,14 +496,53 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .project-bar select {
+    .project-dropdown {
       flex: 1;
-      padding: 6px 8px;
+      position: relative;
+    }
+    .project-dropdown-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
       border-radius: 6px;
       border: 1px solid var(--border);
       background: var(--bg-secondary);
       color: var(--text-primary);
       font-size: 0.85rem;
+      cursor: pointer;
+      transition: border-color 200ms ease;
+    }
+    .project-dropdown-btn:hover { border-color: var(--primary); }
+    .project-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-md);
+      z-index: 50;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .project-dropdown-menu.open { display: block; }
+    .project-dropdown-option {
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background 100ms ease;
+    }
+    .project-dropdown-option:first-child { border-radius: 7px 7px 0 0; }
+    .project-dropdown-option:last-child { border-radius: 0 0 7px 7px; }
+    .project-dropdown-option:hover { background: var(--bg-secondary); }
+    .project-dropdown-option.active {
+      color: var(--primary);
+      font-weight: 600;
     }
 
     .btn-icon {
@@ -858,7 +897,8 @@
       color: var(--text-secondary);
     }
 
-    .field input[type="number"] {
+    .field input[type="number"],
+    .field input[type="text"] {
       height: 42px;
       border: 2px solid var(--border);
       border-radius: var(--radius-sm);
@@ -870,7 +910,8 @@
       width: 100%;
     }
 
-    .field input[type="number"]:focus {
+    .field input[type="number"]:focus,
+    .field input[type="text"]:focus {
       outline: none;
       border-color: var(--primary);
     }
@@ -1863,9 +1904,13 @@
         </svg>
       </div>
       <div class="project-bar" id="projectBar" style="display:none;">
-        <select id="projectSelect" aria-label="Filter by project">
-          <option value="">All Tasks</option>
-        </select>
+        <div class="project-dropdown" id="projectDropdown">
+          <button class="project-dropdown-btn" id="projectDropdownBtn" aria-label="Filter by project" type="button">
+            <span id="projectDropdownLabel">All Tasks</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="project-dropdown-menu" id="projectDropdownMenu"></div>
+        </div>
         <button class="btn-icon" id="manageProjectsBtn" aria-label="Manage projects" title="Manage projects">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
         </button>
@@ -2179,16 +2224,22 @@
   <dialog id="projectDialog" aria-labelledby="projectDialogTitle">
     <div class="dialog-header">
       <h2 id="projectDialogTitle">Create Project</h2>
-      <button class="dialog-close" aria-label="Close">&times;</button>
+      <button class="icon-btn dialog-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
     </div>
     <form id="projectForm">
-      <label class="settings-label">
-        Project Name
-        <input type="text" id="projectNameInput" required minlength="1" maxlength="50" autocomplete="off" placeholder="e.g., Work, Side Project">
-      </label>
-      <div class="dialog-actions" style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
-        <button type="button" class="btn" id="projectCancelBtn">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save</button>
+      <div class="dialog-body">
+        <div class="field">
+          <label for="projectNameInput">Project Name</label>
+          <input type="text" id="projectNameInput" required minlength="1" maxlength="50" autocomplete="off" placeholder="e.g., Work, Side Project">
+        </div>
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-ghost" id="projectCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
       </div>
     </form>
   </dialog>
@@ -2197,12 +2248,18 @@
   <dialog id="manageProjectsDialog" aria-labelledby="manageProjectsTitle">
     <div class="dialog-header">
       <h2 id="manageProjectsTitle">Manage Projects</h2>
-      <button class="dialog-close" aria-label="Close">&times;</button>
+      <button class="icon-btn dialog-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
     </div>
-    <ul id="projectListManage" class="task-list" style="margin:0 0 16px;max-height:300px;overflow-y:auto;"></ul>
-    <div class="dialog-actions" style="display:flex;gap:8px;justify-content:flex-end;">
-      <button class="btn btn-primary" id="newProjectBtn">New Project</button>
-      <button class="btn" id="closeManageProjectsBtn">Done</button>
+    <div class="dialog-body">
+      <ul id="projectListManage" class="task-list" style="margin:0;max-height:300px;overflow-y:auto;"></ul>
+      <div class="dialog-actions">
+        <button class="btn btn-ghost" id="closeManageProjectsBtn">Done</button>
+        <button class="btn btn-primary" id="newProjectBtn">New Project</button>
+      </div>
     </div>
   </dialog>
 
@@ -2365,7 +2422,8 @@
       const projectDialog = $('#projectDialog');
       const projectForm = $('#projectForm');
       const projectNameInput = $('#projectNameInput');
-      const projectSelect = $('#projectSelect');
+      const projectDropdownBtn = $('#projectDropdownBtn');
+      const projectDropdownMenu = $('#projectDropdownMenu');
       const manageProjectsDialog = $('#manageProjectsDialog');
       const projectListManage = $('#projectListManage');
 
@@ -2588,20 +2646,30 @@
       // --- Project Management ---
 
       function renderProjectDropdown() {
-        projectSelect.innerHTML = '<option value="">All Tasks</option>';
+        const menu = document.getElementById('projectDropdownMenu');
+        const label = document.getElementById('projectDropdownLabel');
+        menu.innerHTML = '';
+
+        // "All Tasks" option
+        const allDiv = document.createElement('div');
+        allDiv.className = 'project-dropdown-option' + (!state.activeProjectId ? ' active' : '');
+        allDiv.textContent = 'All Tasks';
+        allDiv.dataset.value = '';
+        menu.appendChild(allDiv);
 
         // Sort projects alphabetically
         const sorted = [...state.projects].sort((a, b) => a.name.localeCompare(b.name));
-
         sorted.forEach(project => {
-          const option = document.createElement('option');
-          option.value = project.id;
-          option.textContent = project.name;
-          if (project.id === state.activeProjectId) {
-            option.selected = true;
-          }
-          projectSelect.appendChild(option);
+          const div = document.createElement('div');
+          div.className = 'project-dropdown-option' + (project.id === state.activeProjectId ? ' active' : '');
+          div.textContent = project.name;
+          div.dataset.value = project.id;
+          menu.appendChild(div);
         });
+
+        // Update label
+        const active = state.projects.find(p => p.id === state.activeProjectId);
+        label.textContent = active ? active.name : 'All Tasks';
       }
 
       function renderManageProjectsList() {
@@ -4182,9 +4250,21 @@
       });
 
       // --- Project event listeners ---
-      projectSelect.addEventListener('change', (e) => {
-        state.activeProjectId = e.target.value || null;
+      projectDropdownBtn.addEventListener('click', () => {
+        projectDropdownMenu.classList.toggle('open');
+      });
+      projectDropdownMenu.addEventListener('click', (e) => {
+        const opt = e.target.closest('.project-dropdown-option');
+        if (!opt) return;
+        state.activeProjectId = opt.dataset.value || null;
+        renderProjectDropdown();
         renderTasks();
+        projectDropdownMenu.classList.remove('open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.project-dropdown')) {
+          projectDropdownMenu.classList.remove('open');
+        }
       });
 
       document.getElementById('manageProjectsBtn').addEventListener('click', () => {
