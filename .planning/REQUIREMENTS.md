@@ -11,7 +11,7 @@
 - [x] **AUDIO-02**: User can adjust background music volume
 - [x] **AUDIO-03**: User can mute/unmute background audio
 - [x] **AUDIO-04**: Audio player integrated into UI (no visible video player)
-- [ ] **AUDIO-05**: Music volume ducks automatically during timer chime alerts
+- [x] **AUDIO-05**: Music volume ducks automatically during timer chime alerts
 
 ### Categories
 
@@ -66,7 +66,7 @@
 | AUDIO-02 | Phase 1 | Complete |
 | AUDIO-03 | Phase 1 | Complete |
 | AUDIO-04 | Phase 1 | Complete |
-| AUDIO-05 | Phase 2 | Pending |
+| AUDIO-05 | Phase 2 | Complete |
 | CAT-01 | Phase 1 | Complete |
 | CAT-02 | Phase 1 | Complete |
 | CAT-03 | Phase 1 | Complete |
