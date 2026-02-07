@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 ## Current Position
 
-Phase: 3 of 7 (Payment Infrastructure & Feature Gating) -- COMPLETE
-Plan: 3 of 3 complete
-Status: Phase complete
-Last activity: 2026-02-07 -- Completed 03-03-PLAN.md (Frontend pricing UI & feature gating)
+Phase: 4 of 7 (Data Foundation & Projects) -- IN PROGRESS
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-02-07 -- Completed 04-01-PLAN.md (Session data recording)
 
-Progress: [###░░░░░░░] 30% (3/7 phases complete, Phase 3 done)
+Progress: [###░░░░░░░] 33% (7/21 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 2.5 min
-- Total execution time: 0.25 hours
+- Total plans completed: 7
+- Average duration: 2.4 min
+- Total execution time: 0.28 hours
 
 **By Phase:**
 
@@ -30,6 +30,7 @@ Progress: [###░░░░░░░] 30% (3/7 phases complete, Phase 3 done)
 | 01-streaming-audio-and-categories | 2/2 | 5 min | 2.5 min |
 | 02-polish-and-integration | 1/1 | 2 min | 2.0 min |
 | 03-payment-infrastructure-and-feature-gating | 3/3 | 10 min | 3.3 min |
+| 04-data-foundation-and-projects | 1/3 | 4 min | 4.0 min |
 
 *Updated after each plan completion*
 
@@ -52,6 +53,9 @@ Recent decisions affecting current work:
 - Portal requires existing customerId in Firestore (stored by webhook)
 - addEventListener inside IIFE instead of inline onclick handlers (scoping)
 - <dialog> elements for pricing page and upgrade prompt modals
+- Session startedAt uses state.sessionStartTime (captured when timer starts), not serverTimestamp()
+- FieldValue.increment() for atomic counter updates instead of read-modify-write
+- Session records in subcollection: users/{uid}/sessions/{sessionId}
 
 ### Pending Todos
 
@@ -69,6 +73,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-07
-Stopped at: Completed Phase 3 (all 3 plans done)
+Stopped at: Completed 04-01-PLAN.md (Session data recording)
 Resume file: None
-Next action: Plan and execute Phase 4 (Data Foundation & Projects) via /gsd:plan-phase 4
+Next action: Execute remaining plans in Phase 4
