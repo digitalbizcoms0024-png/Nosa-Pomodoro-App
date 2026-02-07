@@ -2184,6 +2184,7 @@
         stats: 'pomodoro-stats',
         theme: 'pomodoro-theme',
         tasks: 'pomodoro-tasks',
+        projects: 'pomodoro-projects',
       };
       const CONFETTI_COLORS = ['#e74c3c', '#f39c12', '#2ecc71', '#3498db', '#9b59b6', '#1abc9c', '#e91e63'];
       const STRIPE_PRICES = {
@@ -2330,6 +2331,10 @@
         user: null, // Firebase user object
         userMenuOpen: false,
         tasks: [], // [{ id, title, completed }]
+        projects: [], // [{ id, name, createdAt }]
+        activeProjectId: null,
+        currentTaskId: null,
+        sessionStartTime: null,
         audio: {
           isPlaying: false,
           currentCategory: 'ambient',
@@ -2391,6 +2396,17 @@
 
       function saveTasks() {
         localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(state.tasks));
+      }
+
+      function loadProjects() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEYS.projects);
+          if (raw) state.projects = JSON.parse(raw);
+        } catch {}
+      }
+
+      function saveProjects() {
+        localStorage.setItem(STORAGE_KEYS.projects, JSON.stringify(state.projects));
       }
 
       function addTask() {
@@ -3136,6 +3152,51 @@
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
           }, { merge: true });
         } catch {}
+      }
+
+      async function recordSessionData() {
+        if (!state.user || state.mode !== 'focus') return;
+        const uid = state.user.uid;
+        const today = todayKey();
+
+        try {
+          // Generate unique session ID
+          const sessionId = crypto.randomUUID();
+
+          // Create batch for atomic write
+          const batch = fbDb.batch();
+
+          // Session document in subcollection
+          const sessionRef = fbDb.collection('users').doc(uid).collection('sessions').doc(sessionId);
+          const sessionData = {
+            startedAt: new Date(state.sessionStartTime || Date.now() - state.settings.focusDuration * 60 * 1000),
+            duration: state.settings.focusDuration,
+            projectId: state.activeProjectId || null,
+            taskId: state.currentTaskId || null,
+            hourOfDay: new Date().getHours(),
+            dayOfWeek: new Date().getDay(),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          batch.set(sessionRef, sessionData);
+
+          // Aggregate stats update using atomic increments
+          const userRef = fbDb.collection('users').doc(uid);
+          const userUpdate = {
+            [`dailyCounts.${today}`]: firebase.firestore.FieldValue.increment(1),
+            [`dailyMinutes.${today}`]: firebase.firestore.FieldValue.increment(state.settings.focusDuration),
+            totalSessions: firebase.firestore.FieldValue.increment(1),
+            totalMinutes: firebase.firestore.FieldValue.increment(state.settings.focusDuration),
+            displayName: state.user.displayName || '',
+            photoURL: state.user.photoURL || '',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          };
+          batch.set(userRef, userUpdate, { merge: true });
+
+          // Commit atomic batch
+          await batch.commit();
+        } catch (err) {
+          console.error('Failed to record session data:', err);
+        }
       }
 
       // --- Leaderboard ---
