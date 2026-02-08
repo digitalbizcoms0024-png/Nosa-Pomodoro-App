@@ -2438,6 +2438,177 @@
       line-height: 1.6;
     }
 
+    /* Yearly Heatmap */
+    .heatmap-container {
+      margin: 24px 0;
+      padding: 16px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      min-width: fit-content;
+    }
+
+    .heatmap-day-labels {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      gap: 3px;
+      font-size: 10px;
+      color: var(--text-secondary);
+      padding-top: 18px;
+    }
+
+    .heatmap-day-labels span {
+      height: 13px;
+      display: flex;
+      align-items: center;
+    }
+
+    .heatmap-weeks {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .heatmap-month-labels {
+      display: flex;
+      margin-bottom: 4px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      height: 14px;
+    }
+
+    .heatmap-month-label {
+      flex: 1;
+      text-align: left;
+    }
+
+    .heatmap-cells {
+      display: grid;
+      grid-template-rows: repeat(7, 13px);
+      grid-auto-flow: column;
+      gap: 3px;
+    }
+
+    .heatmap-cell {
+      width: 13px;
+      height: 13px;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    .heatmap-cell.empty {
+      background: transparent;
+      cursor: default;
+    }
+
+    .heatmap-cell.intensity-0 {
+      background: var(--ring-track);
+    }
+
+    .heatmap-cell.intensity-1 {
+      background: color-mix(in srgb, var(--primary) 25%, var(--ring-track) 75%);
+    }
+
+    .heatmap-cell.intensity-2 {
+      background: color-mix(in srgb, var(--primary) 50%, var(--ring-track) 50%);
+    }
+
+    .heatmap-cell.intensity-3 {
+      background: color-mix(in srgb, var(--primary) 75%, var(--ring-track) 25%);
+    }
+
+    .heatmap-cell.intensity-4 {
+      background: var(--primary);
+    }
+
+    .heatmap-legend {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-top: 12px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .heatmap-legend-boxes {
+      display: flex;
+      gap: 3px;
+      margin: 0 4px;
+    }
+
+    .heatmap-legend-box {
+      width: 13px;
+      height: 13px;
+      border-radius: 2px;
+    }
+
+    .annual-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .annual-stat-card {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .annual-stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 8px 0;
+    }
+
+    .annual-stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    .annual-stat-sublabel {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .percentile-card {
+      background: linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 80%, black 20%) 100%);
+      color: white;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      grid-column: span 2;
+    }
+
+    .percentile-value {
+      font-size: 48px;
+      font-weight: 700;
+      margin: 8px 0;
+    }
+
+    .percentile-label {
+      font-size: 16px;
+      opacity: 0.9;
+      margin: 0;
+    }
+
+    .percentile-sublabel {
+      font-size: 13px;
+      opacity: 0.7;
+      margin-top: 8px;
+    }
+
     @media (max-width: 600px) {
       .summary-cards {
         grid-template-columns: 1fr;
@@ -2445,6 +2616,18 @@
 
       .chart-container {
         height: 200px;
+      }
+
+      .annual-stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .percentile-card {
+        grid-column: span 1;
+      }
+
+      .heatmap-container {
+        padding: 12px;
       }
     }
   </style>
@@ -3743,7 +3926,7 @@
             renderForecastTab();
             break;
           case 'yearly':
-            // To be implemented in future plans
+            renderYearlyTab();
             break;
         }
       }
@@ -4403,6 +4586,218 @@
         } catch (err) {
           console.error('Error rendering forecast tab:', err);
           panel.innerHTML = '<div class="analytics-loading">Error loading forecast. Please try again.</div>';
+        }
+      }
+
+      // --- Analytics: Yearly Tab ---
+
+      async function renderYearlyTab() {
+        const panel = analyticsDialog.querySelector('[data-tab-panel="yearly"]');
+        if (!panel) return;
+
+        panel.innerHTML = '<div class="analytics-loading">Loading yearly heatmap...</div>';
+
+        try {
+          // Fetch full year of sessions (Jan 1 to today)
+          const now = new Date();
+          const yearStart = new Date(now.getFullYear(), 0, 1); // Jan 1
+          const sessions = await fetchSessions(yearStart, now);
+
+          // Build daily aggregates (date -> total minutes)
+          const dailyMinutes = {};
+          sessions.forEach(s => {
+            const date = s.timestamp.toDate();
+            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            dailyMinutes[key] = (dailyMinutes[key] || 0) + (s.minutesCompleted || 0);
+          });
+
+          // Calculate annual summary stats
+          const totalHours = Math.round(sessions.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0) / 60 * 10) / 10;
+          const totalSessions = sessions.length;
+          const activeDays = Object.keys(dailyMinutes).length;
+
+          // Calculate longest streak
+          let longestStreak = 0;
+          let currentStreak = 0;
+          const allDaysInYear = [];
+          for (let d = new Date(yearStart); d <= now; d.setDate(d.getDate() + 1)) {
+            allDaysInYear.push(new Date(d));
+          }
+          allDaysInYear.forEach(date => {
+            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            if (dailyMinutes[key]) {
+              currentStreak++;
+              longestStreak = Math.max(longestStreak, currentStreak);
+            } else {
+              currentStreak = 0;
+            }
+          });
+
+          // Calculate most productive day of week
+          const dayOfWeekMinutes = [0, 0, 0, 0, 0, 0, 0]; // Sun-Sat
+          sessions.forEach(s => {
+            const date = s.timestamp.toDate();
+            dayOfWeekMinutes[date.getDay()] += s.minutesCompleted || 0;
+          });
+          const maxDayIndex = dayOfWeekMinutes.indexOf(Math.max(...dayOfWeekMinutes));
+          const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+          const mostProductiveDay = dayNames[maxDayIndex];
+
+          // Calculate intensity levels (0-4)
+          const maxMinutes = Math.max(...Object.values(dailyMinutes), 1);
+          const intensities = {};
+          Object.entries(dailyMinutes).forEach(([date, minutes]) => {
+            const ratio = minutes / maxMinutes;
+            if (ratio === 0) intensities[date] = 0;
+            else if (ratio <= 0.25) intensities[date] = 1;
+            else if (ratio <= 0.5) intensities[date] = 2;
+            else if (ratio <= 0.75) intensities[date] = 3;
+            else intensities[date] = 4;
+          });
+
+          // Build heatmap grid (columns = weeks, rows = days)
+          const firstDay = new Date(yearStart);
+          const lastDay = new Date(now);
+          const dayOfWeekStart = firstDay.getDay(); // 0=Sun, 6=Sat
+
+          // Calculate how many cells needed
+          const totalDays = Math.ceil((lastDay - firstDay) / (1000 * 60 * 60 * 24)) + 1;
+          const totalCells = totalDays + dayOfWeekStart; // Add offset for first week
+          const weeksNeeded = Math.ceil(totalCells / 7);
+
+          const heatmapCells = [];
+          for (let i = 0; i < weeksNeeded * 7; i++) {
+            const dayOffset = i - dayOfWeekStart;
+            if (dayOffset < 0 || dayOffset >= totalDays) {
+              // Empty cell (before Jan 1 or after today)
+              heatmapCells.push('<div class="heatmap-cell empty"></div>');
+            } else {
+              const cellDate = new Date(yearStart);
+              cellDate.setDate(cellDate.getDate() + dayOffset);
+              const key = `${cellDate.getFullYear()}-${String(cellDate.getMonth() + 1).padStart(2, '0')}-${String(cellDate.getDate()).padStart(2, '0')}`;
+              const intensity = intensities[key] || 0;
+              const minutes = dailyMinutes[key] || 0;
+              heatmapCells.push(`<div class="heatmap-cell intensity-${intensity}" title="${key}: ${minutes} min" data-date="${key}" data-minutes="${minutes}"></div>`);
+            }
+          }
+
+          // Build month labels
+          const monthLabels = [];
+          let currentMonth = -1;
+          let cellIndex = 0;
+          for (let i = 0; i < weeksNeeded * 7; i++) {
+            const dayOffset = i - dayOfWeekStart;
+            if (dayOffset >= 0 && dayOffset < totalDays) {
+              const cellDate = new Date(yearStart);
+              cellDate.setDate(cellDate.getDate() + dayOffset);
+              const month = cellDate.getMonth();
+              if (month !== currentMonth && i % 7 === 0) {
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                monthLabels.push({ label: monthNames[month], index: cellIndex });
+                currentMonth = month;
+              }
+            }
+            if (i % 7 === 0) cellIndex++;
+          }
+
+          // Build month label HTML (spaced by weeks)
+          const monthLabelsHtml = monthLabels.map(m => {
+            return `<div class="heatmap-month-label" style="position: relative; left: ${m.index * 16}px;">${m.label}</div>`;
+          }).join('');
+
+          // Check if user has percentile data
+          let percentileHtml = '';
+          if (state.user) {
+            try {
+              const userStatsDoc = await fbDb.collection('userStats').doc(state.user.uid).get();
+              if (userStatsDoc.exists) {
+                const percentile = userStatsDoc.data().percentile;
+                if (percentile !== undefined) {
+                  percentileHtml = `
+                    <div class="percentile-card">
+                      <div class="percentile-value">Top ${100 - percentile}%</div>
+                      <div class="percentile-label">Global Ranking</div>
+                      <div class="percentile-sublabel">You're more focused than ${percentile}% of all users</div>
+                    </div>
+                  `;
+                }
+              }
+            } catch (err) {
+              console.log('No percentile data available:', err);
+            }
+          }
+
+          panel.innerHTML = `
+            <div style="padding: 20px;">
+              <h3 style="margin: 0 0 16px 0;">Annual Focus Summary (${now.getFullYear()})</h3>
+
+              <div class="annual-stats-grid">
+                <div class="annual-stat-card">
+                  <div class="annual-stat-label">Total Focus Time</div>
+                  <div class="annual-stat-value">${totalHours}h</div>
+                  <div class="annual-stat-sublabel">${totalSessions} sessions completed</div>
+                </div>
+
+                <div class="annual-stat-card">
+                  <div class="annual-stat-label">Active Days</div>
+                  <div class="annual-stat-value">${activeDays}</div>
+                  <div class="annual-stat-sublabel">Out of ${Math.ceil((now - yearStart) / (1000 * 60 * 60 * 24))} days</div>
+                </div>
+
+                <div class="annual-stat-card">
+                  <div class="annual-stat-label">Longest Streak</div>
+                  <div class="annual-stat-value">${longestStreak}</div>
+                  <div class="annual-stat-sublabel">consecutive days</div>
+                </div>
+
+                <div class="annual-stat-card">
+                  <div class="annual-stat-label">Most Productive Day</div>
+                  <div class="annual-stat-value" style="font-size: 24px;">${mostProductiveDay}</div>
+                  <div class="annual-stat-sublabel">${Math.round(dayOfWeekMinutes[maxDayIndex])} total minutes</div>
+                </div>
+
+                ${percentileHtml}
+              </div>
+
+              <div class="heatmap-container">
+                <h4 style="margin: 0 0 16px 0;">Daily Activity Heatmap</h4>
+                <div class="heatmap-grid">
+                  <div class="heatmap-day-labels">
+                    <span>Mon</span>
+                    <span></span>
+                    <span>Wed</span>
+                    <span></span>
+                    <span>Fri</span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <div class="heatmap-weeks">
+                    <div class="heatmap-month-labels">
+                      ${monthLabelsHtml}
+                    </div>
+                    <div class="heatmap-cells">
+                      ${heatmapCells.join('')}
+                    </div>
+                  </div>
+                </div>
+                <div class="heatmap-legend">
+                  <span>Less</span>
+                  <div class="heatmap-legend-boxes">
+                    <div class="heatmap-legend-box intensity-0"></div>
+                    <div class="heatmap-legend-box intensity-1"></div>
+                    <div class="heatmap-legend-box intensity-2"></div>
+                    <div class="heatmap-legend-box intensity-3"></div>
+                    <div class="heatmap-legend-box intensity-4"></div>
+                  </div>
+                  <span>More</span>
+                </div>
+              </div>
+            </div>
+          `;
+
+        } catch (err) {
+          console.error('Error rendering yearly tab:', err);
+          panel.innerHTML = '<div class="analytics-loading">Error loading yearly data. Please try again.</div>';
         }
       }
 
