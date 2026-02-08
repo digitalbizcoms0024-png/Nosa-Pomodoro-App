@@ -2269,6 +2269,64 @@
     .score-same {
       color: var(--text-secondary);
     }
+
+    .summary-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .summary-card {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .summary-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .summary-comparison {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .focus-recommendation {
+      background: var(--bg-secondary);
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 250px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .summary-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-container {
+        height: 200px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -3636,6 +3694,186 @@
             </div>
           </div>
         `;
+      }
+
+      function renderWeeklySummary(thisWeek, lastWeek, fourWeekAvg) {
+        const thisWeekMinutes = thisWeek.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0);
+        const lastWeekMinutes = lastWeek.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0);
+        const thisWeekSessions = thisWeek.length;
+        const lastWeekSessions = lastWeek.length;
+        const avgSession = thisWeekSessions > 0 ? Math.round(thisWeekMinutes / thisWeekSessions) : 0;
+
+        const timeVsLast = thisWeekMinutes - lastWeekMinutes;
+        const timeVsAvg = thisWeekMinutes - fourWeekAvg;
+        const sessionsVsLast = thisWeekSessions - lastWeekSessions;
+
+        function formatChange(value, suffix = '') {
+          if (value > 0) return `<span class="score-up">+${value}${suffix}</span>`;
+          if (value < 0) return `<span class="score-down">${value}${suffix}</span>`;
+          return `<span class="score-same">—</span>`;
+        }
+
+        return `
+          <div class="summary-cards">
+            <div class="summary-card">
+              <div class="summary-value">${thisWeekMinutes} min</div>
+              <div class="summary-label">Total Focus</div>
+              <div class="summary-comparison">
+                ${formatChange(timeVsLast, ' min')} vs last week<br>
+                ${formatChange(timeVsAvg, ' min')} vs 4-wk avg
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-value">${thisWeekSessions}</div>
+              <div class="summary-label">Sessions</div>
+              <div class="summary-comparison">
+                ${formatChange(sessionsVsLast)} vs last week
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-value">${avgSession} min</div>
+              <div class="summary-label">Avg Session</div>
+              <div class="summary-comparison">This week</div>
+            </div>
+          </div>
+        `;
+      }
+
+      function analyzeBestFocusHours(sessions) {
+        const hourlyMinutes = new Array(24).fill(0);
+
+        sessions.forEach(s => {
+          const hour = s.timestamp.toDate().getHours();
+          hourlyMinutes[hour] += s.minutesCompleted || 0;
+        });
+
+        // Find best 2-hour window
+        let bestWindow = { start: 0, total: 0 };
+        for (let i = 0; i < 24; i++) {
+          const windowTotal = hourlyMinutes[i] + (hourlyMinutes[(i + 1) % 24] || 0);
+          if (windowTotal > bestWindow.total) {
+            bestWindow = { start: i, total: windowTotal };
+          }
+        }
+
+        const formatHour = (h) => {
+          const period = h >= 12 ? 'PM' : 'AM';
+          const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+          return `${hour12}${period}`;
+        };
+
+        const recommendation = bestWindow.total > 0
+          ? `Your peak focus window is ${formatHour(bestWindow.start)}-${formatHour((bestWindow.start + 2) % 24)}. Consider scheduling deep work during these hours.`
+          : 'Complete more sessions to see your best focus hours.';
+
+        return { hourlyMinutes, recommendation };
+      }
+
+      function renderFocusHoursChart(hourlyMinutes) {
+        const colors = getChartColors();
+        const maxMinutes = Math.max(...hourlyMinutes, 1);
+
+        const labels = Array.from({ length: 24 }, (_, i) => {
+          const period = i >= 12 ? 'PM' : 'AM';
+          const hour12 = i === 0 ? 12 : i > 12 ? i - 12 : i;
+          return `${hour12}${period}`;
+        });
+
+        const config = {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [{
+              label: 'Focus Minutes',
+              data: hourlyMinutes,
+              backgroundColor: colors.primary,
+              borderRadius: 4,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => `${ctx.parsed.y} min`
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                grid: { color: colors.grid },
+                ticks: { color: colors.text }
+              },
+              x: {
+                grid: { display: false },
+                ticks: { color: colors.text }
+              }
+            }
+          }
+        };
+
+        return config;
+      }
+
+      async function renderOverviewTab() {
+        const panel = analyticsDialog.querySelector('[data-tab-panel="overview"]');
+        if (!panel) return;
+
+        panel.innerHTML = '<div class="analytics-loading">Loading overview...</div>';
+
+        try {
+          // Fetch all required data in parallel
+          const thisWeekBounds = getWeekBounds(0);
+          const lastWeekBounds = getWeekBounds(1);
+          const fourWeeksAgoBounds = getWeekBounds(4);
+
+          const [thisWeekSessions, lastWeekSessions, fourWeekSessions] = await Promise.all([
+            fetchSessions(thisWeekBounds.startOfWeek, thisWeekBounds.endOfWeek),
+            fetchSessions(lastWeekBounds.startOfWeek, lastWeekBounds.endOfWeek),
+            fetchSessions(fourWeeksAgoBounds.startOfWeek, thisWeekBounds.endOfWeek)
+          ]);
+
+          // Calculate metrics
+          const thisWeekScore = calculateProductivityScore(thisWeekSessions);
+          const lastWeekScore = calculateProductivityScore(lastWeekSessions);
+          const fourWeekAvgMinutes = fourWeekSessions.length > 0
+            ? Math.round(fourWeekSessions.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0) / 4)
+            : 0;
+
+          const { hourlyMinutes, recommendation } = analyzeBestFocusHours(thisWeekSessions);
+
+          // Render all sections
+          const gaugeHtml = renderProductivityGauge(thisWeekScore, lastWeekScore);
+          const summaryHtml = renderWeeklySummary(thisWeekSessions, lastWeekSessions, fourWeekAvgMinutes);
+
+          panel.innerHTML = `
+            <div class="overview-content">
+              <h3 style="margin-top: 0; margin-bottom: 16px;">Productivity Score</h3>
+              ${gaugeHtml}
+
+              <h3 style="margin-top: 24px; margin-bottom: 16px;">Weekly Summary</h3>
+              ${summaryHtml}
+
+              <h3 style="margin-top: 24px; margin-bottom: 8px;">Best Focus Hours</h3>
+              <p class="focus-recommendation">${recommendation}</p>
+              <div class="chart-container">
+                <canvas id="focusHoursChart"></canvas>
+              </div>
+            </div>
+          `;
+
+          // Render chart after DOM update
+          setTimeout(() => {
+            renderChart('focusHoursChart', renderFocusHoursChart(hourlyMinutes));
+          }, 0);
+
+        } catch (err) {
+          console.error('Error rendering overview:', err);
+          panel.innerHTML = '<div class="analytics-loading">Error loading overview. Please try again.</div>';
+        }
       }
 
       // --- Tasks ---
