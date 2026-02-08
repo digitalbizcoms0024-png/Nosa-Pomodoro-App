@@ -2247,6 +2247,28 @@
       color: var(--text-secondary);
       padding: 40px 0;
     }
+
+    .productivity-gauge {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .gauge-svg {
+      width: 180px;
+      height: 180px;
+    }
+
+    .score-up {
+      color: var(--chart-success);
+    }
+
+    .score-down {
+      color: #e74c3c;
+    }
+
+    .score-same {
+      color: var(--text-secondary);
+    }
   </style>
 </head>
 <body>
@@ -3499,7 +3521,8 @@
         // Load initial tab (Overview) if not already loaded
         const activePanel = analyticsDialog.querySelector('.analytics-panel[style*="display:block"], .analytics-panel[style*="display: block"]');
         if (activePanel && activePanel.querySelector('.analytics-loading')) {
-          // Will be populated by future tab-specific render functions
+          const tabName = activePanel.dataset.tabPanel;
+          renderAnalyticsTab(tabName);
         }
       }
 
@@ -3522,13 +3545,97 @@
 
             // Lazy render: if panel has loading state, render content
             if (panel.querySelector('.analytics-loading')) {
-              // Will be populated by future tab-specific render functions
-              // For now, just show placeholder
+              renderAnalyticsTab(tabName);
             }
           } else {
             panel.style.display = 'none';
           }
         });
+      }
+
+      function renderAnalyticsTab(tabName) {
+        switch(tabName) {
+          case 'overview':
+            renderOverviewTab();
+            break;
+          case 'projects':
+          case 'forecast':
+          case 'yearly':
+            // To be implemented in future plans
+            break;
+        }
+      }
+
+      // --- Analytics: Overview Tab ---
+
+      function calculateProductivityScore(sessions) {
+        if (sessions.length === 0) return 0;
+
+        // 40% total focus time (300 min = 5 hours in a week = max)
+        const totalMinutes = sessions.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0);
+        const timeScore = Math.min(40, (totalMinutes / 300) * 40);
+
+        // 30% consistency (7 active days = max)
+        const uniqueDays = new Set(sessions.map(s => {
+          const d = s.timestamp.toDate();
+          return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+        })).size;
+        const consistencyScore = (uniqueDays / 7) * 30;
+
+        // 30% session quality (45 min average session = max)
+        const avgSessionMinutes = totalMinutes / sessions.length;
+        const qualityScore = Math.min(30, (avgSessionMinutes / 45) * 30);
+
+        return Math.round(timeScore + consistencyScore + qualityScore);
+      }
+
+      function getScoreLabel(score) {
+        if (score >= 90) return 'Crushing it!';
+        if (score >= 70) return 'On fire';
+        if (score >= 50) return 'Building momentum';
+        if (score >= 30) return 'Getting started';
+        return 'Every session counts';
+      }
+
+      function getScoreColor(score) {
+        if (score >= 70) return '#2ecc71'; // green
+        if (score >= 50) return '#f39c12'; // yellow
+        return '#e74c3c'; // red
+      }
+
+      function renderProductivityGauge(score, comparison) {
+        const color = getScoreColor(score);
+        const label = getScoreLabel(score);
+        const circumference = 2 * Math.PI * 70; // radius = 70
+        const offset = circumference - (score / 100) * circumference;
+
+        let comparisonHtml = '';
+        if (comparison !== null) {
+          const diff = score - comparison;
+          if (diff > 0) {
+            comparisonHtml = `<span class="score-up">+${diff} vs last week</span>`;
+          } else if (diff < 0) {
+            comparisonHtml = `<span class="score-down">${diff} vs last week</span>`;
+          } else {
+            comparisonHtml = `<span class="score-same">Same as last week</span>`;
+          }
+        }
+
+        return `
+          <div class="productivity-gauge">
+            <svg class="gauge-svg" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="70" fill="none" stroke="#e0e0e0" stroke-width="12"/>
+              <circle cx="80" cy="80" r="70" fill="none" stroke="${color}" stroke-width="12"
+                      stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"
+                      transform="rotate(-90 80 80)" stroke-linecap="round"/>
+              <text x="80" y="75" text-anchor="middle" font-size="36" font-weight="bold" fill="currentColor">${score}</text>
+              <text x="80" y="95" text-anchor="middle" font-size="14" fill="var(--text-secondary)">${label}</text>
+            </svg>
+            <div style="text-align: center; margin-top: 8px; font-size: 14px;">
+              ${comparisonHtml}
+            </div>
+          </div>
+        `;
       }
 
       // --- Tasks ---
