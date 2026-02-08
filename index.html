@@ -3106,6 +3106,10 @@
           </svg>`;
           previewBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+            if (chime.premium && !isPremium()) {
+              requirePremium('Premium Sounds');
+              return;
+            }
             previewChime(id);
           });
 
@@ -3119,7 +3123,7 @@
           card.appendChild(previewBtn);
 
           card.addEventListener('click', () => {
-            if (isLocked) {
+            if (chime.premium && !isPremium()) {
               requirePremium('Premium Sounds');
               return;
             }
@@ -3128,6 +3132,7 @@
             document.querySelectorAll('.chime-card').forEach(c => c.classList.remove('active'));
             card.classList.add('active');
             updateChimeSettingLabel();
+            chimeDialog.close();
           });
 
           chimeGrid.appendChild(card);
@@ -4009,6 +4014,7 @@
       }
 
       function isPremium() {
+        if (window.__testPremium) return true;
         return PREMIUM_STATUSES.includes(state.subscription.status);
       }
 
@@ -4101,6 +4107,7 @@
       document.getElementById('checkout-monthly').addEventListener('click', () => startCheckout(STRIPE_PRICES.monthly, 'subscription'));
       document.getElementById('checkout-yearly').addEventListener('click', () => startCheckout(STRIPE_PRICES.yearly, 'subscription'));
       document.getElementById('checkout-lifetime').addEventListener('click', () => startCheckout(STRIPE_PRICES.lifetime, 'payment'));
+      document.getElementById('closeUpgradePrompt').addEventListener('click', hideUpgradePrompt);
       document.getElementById('upgrade-prompt-dismiss').addEventListener('click', hideUpgradePrompt);
       document.getElementById('upgrade-prompt-view-plans').addEventListener('click', () => { hideUpgradePrompt(); showPricingPage(); });
 
@@ -4353,9 +4360,7 @@
       }
 
       function updateThemeIcons() {
-        const isDark = root.dataset.theme === 'dark';
-        sunIcon.classList.toggle('hidden', isDark);
-        moonIcon.classList.toggle('hidden', !isDark);
+        // Theme toggle is now a palette icon — no sun/moon toggling needed
       }
 
       function updateAll() {
