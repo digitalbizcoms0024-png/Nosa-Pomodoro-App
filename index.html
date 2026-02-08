@@ -2275,6 +2275,11 @@
             <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
           </svg>
         </button>
+        <button class="icon-btn" id="analyticsBtn" aria-label="Analytics" data-tooltip="Analytics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M7 12h10M7 16h10M7 8h10"/>
+          </svg>
+        </button>
         <button class="icon-btn hidden" id="leaderboardBtn" aria-label="Leaderboard" data-tooltip="Leaderboard">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 22V8a2 2 0 0 0-2-2H6v0a2 2 0 0 0-2 2v4a4 4 0 0 0 4 4h0"/><path d="M14 22V8a2 2 0 0 1 2-2h2v0a2 2 0 0 1 2 2v4a4 4 0 0 1-4 4h0"/>
@@ -2924,6 +2929,9 @@
       const closeExportBtn = $('#closeExport');
       const cancelExportBtn = $('#cancelExport');
       const exportCsvBtn = $('#exportCsvBtn');
+      const analyticsDialog = $('#analyticsDialog');
+      const closeAnalyticsBtn = $('#closeAnalytics');
+      const analyticsBtn = $('#analyticsBtn');
       const settingsBtn = $('#settingsBtn');
       const settingsDialog = $('#settingsDialog');
       const settingsForm = $('#settingsForm');
@@ -3424,6 +3432,103 @@
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+      }
+
+      // --- Analytics ---
+      const chartInstances = {};
+
+      function getChartColors() {
+        const style = getComputedStyle(document.documentElement);
+        return {
+          primary: style.getPropertyValue('--chart-primary').trim(),
+          secondary: style.getPropertyValue('--chart-secondary').trim(),
+          accent: style.getPropertyValue('--chart-accent').trim(),
+          grid: style.getPropertyValue('--chart-grid').trim(),
+          text: style.getPropertyValue('--chart-text').trim(),
+          success: style.getPropertyValue('--chart-success').trim()
+        };
+      }
+
+      function renderChart(canvasId, config) {
+        if (chartInstances[canvasId]) {
+          chartInstances[canvasId].destroy();
+        }
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        chartInstances[canvasId] = new Chart(ctx, config);
+        return chartInstances[canvasId];
+      }
+
+      function getWeekBounds(weeksAgo = 0) {
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - dayOfWeek - (weeksAgo * 7));
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+
+        return { startOfWeek, endOfWeek };
+      }
+
+      async function fetchSessions(startDate, endDate) {
+        if (!state.user) return [];
+
+        try {
+          const uid = state.user.uid;
+          const sessionsRef = fbDb.collection('users').doc(uid).collection('sessions');
+          const query = sessionsRef
+            .where('timestamp', '>=', startDate)
+            .where('timestamp', '<=', endDate)
+            .orderBy('timestamp', 'asc');
+
+          const snapshot = await query.get();
+          return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        } catch (err) {
+          console.error('Error fetching sessions:', err);
+          return [];
+        }
+      }
+
+      function openAnalyticsDialog() {
+        if (!requirePremium('Analytics')) return;
+
+        analyticsDialog.showModal();
+
+        // Load initial tab (Overview) if not already loaded
+        const activePanel = analyticsDialog.querySelector('.analytics-panel[style*="display:block"], .analytics-panel[style*="display: block"]');
+        if (activePanel && activePanel.querySelector('.analytics-loading')) {
+          // Will be populated by future tab-specific render functions
+        }
+      }
+
+      function switchAnalyticsTab(tabName) {
+        // Update tab buttons
+        const tabButtons = analyticsDialog.querySelectorAll('.analytics-tab');
+        tabButtons.forEach(btn => {
+          if (btn.dataset.tabButton === tabName) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+
+        // Update tab panels
+        const tabPanels = analyticsDialog.querySelectorAll('.analytics-panel');
+        tabPanels.forEach(panel => {
+          if (panel.dataset.tabPanel === tabName) {
+            panel.style.display = 'block';
+
+            // Lazy render: if panel has loading state, render content
+            if (panel.querySelector('.analytics-loading')) {
+              // Will be populated by future tab-specific render functions
+              // For now, just show placeholder
+            }
+          } else {
+            panel.style.display = 'none';
+          }
+        });
       }
 
       // --- Tasks ---
@@ -5100,6 +5205,27 @@
         if (e.target === exportDialog) exportDialog.close();
       });
 
+      // Analytics
+      analyticsBtn.addEventListener('click', () => {
+        openAnalyticsDialog();
+      });
+
+      closeAnalyticsBtn.addEventListener('click', () => {
+        analyticsDialog.close();
+      });
+
+      analyticsDialog.addEventListener('click', (e) => {
+        if (e.target === analyticsDialog) analyticsDialog.close();
+      });
+
+      // Tab switching
+      const analyticsTabButtons = analyticsDialog.querySelectorAll('.analytics-tab');
+      analyticsTabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          switchAnalyticsTab(btn.dataset.tabButton);
+        });
+      });
+
       // Settings
       settingsBtn.addEventListener('click', () => {
         $('#focusDuration').value = state.settings.focusDuration;
@@ -5177,6 +5303,7 @@
           case 'Escape':
             if (pricingPage.open) hidePricingPage();
             else if (upgradePrompt.open) hideUpgradePrompt();
+            else if (analyticsDialog.open) analyticsDialog.close();
             else if (exportDialog.open) exportDialog.close();
             else if (chimeDialog.open) chimeDialog.close();
             else if (themeDialog.open) themeDialog.close();
