@@ -8,6 +8,9 @@
   <title>Pomodoro Timer</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='280' r='200' fill='%23e74c3c'/%3E%3Ccircle cx='256' cy='280' r='170' fill='%23c0392b'/%3E%3Ccircle cx='256' cy='280' r='160' fill='%23e74c3c'/%3E%3Crect x='250' y='130' width='12' height='100' rx='6' fill='%23fff'/%3E%3Crect x='250' y='230' width='12' height='60' rx='6' fill='%23fff' transform='rotate(30 256 280)'/%3E%3Cellipse cx='256' cy='100' rx='12' ry='20' fill='%2327ae60'/%3E%3Cellipse cx='240' cy='95' rx='18' ry='10' fill='%2327ae60' transform='rotate(-30 240 95)'/%3E%3Cellipse cx='272' cy='95' rx='18' ry='10' fill='%2327ae60' transform='rotate(30 272 95)'/%3E%3C/svg%3E">
+  <script>
+    (function(){var t=localStorage.getItem('pomodoro-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -73,6 +76,132 @@
       --text-secondary: #8fb898;
       --ring-track: #1e3d24;
       --border: #2a3d2e;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.16);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.20);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,0.24);
+    }
+
+    /* Premium Theme: Ocean */
+    html[data-theme="ocean"][data-mode="focus"] {
+      --bg: #f0f8ff;
+      --surface: #ffffff;
+      --primary: #2980b9;
+      --primary-hover: #1f6a9e;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #cce5f6;
+      --border: #d4e6f3;
+    }
+
+    html[data-theme="ocean"][data-mode="break"],
+    html[data-theme="ocean"][data-mode="longbreak"] {
+      --bg: #f0f8ff;
+      --surface: #ffffff;
+      --primary: #16a085;
+      --primary-hover: #138d75;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #c8e6e0;
+      --border: #d4e8e3;
+    }
+
+    /* Premium Theme: Forest */
+    html[data-theme="forest"][data-mode="focus"] {
+      --bg: #f4f8f4;
+      --surface: #ffffff;
+      --primary: #27ae60;
+      --primary-hover: #1e8449;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #c8e6c9;
+      --border: #d5e8d7;
+    }
+
+    html[data-theme="forest"][data-mode="break"],
+    html[data-theme="forest"][data-mode="longbreak"] {
+      --bg: #f4f8f4;
+      --surface: #ffffff;
+      --primary: #2ecc71;
+      --primary-hover: #28b463;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #d0edd1;
+      --border: #d9edd9;
+    }
+
+    /* Premium Theme: Sunset */
+    html[data-theme="sunset"][data-mode="focus"] {
+      --bg: #fff5ee;
+      --surface: #ffffff;
+      --primary: #ff6b6b;
+      --primary-hover: #e85555;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #ffd6d6;
+      --border: #ffe0d9;
+    }
+
+    html[data-theme="sunset"][data-mode="break"],
+    html[data-theme="sunset"][data-mode="longbreak"] {
+      --bg: #fff5ee;
+      --surface: #ffffff;
+      --primary: #f39c12;
+      --primary-hover: #d68910;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #fce4c3;
+      --border: #fae8d0;
+    }
+
+    /* Premium Theme: Lavender */
+    html[data-theme="lavender"][data-mode="focus"] {
+      --bg: #f8f5ff;
+      --surface: #ffffff;
+      --primary: #9b59b6;
+      --primary-hover: #884ea0;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #e8daef;
+      --border: #ebdff0;
+    }
+
+    html[data-theme="lavender"][data-mode="break"],
+    html[data-theme="lavender"][data-mode="longbreak"] {
+      --bg: #f8f5ff;
+      --surface: #ffffff;
+      --primary: #8e44ad;
+      --primary-hover: #7d3c98;
+      --text: #2c2c2c;
+      --text-secondary: #666666;
+      --ring-track: #e0d0e8;
+      --border: #e5d9ed;
+    }
+
+    /* Premium Theme: Charcoal */
+    html[data-theme="charcoal"][data-mode="focus"] {
+      --bg: #1a1a1a;
+      --surface: #2a2a2a;
+      --primary: #ff7675;
+      --primary-hover: #ff9190;
+      --text: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --ring-track: #4a2a2a;
+      --border: #3d3d3d;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.16);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.20);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,0.24);
+    }
+
+    html[data-theme="charcoal"][data-mode="break"],
+    html[data-theme="charcoal"][data-mode="longbreak"] {
+      --bg: #1a1a1a;
+      --surface: #2a2a2a;
+      --primary: #55efc4;
+      --primary-hover: #6ff5d0;
+      --text: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --ring-track: #1e3d34;
+      --border: #3d3d3d;
       --shadow-sm: 0 1px 3px rgba(0,0,0,0.16);
       --shadow-md: 0 4px 12px rgba(0,0,0,0.20);
       --shadow-lg: 0 8px 30px rgba(0,0,0,0.24);
@@ -1003,6 +1132,78 @@
       padding-top: 8px;
     }
 
+    /* Theme selector grid */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (min-width: 400px) {
+      .theme-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .theme-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 12px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .theme-card:hover {
+      background: var(--surface);
+      border-color: var(--primary);
+    }
+
+    .theme-card.active {
+      border-color: var(--primary);
+      background: var(--surface);
+    }
+
+    .theme-card.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .theme-card.locked:hover {
+      border-color: var(--border);
+    }
+
+    .theme-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+    }
+
+    .theme-card-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .theme-card-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 6px;
+      background: var(--primary);
+      color: var(--surface);
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
     /* Keyboard hint — hidden on touch-only devices */
     .kbd-hint {
       font-size: 0.6875rem;
@@ -1690,6 +1891,18 @@
       border-color: var(--primary);
     }
 
+    .audio-cat-btn.audio-cat-premium::after {
+      content: 'PRO';
+      font-size: 8px;
+      font-weight: 700;
+      background: var(--primary);
+      color: var(--surface);
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-left: 4px;
+      vertical-align: super;
+    }
+
     .audio-station {
       display: flex;
       align-items: center;
@@ -1941,12 +2154,9 @@
     </div>
   </div>
 
-  <button class="theme-toggle-fixed" id="themeToggle" aria-label="Toggle dark mode" data-tooltip="Dark mode">
-    <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-    </svg>
-    <svg id="moonIcon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  <button class="theme-toggle-fixed" id="themeToggle" aria-label="Choose theme" data-tooltip="Theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
     </svg>
   </button>
 
@@ -2263,6 +2473,21 @@
     </div>
   </dialog>
 
+  <!-- Theme Selector Dialog -->
+  <dialog id="themeDialog" aria-labelledby="themeTitle">
+    <div class="dialog-header">
+      <h2 id="themeTitle">Choose Theme</h2>
+      <button class="icon-btn" id="closeTheme" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="theme-grid" id="themeGrid"></div>
+    </div>
+  </dialog>
+
   <!-- Audio Controls -->
   <div id="audioIndicator" class="audio-indicator" aria-label="Audio controls">
     <button id="audioTogglePanel" class="audio-toggle-btn" aria-label="Toggle audio panel">
@@ -2381,8 +2606,9 @@
       const chartBars = $('#chartBars');
       const modeTabs = document.querySelectorAll('.mode-tab');
       const themeToggle = $('#themeToggle');
-      const sunIcon = $('#sunIcon');
-      const moonIcon = $('#moonIcon');
+      const themeDialog = $('#themeDialog');
+      const themeGrid = $('#themeGrid');
+      const closeThemeBtn = $('#closeTheme');
       const settingsBtn = $('#settingsBtn');
       const settingsDialog = $('#settingsDialog');
       const settingsForm = $('#settingsForm');
@@ -2472,12 +2698,40 @@
           { name: 'Deep Space One (Concentration)', url: 'https://ice1.somafm.com/deepspaceone-128-mp3', genre: 'Deep Focus' },
           { name: 'Dark Zone', url: 'https://ice1.somafm.com/darkzone-256-mp3', genre: 'Dark Ambient' },
         ],
+        lofi: [
+          { name: 'Lush', url: 'https://ice1.somafm.com/lush-128-mp3', genre: 'Lo-fi Chill' },
+          { name: 'Groove Salad', url: 'https://ice1.somafm.com/groovesalad-256-mp3', genre: 'Downtempo' },
+          { name: 'Indie Pop Rocks', url: 'https://ice1.somafm.com/indiepop-128-mp3', genre: 'Indie Pop' },
+        ],
+        classical: [
+          { name: 'BAGeL Radio', url: 'https://ice1.somafm.com/bagel-128-mp3', genre: 'Classical Remix' },
+          { name: 'Suburbs of Goa', url: 'https://ice1.somafm.com/suburbsofgoa-128-mp3', genre: 'World Classical' },
+        ],
+        nature: [
+          { name: 'Fluid', url: 'https://ice1.somafm.com/fluid-128-mp3', genre: 'Liquid Ambient' },
+          { name: 'Drone Zone', url: 'https://ice5.somafm.com/dronezone-256-mp3', genre: 'Meditative Drone' },
+        ],
       };
 
       const AUDIO_CATEGORY_LABELS = {
         ambient: 'Ambient',
         binaural: 'Focus Beats',
+        lofi: 'Lo-fi',
+        classical: 'Classical',
+        nature: 'Nature',
       };
+
+      const PREMIUM_AUDIO_CATEGORIES = ['lofi', 'classical', 'nature'];
+
+      const THEMES = [
+        { id: 'light', name: 'Light', color: '#e74c3c', premium: false },
+        { id: 'dark', name: 'Dark', color: '#e74c3c', premium: false },
+        { id: 'ocean', name: 'Ocean', color: '#2980b9', premium: true },
+        { id: 'forest', name: 'Forest', color: '#27ae60', premium: true },
+        { id: 'sunset', name: 'Sunset', color: '#ff6b6b', premium: true },
+        { id: 'lavender', name: 'Lavender', color: '#9b59b6', premium: true },
+        { id: 'charcoal', name: 'Charcoal', color: '#ff7675', premium: true },
+      ];
 
       // --- Audio ducking constants ---
       const DUCK_RATIO = 0.2;          // Duck to 20% of current volume
@@ -2552,6 +2806,57 @@
 
       function saveTheme(theme) {
         localStorage.setItem(STORAGE_KEYS.theme, theme);
+      }
+
+      function showThemeSelector() {
+        themeGrid.innerHTML = '';
+        const currentTheme = root.dataset.theme || 'light';
+
+        THEMES.forEach(theme => {
+          const card = document.createElement('button');
+          card.className = 'theme-card';
+          if (theme.id === currentTheme) card.classList.add('active');
+
+          const isLocked = theme.premium && !isPremium();
+          if (isLocked) card.classList.add('locked');
+
+          const swatch = document.createElement('div');
+          swatch.className = 'theme-swatch';
+          swatch.style.background = theme.color;
+
+          const name = document.createElement('div');
+          name.className = 'theme-card-name';
+          name.textContent = theme.name;
+
+          card.appendChild(swatch);
+          card.appendChild(name);
+
+          if (isLocked) {
+            const badge = document.createElement('div');
+            badge.className = 'theme-card-badge';
+            badge.textContent = 'Premium';
+            card.appendChild(badge);
+          }
+
+          card.addEventListener('click', () => {
+            if (isLocked) {
+              requirePremium('Premium Themes');
+              return;
+            }
+            applyTheme(theme.id);
+            document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+          });
+
+          themeGrid.appendChild(card);
+        });
+
+        themeDialog.showModal();
+      }
+
+      function applyTheme(themeId) {
+        root.dataset.theme = themeId;
+        saveTheme(themeId);
       }
 
       // --- Tasks ---
@@ -3763,8 +4068,9 @@
         // Restore audio settings
         state.audio.volume = state.settings.audioVolume / 100;
         state.audio.currentCategory = state.settings.audioCategory || 'ambient';
-        // Fallback if saved category no longer exists
-        if (!AUDIO_STATIONS[state.audio.currentCategory]) {
+        // Fallback if saved category no longer exists or is premium and user lost premium
+        if (!AUDIO_STATIONS[state.audio.currentCategory] ||
+            (PREMIUM_AUDIO_CATEGORIES.includes(state.audio.currentCategory) && !isPremium())) {
           state.audio.currentCategory = 'ambient';
           state.audio.currentStationIndex = 0;
         }
@@ -3796,6 +4102,9 @@
             btn.className = 'audio-cat-btn' + (key === state.audio.currentCategory ? ' active' : '');
             btn.textContent = label;
             btn.dataset.category = key;
+            if (PREMIUM_AUDIO_CATEGORIES.includes(key) && !isPremium()) {
+              btn.classList.add('audio-cat-premium');
+            }
             btn.addEventListener('click', () => switchAudioCategory(key));
             audioCategoriesEl.appendChild(btn);
           }
@@ -3876,6 +4185,12 @@
       function switchAudioCategory(category) {
         if (!AUDIO_STATIONS[category]) {
           console.error('Invalid audio category:', category);
+          return;
+        }
+
+        // Premium gate for premium categories
+        if (PREMIUM_AUDIO_CATEGORIES.includes(category) && !isPremium()) {
+          showUpgradePrompt('Premium Audio');
           return;
         }
 
@@ -4123,13 +4438,17 @@
         });
       });
 
-      // Theme toggle
+      // Theme selector
       themeToggle.addEventListener('click', () => {
-        const newTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-        root.dataset.theme = newTheme;
-        saveTheme(newTheme);
-        themeColorMeta.content = getThemeColor();
-        updateThemeIcons();
+        showThemeSelector();
+      });
+
+      closeThemeBtn.addEventListener('click', () => {
+        themeDialog.close();
+      });
+
+      themeDialog.addEventListener('click', (e) => {
+        if (e.target === themeDialog) themeDialog.close();
       });
 
       // Settings
@@ -4208,6 +4527,7 @@
           case 'Escape':
             if (pricingPage.open) hidePricingPage();
             else if (upgradePrompt.open) hideUpgradePrompt();
+            else if (themeDialog.open) themeDialog.close();
             else if (settingsDialog.open) settingsDialog.close();
             break;
         }
