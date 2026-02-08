@@ -1288,6 +1288,30 @@
       height: 16px;
     }
 
+    /* CSV export dialog */
+    #exportDialog input[type="date"] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    #exportDialog input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: var(--date-picker-filter, none);
+    }
+
+    [data-theme="dark"] #exportDialog input[type="date"]::-webkit-calendar-picker-indicator,
+    [data-theme="ocean"] #exportDialog input[type="date"]::-webkit-calendar-picker-indicator,
+    [data-theme="forest"] #exportDialog input[type="date"]::-webkit-calendar-picker-indicator,
+    [data-theme="sunset"] #exportDialog input[type="date"]::-webkit-calendar-picker-indicator,
+    [data-theme="lavender"] #exportDialog input[type="date"]::-webkit-calendar-picker-indicator,
+    [data-theme="charcoal"] #exportDialog input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+
     /* Keyboard hint — hidden on touch-only devices */
     .kbd-hint {
       font-size: 0.6875rem;
@@ -2361,6 +2385,9 @@
         </div>
         <div class="chart-bars" id="chartBars"></div>
       </div>
+      <button type="button" class="btn btn-ghost" id="openExport" style="margin-top: 12px; width: 100%;">
+        Export CSV
+      </button>
     </div>
   </dialog>
 
@@ -2589,6 +2616,34 @@
     <div class="dialog-body chime-grid" id="chimeGrid"></div>
   </dialog>
 
+  <!-- CSV Export Dialog -->
+  <dialog id="exportDialog" aria-labelledby="exportTitle">
+    <div class="dialog-header">
+      <h2 id="exportTitle">Export Sessions</h2>
+      <button class="icon-btn" id="closeExport" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <p class="export-description" style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px;">Download your focus session history as a CSV file.</p>
+      <div class="field">
+        <label for="exportStartDate">Start Date</label>
+        <input type="date" id="exportStartDate">
+      </div>
+      <div class="field">
+        <label for="exportEndDate">End Date</label>
+        <input type="date" id="exportEndDate">
+      </div>
+      <div id="exportStatus" style="font-size: 0.875rem; color: var(--text-secondary); min-height: 20px; margin-top: 12px;"></div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="cancelExport">Cancel</button>
+        <button type="button" class="btn btn-primary" id="exportCsvBtn">Export CSV</button>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Audio Controls -->
   <div id="audioIndicator" class="audio-indicator" aria-label="Audio controls">
     <button id="audioTogglePanel" class="audio-toggle-btn" aria-label="Toggle audio panel">
@@ -2714,6 +2769,11 @@
       const chimeGrid = $('#chimeGrid');
       const closeChimeBtn = $('#closeChime');
       const openChimeSelectorBtn = $('#openChimeSelector');
+      const exportDialog = $('#exportDialog');
+      const openExportBtn = $('#openExport');
+      const closeExportBtn = $('#closeExport');
+      const cancelExportBtn = $('#cancelExport');
+      const exportCsvBtn = $('#exportCsvBtn');
       const settingsBtn = $('#settingsBtn');
       const settingsDialog = $('#settingsDialog');
       const settingsForm = $('#settingsForm');
@@ -3082,6 +3142,133 @@
           const chime = CHIME_SOUNDS[selectedChime];
           openChimeSelectorBtn.textContent = chime ? `${chime.name} >` : 'Classic Bell >';
         }
+      }
+
+      // --- CSV Export ---
+      function showExportDialog() {
+        if (!requirePremium('CSV Export')) return;
+
+        // Set default date range: start = first day of current month, end = today
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endDate = now;
+
+        const formatDate = (d) => {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const day = String(d.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        };
+
+        $('#exportStartDate').value = formatDate(startDate);
+        $('#exportEndDate').value = formatDate(endDate);
+        $('#exportStatus').textContent = '';
+
+        exportDialog.showModal();
+      }
+
+      async function exportSessionsCSV() {
+        const startInput = document.getElementById('exportStartDate');
+        const endInput = document.getElementById('exportEndDate');
+        const statusEl = document.getElementById('exportStatus');
+
+        if (!startInput.value || !endInput.value) {
+          statusEl.textContent = 'Please select both dates.';
+          return;
+        }
+
+        const startDate = new Date(startInput.value + 'T00:00:00');
+        const endDate = new Date(endInput.value + 'T23:59:59');
+
+        if (startDate > endDate) {
+          statusEl.textContent = 'Start date must be before end date.';
+          return;
+        }
+
+        if (!state.user) {
+          statusEl.textContent = 'Please sign in to export.';
+          return;
+        }
+
+        statusEl.textContent = 'Fetching sessions...';
+
+        try {
+          const uid = state.user.uid;
+          const sessionsRef = fbDb.collection('users').doc(uid).collection('sessions');
+          const query = sessionsRef
+            .where('startedAt', '>=', startDate)
+            .where('startedAt', '<=', endDate)
+            .orderBy('startedAt', 'desc')
+            .limit(10000);
+
+          const snapshot = await query.get();
+
+          if (snapshot.empty) {
+            statusEl.textContent = 'No sessions found in this date range.';
+            return;
+          }
+
+          // Build project name lookup
+          const projectMap = {};
+          (state.projects || []).forEach(p => { projectMap[p.id] = p.name; });
+
+          // Build session rows
+          const sessions = [];
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            const startedAt = data.startedAt?.toDate ? data.startedAt.toDate() : new Date(data.startedAt);
+            sessions.push([
+              startedAt.toISOString(),
+              data.duration || '',
+              data.projectId ? (projectMap[data.projectId] || 'Unknown Project') : 'No Project',
+              data.hourOfDay != null ? data.hourOfDay : '',
+              data.dayOfWeek != null ? ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][data.dayOfWeek] : '',
+            ]);
+          });
+
+          generateAndDownloadCSV(sessions, startInput.value, endInput.value);
+          statusEl.textContent = `Exported ${sessions.length} sessions.`;
+
+          // Close dialog after short delay
+          setTimeout(() => exportDialog.close(), 1500);
+        } catch (err) {
+          console.error('Export failed:', err);
+          if (err.message && err.message.includes('index')) {
+            statusEl.textContent = 'Firestore index needed. Check console for setup link.';
+          } else {
+            statusEl.textContent = 'Export failed. Please try again.';
+          }
+        }
+      }
+
+      function escapeCSVField(field) {
+        if (field == null) return '';
+        const str = String(field);
+        if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+          return '"' + str.replace(/"/g, '""') + '"';
+        }
+        return str;
+      }
+
+      function generateAndDownloadCSV(rows, startDate, endDate) {
+        const headers = ['Date', 'Duration (min)', 'Project', 'Hour of Day', 'Day of Week'];
+        const csvRows = [headers.map(escapeCSVField)];
+        rows.forEach(row => csvRows.push(row.map(escapeCSVField)));
+
+        // UTF-8 BOM for Excel compatibility + CSV content
+        const csvContent = '\uFEFF' + csvRows.map(r => r.join(',')).join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'pomodoro-sessions-' + startDate + '-to-' + endDate + '.csv';
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
       }
 
       // --- Tasks ---
@@ -4713,6 +4900,28 @@
         if (e.target === chimeDialog) chimeDialog.close();
       });
 
+      // CSV export
+      openExportBtn.addEventListener('click', () => {
+        statsDialog.close();
+        showExportDialog();
+      });
+
+      closeExportBtn.addEventListener('click', () => {
+        exportDialog.close();
+      });
+
+      cancelExportBtn.addEventListener('click', () => {
+        exportDialog.close();
+      });
+
+      exportCsvBtn.addEventListener('click', () => {
+        exportSessionsCSV();
+      });
+
+      exportDialog.addEventListener('click', (e) => {
+        if (e.target === exportDialog) exportDialog.close();
+      });
+
       // Settings
       settingsBtn.addEventListener('click', () => {
         $('#focusDuration').value = state.settings.focusDuration;
@@ -4790,6 +4999,7 @@
           case 'Escape':
             if (pricingPage.open) hidePricingPage();
             else if (upgradePrompt.open) hideUpgradePrompt();
+            else if (exportDialog.open) exportDialog.close();
             else if (chimeDialog.open) chimeDialog.close();
             else if (themeDialog.open) themeDialog.close();
             else if (settingsDialog.open) settingsDialog.close();
