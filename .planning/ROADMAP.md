@@ -66,7 +66,10 @@ Plans:
   2. Premium user can browse and play 2-4 additional audio categories beyond Ambient and Focus Beats
   3. Premium user can choose from 5-6 timer alert chime sounds and hear the selected chime on timer completion
   4. Premium user can export their session history as a CSV file with a date range filter applied
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+  - [ ] 05-01-PLAN.md — Premium color themes, theme selector dialog, and premium audio categories
+  - [ ] 05-02-PLAN.md — Customizable timer chime sounds and CSV session export
 
 ### Phase 6: Analytics Suite
 **Goal**: Users gain actionable productivity insights from their accumulated session data -- the features that make premium worth keeping month after month.
@@ -102,6 +105,6 @@ Phases execute in numeric order: 3 -> 4 -> 5 -> 6 -> 7
 | 2. Polish & Integration | v1.0 | 1/1 | Complete | 2026-02-06 |
 | 3. Payment Infrastructure & Feature Gating | v2.0 | 3/3 | Complete | 2026-02-07 |
 | 4. Data Foundation & Projects | v2.0 | 2/2 | Complete | 2026-02-07 |
-| 5. Premium Personalization & Export | v2.0 | 0/TBD | Not started | - |
+| 5. Premium Personalization & Export | v2.0 | 0/2 | Not started | - |
 | 6. Analytics Suite | v2.0 | 0/TBD | Not started | - |
 | 7. Integrations | v2.0 | 0/TBD | Not started | - |
