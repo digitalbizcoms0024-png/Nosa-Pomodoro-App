@@ -81,7 +81,12 @@ Plans:
   3. Premium user can view a weekly summary comparing current week to previous week with specific metrics
   4. Premium user can view a Focus Forecast predicting next week's output based on their history
   5. Premium user can view a yearly productivity report with heatmap and annual summary
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+  - [ ] 06-01-PLAN.md — Chart.js integration, chart color CSS tokens, analytics dialog shell with tabs
+  - [ ] 06-02-PLAN.md — Overview tab: productivity gauge, weekly summary, best focus hours
+  - [ ] 06-03-PLAN.md — Projects tab (donut + trends) and Forecast tab (day-of-week predictions)
+  - [ ] 06-04-PLAN.md — Yearly tab (heatmap + annual stats) and percentile Cloud Function
 
 ### Phase 7: Integrations
 **Goal**: Power users can connect the app to their existing workflow tools -- Todoist for task import, webhooks for automation, and PDF for polished reports.
@@ -106,5 +111,5 @@ Phases execute in numeric order: 3 -> 4 -> 5 -> 6 -> 7
 | 3. Payment Infrastructure & Feature Gating | v2.0 | 3/3 | Complete | 2026-02-07 |
 | 4. Data Foundation & Projects | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 5. Premium Personalization & Export | v2.0 | 2/2 | Complete | 2026-02-08 |
-| 6. Analytics Suite | v2.0 | 0/TBD | Not started | - |
+| 6. Analytics Suite | v2.0 | 0/4 | Not started | - |
 | 7. Integrations | v2.0 | 0/TBD | Not started | - |
