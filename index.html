@@ -35,6 +35,12 @@
       --text-secondary: #666666;
       --ring-track: #f0d5d1;
       --border: #e8e0de;
+      --chart-primary: #e74c3c;
+      --chart-secondary: #3498db;
+      --chart-accent: #f39c12;
+      --chart-grid: #e8e0de;
+      --chart-text: #2c2c2c;
+      --chart-success: #27ae60;
     }
 
     /* Light Break */
@@ -63,6 +69,12 @@
       --shadow-sm: 0 1px 3px rgba(0,0,0,0.16);
       --shadow-md: 0 4px 12px rgba(0,0,0,0.20);
       --shadow-lg: 0 8px 30px rgba(0,0,0,0.24);
+      --chart-primary: #e74c3c;
+      --chart-secondary: #5dade2;
+      --chart-accent: #f5b041;
+      --chart-grid: #3d2a2e;
+      --chart-text: #f0e6e6;
+      --chart-success: #2ecc71;
     }
 
     /* Dark Break */
@@ -91,6 +103,12 @@
       --text-secondary: #666666;
       --ring-track: #cce5f6;
       --border: #d4e6f3;
+      --chart-primary: #2980b9;
+      --chart-secondary: #16a085;
+      --chart-accent: #e67e22;
+      --chart-grid: #d4e6f3;
+      --chart-text: #2c2c2c;
+      --chart-success: #27ae60;
     }
 
     html[data-theme="ocean"][data-mode="break"],
@@ -115,6 +133,12 @@
       --text-secondary: #666666;
       --ring-track: #c8e6c9;
       --border: #d5e8d7;
+      --chart-primary: #27ae60;
+      --chart-secondary: #2980b9;
+      --chart-accent: #f39c12;
+      --chart-grid: #d5e8d7;
+      --chart-text: #2c2c2c;
+      --chart-success: #2ecc71;
     }
 
     html[data-theme="forest"][data-mode="break"],
@@ -139,6 +163,12 @@
       --text-secondary: #666666;
       --ring-track: #ffd6d6;
       --border: #ffe0d9;
+      --chart-primary: #ff6b6b;
+      --chart-secondary: #f39c12;
+      --chart-accent: #9b59b6;
+      --chart-grid: #ffe0d9;
+      --chart-text: #2c2c2c;
+      --chart-success: #27ae60;
     }
 
     html[data-theme="sunset"][data-mode="break"],
@@ -163,6 +193,12 @@
       --text-secondary: #666666;
       --ring-track: #e8daef;
       --border: #ebdff0;
+      --chart-primary: #9b59b6;
+      --chart-secondary: #3498db;
+      --chart-accent: #e74c3c;
+      --chart-grid: #ebdff0;
+      --chart-text: #2c2c2c;
+      --chart-success: #27ae60;
     }
 
     html[data-theme="lavender"][data-mode="break"],
@@ -190,6 +226,12 @@
       --shadow-sm: 0 1px 3px rgba(0,0,0,0.16);
       --shadow-md: 0 4px 12px rgba(0,0,0,0.20);
       --shadow-lg: 0 8px 30px rgba(0,0,0,0.24);
+      --chart-primary: #ff7675;
+      --chart-secondary: #74b9ff;
+      --chart-accent: #ffeaa7;
+      --chart-grid: #3d3d3d;
+      --chart-text: #f0f0f0;
+      --chart-success: #55efc4;
     }
 
     html[data-theme="charcoal"][data-mode="break"],
@@ -2150,6 +2192,61 @@
         max-width: 300px;
       }
     }
+
+    /* Analytics Dialog */
+    #analyticsDialog {
+      max-width: 600px;
+      width: 95vw;
+      max-height: 85vh;
+    }
+
+    .analytics-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--border);
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 1;
+    }
+
+    .analytics-tab {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .analytics-tab:hover {
+      color: var(--text);
+    }
+
+    .analytics-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 600;
+    }
+
+    .analytics-body {
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .analytics-panel {
+      min-height: 200px;
+    }
+
+    .analytics-loading {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 40px 0;
+    }
   </style>
 </head>
 <body>
@@ -2662,6 +2759,38 @@
     </div>
   </dialog>
 
+  <!-- Analytics Dialog -->
+  <dialog id="analyticsDialog" aria-labelledby="analyticsTitle">
+    <div class="dialog-header">
+      <h2 id="analyticsTitle">Analytics</h2>
+      <button class="icon-btn" id="closeAnalytics" aria-label="Close analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="analytics-tabs">
+      <button class="analytics-tab active" data-tab-button="overview">Overview</button>
+      <button class="analytics-tab" data-tab-button="projects">Projects</button>
+      <button class="analytics-tab" data-tab-button="forecast">Forecast</button>
+      <button class="analytics-tab" data-tab-button="yearly">Yearly</button>
+    </div>
+    <div class="dialog-body analytics-body">
+      <div class="analytics-panel" data-tab-panel="overview" style="display:block">
+        <div class="analytics-loading">Loading analytics...</div>
+      </div>
+      <div class="analytics-panel" data-tab-panel="projects" style="display:none">
+        <div class="analytics-loading">Loading project data...</div>
+      </div>
+      <div class="analytics-panel" data-tab-panel="forecast" style="display:none">
+        <div class="analytics-loading">Loading forecast...</div>
+      </div>
+      <div class="analytics-panel" data-tab-panel="yearly" style="display:none">
+        <div class="analytics-loading">Loading yearly report...</div>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Audio Controls -->
   <div id="audioIndicator" class="audio-indicator" aria-label="Audio controls">
     <button id="audioTogglePanel" class="audio-toggle-btn" aria-label="Toggle audio panel">
@@ -2708,6 +2837,9 @@
 
   <!-- Background Audio -->
   <audio id="bgAudio" preload="none" crossorigin="anonymous"></audio>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
