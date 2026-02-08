@@ -3862,9 +3862,9 @@
           const uid = state.user.uid;
           const sessionsRef = fbDb.collection('users').doc(uid).collection('sessions');
           const query = sessionsRef
-            .where('timestamp', '>=', startDate)
-            .where('timestamp', '<=', endDate)
-            .orderBy('timestamp', 'asc');
+            .where('startedAt', '>=', startDate)
+            .where('startedAt', '<=', endDate)
+            .orderBy('startedAt', 'asc');
 
           const snapshot = await query.get();
           return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -3937,12 +3937,12 @@
         if (sessions.length === 0) return 0;
 
         // 40% total focus time (300 min = 5 hours in a week = max)
-        const totalMinutes = sessions.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0);
+        const totalMinutes = sessions.reduce((sum, s) => sum + (s.duration || 0), 0);
         const timeScore = Math.min(40, (totalMinutes / 300) * 40);
 
         // 30% consistency (7 active days = max)
         const uniqueDays = new Set(sessions.map(s => {
-          const d = s.timestamp.toDate();
+          const d = s.startedAt.toDate();
           return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
         })).size;
         const consistencyScore = (uniqueDays / 7) * 30;
@@ -4004,8 +4004,8 @@
       }
 
       function renderWeeklySummary(thisWeek, lastWeek, fourWeekAvg) {
-        const thisWeekMinutes = thisWeek.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0);
-        const lastWeekMinutes = lastWeek.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0);
+        const thisWeekMinutes = thisWeek.reduce((sum, s) => sum + (s.duration || 0), 0);
+        const lastWeekMinutes = lastWeek.reduce((sum, s) => sum + (s.duration || 0), 0);
         const thisWeekSessions = thisWeek.length;
         const lastWeekSessions = lastWeek.length;
         const avgSession = thisWeekSessions > 0 ? Math.round(thisWeekMinutes / thisWeekSessions) : 0;
@@ -4050,8 +4050,8 @@
         const hourlyMinutes = new Array(24).fill(0);
 
         sessions.forEach(s => {
-          const hour = s.timestamp.toDate().getHours();
-          hourlyMinutes[hour] += s.minutesCompleted || 0;
+          const hour = s.startedAt.toDate().getHours();
+          hourlyMinutes[hour] += s.duration || 0;
         });
 
         // Find best 2-hour window
@@ -4147,7 +4147,7 @@
           const thisWeekScore = calculateProductivityScore(thisWeekSessions);
           const lastWeekScore = calculateProductivityScore(lastWeekSessions);
           const fourWeekAvgMinutes = fourWeekSessions.length > 0
-            ? Math.round(fourWeekSessions.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0) / 4)
+            ? Math.round(fourWeekSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 4)
             : 0;
 
           const { hourlyMinutes, recommendation } = analyzeBestFocusHours(thisWeekSessions);
@@ -4221,7 +4221,7 @@
             if (!projectMinutes[projectName]) {
               projectMinutes[projectName] = 0;
             }
-            projectMinutes[projectName] += (s.minutesCompleted || 0);
+            projectMinutes[projectName] += (s.duration || 0);
           });
 
           // Sort projects by time (descending)
@@ -4234,7 +4234,7 @@
           // Group by week + project for trend line chart
           const weeklyData = {};
           sessions.forEach(s => {
-            const date = s.timestamp.toDate();
+            const date = s.startedAt.toDate();
             const weekStart = new Date(date);
             weekStart.setDate(date.getDate() - date.getDay()); // Sunday
             weekStart.setHours(0, 0, 0, 0);
@@ -4249,7 +4249,7 @@
             if (!weeklyData[weekKey][projectName]) {
               weeklyData[weekKey][projectName] = 0;
             }
-            weeklyData[weekKey][projectName] += (s.minutesCompleted || 0);
+            weeklyData[weekKey][projectName] += (s.duration || 0);
           });
 
           const sortedWeeks = Object.keys(weeklyData).sort();
@@ -4400,7 +4400,7 @@
         const now = new Date();
 
         sessions.forEach(s => {
-          const date = s.timestamp.toDate();
+          const date = s.startedAt.toDate();
           const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
 
           // Calculate which week (0 = most recent, 3 = oldest)
@@ -4411,7 +4411,7 @@
             if (!dayData[dayOfWeek]) {
               dayData[dayOfWeek] = [0, 0, 0, 0];
             }
-            dayData[dayOfWeek][weekIndex] += (s.minutesCompleted || 0);
+            dayData[dayOfWeek][weekIndex] += (s.duration || 0);
           }
         });
 
@@ -4606,13 +4606,13 @@
           // Build daily aggregates (date -> total minutes)
           const dailyMinutes = {};
           sessions.forEach(s => {
-            const date = s.timestamp.toDate();
+            const date = s.startedAt.toDate();
             const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-            dailyMinutes[key] = (dailyMinutes[key] || 0) + (s.minutesCompleted || 0);
+            dailyMinutes[key] = (dailyMinutes[key] || 0) + (s.duration || 0);
           });
 
           // Calculate annual summary stats
-          const totalHours = Math.round(sessions.reduce((sum, s) => sum + (s.minutesCompleted || 0), 0) / 60 * 10) / 10;
+          const totalHours = Math.round(sessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60 * 10) / 10;
           const totalSessions = sessions.length;
           const activeDays = Object.keys(dailyMinutes).length;
 
@@ -4636,8 +4636,8 @@
           // Calculate most productive day of week
           const dayOfWeekMinutes = [0, 0, 0, 0, 0, 0, 0]; // Sun-Sat
           sessions.forEach(s => {
-            const date = s.timestamp.toDate();
-            dayOfWeekMinutes[date.getDay()] += s.minutesCompleted || 0;
+            const date = s.startedAt.toDate();
+            dayOfWeekMinutes[date.getDay()] += s.duration || 0;
           });
           const maxDayIndex = dayOfWeekMinutes.indexOf(Math.max(...dayOfWeekMinutes));
           const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

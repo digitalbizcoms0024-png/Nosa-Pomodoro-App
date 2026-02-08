@@ -31,12 +31,12 @@ export const aggregateUserStats = onSchedule(
           .collection('users')
           .doc(uid)
           .collection('sessions')
-          .where('timestamp', '>=', weekAgo)
-          .where('timestamp', '<=', now)
+          .where('startedAt', '>=', weekAgo)
+          .where('startedAt', '<=', now)
           .get();
 
         const weeklyMinutes = sessionsSnapshot.docs.reduce(
-          (sum, doc) => sum + (doc.data().minutesCompleted || 0),
+          (sum, doc) => sum + (doc.data().duration || 0),
           0
         );
 
