@@ -2336,6 +2336,108 @@
       margin-bottom: 32px;
     }
 
+    .forecast-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .forecast-header h3 {
+      margin: 0;
+    }
+
+    .confidence-badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .confidence-badge.high {
+      background: rgba(46, 204, 113, 0.2);
+      color: var(--chart-success);
+    }
+
+    .confidence-badge.medium {
+      background: rgba(243, 156, 18, 0.2);
+      color: #f39c12;
+    }
+
+    .confidence-badge.low {
+      background: rgba(231, 76, 60, 0.2);
+      color: #e74c3c;
+    }
+
+    .forecast-chart-container {
+      margin-bottom: 24px;
+    }
+
+    .forecast-details {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .forecast-details h4 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .forecast-details ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .forecast-details li {
+      padding: 8px 0;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .forecast-details li:last-child {
+      border-bottom: none;
+    }
+
+    .forecast-today {
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .forecast-insufficient {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .forecast-insufficient h3 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      color: var(--text-primary);
+    }
+
+    .forecast-insufficient p {
+      margin: 0 0 16px 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .forecast-encourage {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
     @media (max-width: 600px) {
       .summary-cards {
         grid-template-columns: 1fr;
@@ -3638,6 +3740,8 @@
             renderProjectsTab();
             break;
           case 'forecast':
+            renderForecastTab();
+            break;
           case 'yearly':
             // To be implemented in future plans
             break;
@@ -4102,6 +4206,203 @@
         } catch (err) {
           console.error('Error rendering projects tab:', err);
           panel.innerHTML = '<div class="analytics-loading">Error loading projects. Please try again.</div>';
+        }
+      }
+
+      // --- Analytics: Forecast Tab ---
+
+      function calculateForecast(sessions) {
+        // Group sessions by day-of-week and week index
+        const dayData = {}; // { 0: [week0Minutes, week1Minutes, week2Minutes, week3Minutes], 1: [...], ... }
+        const now = new Date();
+
+        sessions.forEach(s => {
+          const date = s.timestamp.toDate();
+          const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+
+          // Calculate which week (0 = most recent, 3 = oldest)
+          const daysDiff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+          const weekIndex = Math.floor(daysDiff / 7);
+
+          if (weekIndex >= 0 && weekIndex < 4) {
+            if (!dayData[dayOfWeek]) {
+              dayData[dayOfWeek] = [0, 0, 0, 0];
+            }
+            dayData[dayOfWeek][weekIndex] += (s.minutesCompleted || 0);
+          }
+        });
+
+        // Apply exponential weights: [0.1, 0.2, 0.3, 0.4] (most recent = highest)
+        // weekIndex 0 = most recent week = weight 0.4
+        // weekIndex 1 = 1 week ago = weight 0.3
+        // weekIndex 2 = 2 weeks ago = weight 0.2
+        // weekIndex 3 = 3 weeks ago = weight 0.1
+        const weights = [0.4, 0.3, 0.2, 0.1];
+
+        const forecast = {};
+        let totalDataPoints = 0;
+
+        for (let day = 0; day < 7; day++) {
+          if (dayData[day]) {
+            const weekMinutes = dayData[day];
+            const weightedSum = weekMinutes.reduce((sum, minutes, weekIdx) => {
+              if (minutes > 0) totalDataPoints++;
+              return sum + (minutes * weights[weekIdx]);
+            }, 0);
+            forecast[day] = Math.round(weightedSum);
+          } else {
+            forecast[day] = 0;
+          }
+        }
+
+        // Determine confidence
+        let confidence = 'LOW';
+        if (totalDataPoints >= 20) {
+          confidence = 'HIGH';
+        } else if (totalDataPoints >= 10) {
+          confidence = 'MEDIUM';
+        }
+
+        // Check unique days
+        const uniqueDays = Object.keys(dayData).length;
+
+        return { forecast, confidence, uniqueDays, totalDataPoints };
+      }
+
+      async function renderForecastTab() {
+        const panel = analyticsDialog.querySelector('[data-tab-panel="forecast"]');
+        if (!panel) return;
+
+        panel.innerHTML = '<div class="analytics-loading">Loading forecast...</div>';
+
+        try {
+          // Fetch last 4 weeks of sessions
+          const fourWeeksAgo = getWeekBounds(4);
+          const now = getWeekBounds(0);
+          const sessions = await fetchSessions(fourWeeksAgo.startOfWeek, now.endOfWeek);
+
+          const { forecast, confidence, uniqueDays, totalDataPoints } = calculateForecast(sessions);
+
+          // Check if we have enough data (7+ unique days)
+          if (uniqueDays < 7) {
+            panel.innerHTML = `
+              <div class="forecast-insufficient">
+                <h3>Not Enough Data Yet</h3>
+                <p>Complete focus sessions on more days of the week to generate your personalized forecast.</p>
+                <div style="font-size: 32px; margin: 16px 0;">📊</div>
+                <div class="forecast-encourage">
+                  <strong>Keep going!</strong> The forecast model needs activity across different days to predict your patterns accurately. Try completing sessions on at least ${7 - uniqueDays} more day${7 - uniqueDays === 1 ? '' : 's'} this week.
+                </div>
+              </div>
+            `;
+            return;
+          }
+
+          const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+          const today = new Date().getDay();
+
+          // Build forecast data starting from today
+          const orderedDays = [];
+          const orderedMinutes = [];
+          for (let i = 0; i < 7; i++) {
+            const dayIndex = (today + i) % 7;
+            orderedDays.push(dayNames[dayIndex]);
+            orderedMinutes.push(forecast[dayIndex] || 0);
+          }
+
+          const colors = getChartColors();
+
+          // Build confidence badge
+          const confidenceBadgeClass = confidence.toLowerCase();
+          const confidenceBadge = `<span class="confidence-badge ${confidenceBadgeClass}">${confidence} Confidence</span>`;
+
+          // Build day-by-day breakdown
+          const breakdownItems = orderedDays.map((day, idx) => {
+            const minutes = orderedMinutes[idx];
+            const isTodayClass = idx === 0 ? ' forecast-today' : '';
+            return `
+              <li>
+                <span${isTodayClass}>${day}${idx === 0 ? ' (Today)' : ''}</span>
+                <span${isTodayClass}>${minutes} min</span>
+              </li>
+            `;
+          }).join('');
+
+          panel.innerHTML = `
+            <div class="forecast-content">
+              <div class="forecast-header">
+                <h3 style="margin: 0;">Focus Forecast</h3>
+                ${confidenceBadge}
+              </div>
+              <p class="analytics-subtitle">Predicted daily focus time for next 7 days based on day-of-week patterns (last 4 weeks)</p>
+
+              <div class="forecast-chart-container">
+                <div class="chart-container">
+                  <canvas id="forecastChart"></canvas>
+                </div>
+              </div>
+
+              <div class="forecast-details">
+                <h4>Day-by-Day Breakdown</h4>
+                <ul>
+                  ${breakdownItems}
+                </ul>
+              </div>
+
+              <p style="font-size: 12px; color: var(--text-secondary); margin-top: 16px; line-height: 1.5;">
+                <strong>Note:</strong> Forecast uses weighted average from the past 4 weeks, giving more importance to recent weeks. Confidence is based on data availability (${totalDataPoints} data points).
+              </p>
+            </div>
+          `;
+
+          // Render chart after DOM update
+          setTimeout(() => {
+            // Highlight today in primary color
+            const barColors = orderedDays.map((_, idx) => idx === 0 ? colors.primary : colors.secondary);
+
+            renderChart('forecastChart', {
+              type: 'bar',
+              data: {
+                labels: orderedDays,
+                datasets: [{
+                  label: 'Predicted Focus Minutes',
+                  data: orderedMinutes,
+                  backgroundColor: barColors,
+                  borderRadius: 4
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) => `${ctx.parsed.y} min`
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    grid: { color: colors.grid },
+                    ticks: {
+                      color: colors.text,
+                      callback: (value) => `${value} min`
+                    }
+                  },
+                  x: {
+                    grid: { display: false },
+                    ticks: { color: colors.text }
+                  }
+                }
+              }
+            });
+          }, 0);
+
+        } catch (err) {
+          console.error('Error rendering forecast tab:', err);
+          panel.innerHTML = '<div class="analytics-loading">Error loading forecast. Please try again.</div>';
         }
       }
 
