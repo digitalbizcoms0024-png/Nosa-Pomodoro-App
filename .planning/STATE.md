@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 6 of 7 (Analytics Suite)
-Plan: 3 of 5 complete
-Status: In progress
-Last activity: 2026-02-08 -- Completed 06-03-PLAN.md (Projects and Forecast Tabs)
+Plan: 4 of 4 complete
+Status: Phase complete
+Last activity: 2026-02-08 -- Completed 06-04-PLAN.md (Yearly Heatmap and Percentile Ranking)
 
-Progress: [#####█░░░░] 76% (5.6/7 phases complete)
+Progress: [######░░░░] 86% (6/7 phases complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: 3.5 min
-- Total execution time: 0.79 hours
+- Total plans completed: 14
+- Average duration: 3.4 min
+- Total execution time: 0.80 hours
 
 **By Phase:**
 
@@ -32,7 +32,7 @@ Progress: [#####█░░░░] 76% (5.6/7 phases complete)
 | 03-payment-infrastructure-and-feature-gating | 3/3 | 10 min | 3.3 min |
 | 04-data-foundation-and-projects | 2/2 | 10 min | 5.0 min |
 | 05-premium-personalization-export | 2/2 | 11 min | 5.5 min |
-| 06-analytics-suite | 3/5 | 10.4 min | 3.5 min |
+| 06-analytics-suite | 4/4 | 11 min | 2.8 min |
 
 *Updated after each plan completion*
 
@@ -75,6 +75,11 @@ Recent decisions affecting current work:
 - Forecast confidence scoring: HIGH (20+), MEDIUM (10-19), LOW (<10) data points (06-03)
 - Top 5 projects only for trend chart (avoid visual clutter) (06-03)
 - 7+ unique days required to show forecast (need week coverage) (06-03)
+- GitHub-style heatmap (52-53 weeks x 7 days) hand-rolled without library (06-04)
+- CSS color-mix() for heatmap intensity gradient (25%, 50%, 75%, 100% of --primary) (06-04)
+- Percentile ranking based on last 7 days (not all-time) to keep rankings fresh (06-04)
+- Scheduled Cloud Function runs daily at 3am UTC for percentile calculation (06-04)
+- Only active users (totalMinutes > 0) included in percentile ranking (06-04)
 
 ### Pending Todos
 
@@ -93,9 +98,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 06-03 (Projects and Forecast Tabs)
-Resume file: .planning/phases/06-analytics-suite/06-03-SUMMARY.md
-Next action: Continue Phase 6 with Plan 06-04 (Yearly Heatmap) when ready
+Stopped at: Completed 06-04 (Yearly Heatmap and Percentile Ranking) - Phase 6 Complete
+Resume file: .planning/phases/06-analytics-suite/06-04-SUMMARY.md
+Next action: Begin Phase 7 (Deployment and Launch) when ready
 
 ## Quick Tasks
 
