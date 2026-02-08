@@ -1204,6 +1204,90 @@
       text-transform: uppercase;
     }
 
+    /* Chime selector grid */
+    .chime-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chime-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .chime-card:hover {
+      background: var(--surface);
+      border-color: var(--primary);
+    }
+
+    .chime-card.active {
+      border-color: var(--primary);
+      background: var(--surface);
+    }
+
+    .chime-card.locked {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .chime-card.locked:hover {
+      border-color: var(--border);
+      background: var(--bg);
+    }
+
+    .chime-card-name {
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .chime-card-badge {
+      background: var(--primary);
+      color: white;
+      font-size: 0.625rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-left: 8px;
+      margin-right: 8px;
+    }
+
+    .chime-preview-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 200ms ease;
+    }
+
+    .chime-preview-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .chime-preview-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
     /* Keyboard hint — hidden on touch-only devices */
     .kbd-hint {
       font-size: 0.6875rem;
@@ -2216,6 +2300,10 @@
           <span class="toggle-slider"></span>
         </label>
       </div>
+      <div class="toggle-row" id="chimeSettingRow">
+        <span>Timer Sound</span>
+        <button type="button" class="btn btn-ghost btn-sm" id="openChimeSelector">Classic Bell &gt;</button>
+      </div>
       <div class="dialog-actions">
         <button type="button" class="btn btn-ghost" id="cancelSettings">Cancel</button>
         <button type="submit" class="btn btn-primary">Save</button>
@@ -2488,6 +2576,19 @@
     </div>
   </dialog>
 
+  <!-- Chime Selector Dialog -->
+  <dialog id="chimeDialog" aria-labelledby="chimeTitle">
+    <div class="dialog-header">
+      <h2 id="chimeTitle">Timer Sound</h2>
+      <button class="icon-btn" id="closeChime" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dialog-body chime-grid" id="chimeGrid"></div>
+  </dialog>
+
   <!-- Audio Controls -->
   <div id="audioIndicator" class="audio-indicator" aria-label="Audio controls">
     <button id="audioTogglePanel" class="audio-toggle-btn" aria-label="Toggle audio panel">
@@ -2609,6 +2710,10 @@
       const themeDialog = $('#themeDialog');
       const themeGrid = $('#themeGrid');
       const closeThemeBtn = $('#closeTheme');
+      const chimeDialog = $('#chimeDialog');
+      const chimeGrid = $('#chimeGrid');
+      const closeChimeBtn = $('#closeChime');
+      const openChimeSelectorBtn = $('#openChimeSelector');
       const settingsBtn = $('#settingsBtn');
       const settingsDialog = $('#settingsDialog');
       const settingsForm = $('#settingsForm');
@@ -2732,6 +2837,64 @@
         { id: 'lavender', name: 'Lavender', color: '#9b59b6', premium: true },
         { id: 'charcoal', name: 'Charcoal', color: '#ff7675', premium: true },
       ];
+
+      // --- Chime sounds ---
+      const CHIME_SOUNDS = {
+        bell: {
+          name: 'Classic Bell',
+          premium: false,
+          notes: [523.25, 659.25, 783.99], // C5, E5, G5 ascending
+          type: 'sine',
+          spacing: 0.15,
+          duration: 0.4,
+          gain: 0.3
+        },
+        soft: {
+          name: 'Soft Chime',
+          premium: false,
+          notes: [440, 554.37, 659.25], // A4, C#5, E5 (A major chord)
+          type: 'sine',
+          spacing: 0.2,
+          duration: 0.6,
+          gain: 0.2
+        },
+        digital: {
+          name: 'Digital Pulse',
+          premium: false,
+          notes: [880, 880], // Two quick beeps
+          type: 'square',
+          spacing: 0.12,
+          duration: 0.15,
+          gain: 0.15
+        },
+        gong: {
+          name: 'Meditation Gong',
+          premium: true,
+          notes: [130.81, 196, 261.63], // Low resonant tone
+          type: 'sine',
+          spacing: 0.3,
+          duration: 1.0,
+          gain: 0.25
+        },
+        singing: {
+          name: 'Singing Bowl',
+          premium: true,
+          notes: [261.63, 392, 523.25, 783.99], // Overtone-rich pattern
+          type: 'sine',
+          spacing: 0.25,
+          duration: 0.8,
+          gain: 0.2
+        },
+        crystal: {
+          name: 'Crystal Chime',
+          premium: true,
+          notes: [1046.5, 987.77, 880, 783.99], // High tinkling notes descending
+          type: 'triangle',
+          spacing: 0.1,
+          duration: 0.5,
+          gain: 0.2
+        },
+      };
 
       // --- Audio ducking constants ---
       const DUCK_RATIO = 0.2;          // Duck to 20% of current volume
@@ -2857,6 +3020,68 @@
       function applyTheme(themeId) {
         root.dataset.theme = themeId;
         saveTheme(themeId);
+      }
+
+      function showChimeSelector() {
+        chimeGrid.innerHTML = '';
+        const selectedChime = state.settings.selectedChime || 'bell';
+
+        Object.entries(CHIME_SOUNDS).forEach(([id, chime]) => {
+          const card = document.createElement('button');
+          card.className = 'chime-card';
+          if (id === selectedChime) card.classList.add('active');
+
+          const isLocked = chime.premium && !isPremium();
+          if (isLocked) card.classList.add('locked');
+
+          const name = document.createElement('div');
+          name.className = 'chime-card-name';
+          name.textContent = chime.name;
+
+          const previewBtn = document.createElement('button');
+          previewBtn.className = 'chime-preview-btn';
+          previewBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>`;
+          previewBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            previewChime(id);
+          });
+
+          card.appendChild(name);
+          if (isLocked) {
+            const badge = document.createElement('div');
+            badge.className = 'chime-card-badge';
+            badge.textContent = 'Premium';
+            card.appendChild(badge);
+          }
+          card.appendChild(previewBtn);
+
+          card.addEventListener('click', () => {
+            if (isLocked) {
+              requirePremium('Premium Sounds');
+              return;
+            }
+            state.settings.selectedChime = id;
+            saveSettings();
+            document.querySelectorAll('.chime-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            updateChimeSettingLabel();
+          });
+
+          chimeGrid.appendChild(card);
+        });
+
+        chimeDialog.showModal();
+      }
+
+      function updateChimeSettingLabel() {
+        if (openChimeSelectorBtn) {
+          const selectedChime = state.settings.selectedChime || 'bell';
+          const chime = CHIME_SOUNDS[selectedChime];
+          openChimeSelectorBtn.textContent = chime ? `${chime.name} >` : 'Classic Bell >';
+        }
       }
 
       // --- Tasks ---
@@ -3148,22 +3373,46 @@
         try {
           const ctx = getAudioCtx();
           const now = ctx.currentTime;
-          const notes = type === 'focus'
-            ? [523.25, 659.25, 783.99] // C5, E5, G5
-            : [783.99, 659.25, 523.25]; // G5, E5, C5 descending for break
+          const selectedChimeId = state.settings.selectedChime || 'bell';
+          const chime = CHIME_SOUNDS[selectedChimeId] || CHIME_SOUNDS.bell;
+
+          // For break completion, reverse the notes
+          const notes = type === 'break' ? [...chime.notes].reverse() : chime.notes;
 
           notes.forEach((freq, i) => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-            osc.type = 'sine';
+            osc.type = chime.type;
             osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0, now + i * 0.15);
-            gain.gain.linearRampToValueAtTime(0.3, now + i * 0.15 + 0.02);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.4);
+            gain.gain.setValueAtTime(0, now + i * chime.spacing);
+            gain.gain.linearRampToValueAtTime(chime.gain, now + i * chime.spacing + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * chime.spacing + chime.duration);
             osc.connect(gain);
             gain.connect(ctx.destination);
-            osc.start(now + i * 0.15);
-            osc.stop(now + i * 0.15 + 0.4);
+            osc.start(now + i * chime.spacing);
+            osc.stop(now + i * chime.spacing + chime.duration);
+          });
+        } catch {}
+      }
+
+      function previewChime(chimeId) {
+        const chime = CHIME_SOUNDS[chimeId];
+        if (!chime) return;
+        try {
+          const ctx = getAudioCtx();
+          const now = ctx.currentTime;
+          chime.notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = chime.type;
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0, now + i * chime.spacing);
+            gain.gain.linearRampToValueAtTime(chime.gain, now + i * chime.spacing + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + i * chime.spacing + chime.duration);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + i * chime.spacing);
+            osc.stop(now + i * chime.spacing + chime.duration);
           });
         } catch {}
       }
@@ -4451,6 +4700,19 @@
         if (e.target === themeDialog) themeDialog.close();
       });
 
+      // Chime selector
+      openChimeSelectorBtn.addEventListener('click', () => {
+        showChimeSelector();
+      });
+
+      closeChimeBtn.addEventListener('click', () => {
+        chimeDialog.close();
+      });
+
+      chimeDialog.addEventListener('click', (e) => {
+        if (e.target === chimeDialog) chimeDialog.close();
+      });
+
       // Settings
       settingsBtn.addEventListener('click', () => {
         $('#focusDuration').value = state.settings.focusDuration;
@@ -4461,6 +4723,7 @@
         $('#dailyGoalUnit').value = state.settings.dailyGoalUnit;
         $('#autoStart').checked = state.settings.autoStart;
         $('#soundEnabled').checked = state.settings.soundEnabled;
+        updateChimeSettingLabel();
         settingsDialog.showModal();
       });
 
@@ -4527,6 +4790,7 @@
           case 'Escape':
             if (pricingPage.open) hidePricingPage();
             else if (upgradePrompt.open) hideUpgradePrompt();
+            else if (chimeDialog.open) chimeDialog.close();
             else if (themeDialog.open) themeDialog.close();
             else if (settingsDialog.open) settingsDialog.close();
             break;
@@ -4722,6 +4986,7 @@
         state.timeRemaining = state.totalTime;
 
         initAudio();
+        updateChimeSettingLabel();
 
         updateAll();
         updatePremiumUI();
