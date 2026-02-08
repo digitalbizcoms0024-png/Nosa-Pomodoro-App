@@ -2318,6 +2318,24 @@
       margin-bottom: 20px;
     }
 
+    .analytics-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .analytics-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .project-chart-container {
+      margin-bottom: 32px;
+    }
+
     @media (max-width: 600px) {
       .summary-cards {
         grid-template-columns: 1fr;
@@ -3617,6 +3635,8 @@
             renderOverviewTab();
             break;
           case 'projects':
+            renderProjectsTab();
+            break;
           case 'forecast':
           case 'yearly':
             // To be implemented in future plans
@@ -3873,6 +3893,215 @@
         } catch (err) {
           console.error('Error rendering overview:', err);
           panel.innerHTML = '<div class="analytics-loading">Error loading overview. Please try again.</div>';
+        }
+      }
+
+      // --- Analytics: Projects Tab ---
+
+      async function renderProjectsTab() {
+        const panel = analyticsDialog.querySelector('[data-tab-panel="projects"]');
+        if (!panel) return;
+
+        panel.innerHTML = '<div class="analytics-loading">Loading projects...</div>';
+
+        try {
+          // Fetch last 4 weeks of sessions
+          const fourWeeksAgo = getWeekBounds(4);
+          const now = getWeekBounds(0);
+          const sessions = await fetchSessions(fourWeeksAgo.startOfWeek, now.endOfWeek);
+
+          if (sessions.length === 0) {
+            panel.innerHTML = `
+              <div class="analytics-empty">
+                <p style="margin: 0 0 8px 0; font-size: 16px;">No session data yet</p>
+                <p style="margin: 0; font-size: 14px;">Complete some focus sessions to see your project breakdown</p>
+              </div>
+            `;
+            return;
+          }
+
+          // Build project name lookup
+          const projectLookup = {};
+          state.projects.forEach(p => {
+            projectLookup[p.id] = p.name;
+          });
+
+          // Aggregate time per project
+          const projectMinutes = {};
+          sessions.forEach(s => {
+            const projectId = s.projectId || 'none';
+            const projectName = projectId === 'none' ? 'No Project' : (projectLookup[projectId] || 'Unknown Project');
+            if (!projectMinutes[projectName]) {
+              projectMinutes[projectName] = 0;
+            }
+            projectMinutes[projectName] += (s.minutesCompleted || 0);
+          });
+
+          // Sort projects by time (descending)
+          const sortedProjects = Object.entries(projectMinutes)
+            .sort((a, b) => b[1] - a[1]);
+
+          // Top 5 projects for trend chart
+          const top5Projects = sortedProjects.slice(0, 5);
+
+          // Group by week + project for trend line chart
+          const weeklyData = {};
+          sessions.forEach(s => {
+            const date = s.timestamp.toDate();
+            const weekStart = new Date(date);
+            weekStart.setDate(date.getDate() - date.getDay()); // Sunday
+            weekStart.setHours(0, 0, 0, 0);
+            const weekKey = weekStart.toISOString().split('T')[0];
+
+            const projectId = s.projectId || 'none';
+            const projectName = projectId === 'none' ? 'No Project' : (projectLookup[projectId] || 'Unknown Project');
+
+            if (!weeklyData[weekKey]) {
+              weeklyData[weekKey] = {};
+            }
+            if (!weeklyData[weekKey][projectName]) {
+              weeklyData[weekKey][projectName] = 0;
+            }
+            weeklyData[weekKey][projectName] += (s.minutesCompleted || 0);
+          });
+
+          const sortedWeeks = Object.keys(weeklyData).sort();
+
+          panel.innerHTML = `
+            <div class="projects-content">
+              <div class="project-chart-container">
+                <h3 style="margin-top: 0; margin-bottom: 8px;">Project Time Allocation</h3>
+                <p class="analytics-subtitle">Total time spent per project (last 4 weeks)</p>
+                <div class="chart-container">
+                  <canvas id="projectDonutChart"></canvas>
+                </div>
+              </div>
+
+              <div class="project-chart-container">
+                <h3 style="margin-top: 0; margin-bottom: 8px;">Weekly Project Trends</h3>
+                <p class="analytics-subtitle">Top 5 projects tracked week-by-week</p>
+                <div class="chart-container">
+                  <canvas id="projectTrendChart"></canvas>
+                </div>
+              </div>
+            </div>
+          `;
+
+          const colors = getChartColors();
+          const palette = [colors.primary, colors.secondary, colors.accent, colors.success, '#e056fd', '#7ed6df', '#ffbe76', '#badc58'];
+
+          // Render charts after DOM update
+          setTimeout(() => {
+            // Donut chart
+            const donutData = sortedProjects.map(([name, minutes]) => minutes);
+            const donutLabels = sortedProjects.map(([name, minutes]) => name);
+            const donutColors = sortedProjects.map((_, i) => palette[i % palette.length]);
+
+            const totalMinutes = donutData.reduce((sum, m) => sum + m, 0);
+
+            renderChart('projectDonutChart', {
+              type: 'doughnut',
+              data: {
+                labels: donutLabels,
+                datasets: [{
+                  data: donutData,
+                  backgroundColor: donutColors,
+                  borderWidth: 0
+                }]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      color: colors.text,
+                      usePointStyle: true,
+                      padding: 12
+                    }
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) => {
+                        const minutes = ctx.parsed;
+                        const percentage = ((minutes / totalMinutes) * 100).toFixed(1);
+                        return `${ctx.label}: ${minutes} min (${percentage}%)`;
+                      }
+                    }
+                  }
+                }
+              }
+            });
+
+            // Trend line chart
+            const trendDatasets = top5Projects.map(([projectName, _], idx) => {
+              const data = sortedWeeks.map(weekKey => {
+                return weeklyData[weekKey][projectName] || 0;
+              });
+
+              return {
+                label: projectName,
+                data: data,
+                borderColor: palette[idx % palette.length],
+                backgroundColor: palette[idx % palette.length],
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: false
+              };
+            });
+
+            const weekLabels = sortedWeeks.map(weekKey => {
+              const d = new Date(weekKey);
+              return `${d.getMonth() + 1}/${d.getDate()}`;
+            });
+
+            renderChart('projectTrendChart', {
+              type: 'line',
+              data: {
+                labels: weekLabels,
+                datasets: trendDatasets
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    position: 'bottom',
+                    labels: {
+                      color: colors.text,
+                      usePointStyle: true,
+                      padding: 12
+                    }
+                  },
+                  tooltip: {
+                    callbacks: {
+                      label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y} min`
+                    }
+                  }
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    grid: { color: colors.grid },
+                    ticks: {
+                      color: colors.text,
+                      callback: (value) => `${value} min`
+                    }
+                  },
+                  x: {
+                    grid: { display: false },
+                    ticks: { color: colors.text }
+                  }
+                }
+              }
+            });
+          }, 0);
+
+        } catch (err) {
+          console.error('Error rendering projects tab:', err);
+          panel.innerHTML = '<div class="analytics-loading">Error loading projects. Please try again.</div>';
         }
       }
 
