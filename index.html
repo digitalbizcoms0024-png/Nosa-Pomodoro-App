@@ -3418,11 +3418,19 @@
   <dialog id="analyticsDialog" aria-labelledby="analyticsTitle">
     <div class="dialog-header">
       <h2 id="analyticsTitle">Analytics</h2>
-      <button class="icon-btn" id="closeAnalytics" aria-label="Close analytics">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button type="button" class="btn btn-ghost btn-sm" id="exportPdfBtn" title="Export PDF report">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Export PDF
+        </button>
+        <button class="icon-btn" id="closeAnalytics" aria-label="Close analytics">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
     </div>
     <div class="analytics-tabs">
       <button class="analytics-tab active" data-tab-button="overview">Overview</button>
@@ -3495,6 +3503,9 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- jsPDF for PDF report export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/3.0.3/jspdf.umd.min.js"></script>
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -5067,6 +5078,258 @@
         } catch (err) {
           console.error('Error rendering yearly tab:', err);
           panel.innerHTML = '<div class="analytics-loading">Error loading yearly data. Please try again.</div>';
+        }
+      }
+
+      // --- PDF Export ---
+
+      async function exportProductivityReport() {
+        if (!requirePremium('PDF Export')) return;
+
+        // Show loading indicator on the button
+        const exportBtn = document.getElementById('exportPdfBtn');
+        const originalText = exportBtn ? exportBtn.innerHTML : '';
+        if (exportBtn) {
+          exportBtn.disabled = true;
+          exportBtn.textContent = 'Generating...';
+        }
+
+        try {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+          const pageWidth = doc.internal.pageSize.getWidth(); // 210mm
+          let y = 20;
+
+          const checkPage = () => {
+            if (y > 260) {
+              doc.addPage();
+              y = 20;
+            }
+          };
+
+          // --- Title ---
+          doc.setFontSize(22);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(30, 30, 30);
+          doc.text('Productivity Report', 20, y);
+          y += 8;
+
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(100, 100, 100);
+          doc.text(`Generated ${new Date().toLocaleDateString()}`, 20, y);
+          y += 5;
+          doc.text('pomodorotimer.vip', 20, y);
+          y += 10;
+
+          // --- Divider ---
+          doc.setDrawColor(220, 220, 220);
+          doc.line(20, y, pageWidth - 20, y);
+          y += 10;
+
+          // Fetch data for the report
+          const now = new Date();
+          const yearStart = new Date(now.getFullYear(), 0, 1);
+          const thisWeekBounds = getWeekBounds(0);
+          const lastWeekBounds = getWeekBounds(1);
+
+          const [yearSessions, thisWeekSessions, lastWeekSessions] = await Promise.all([
+            fetchSessions(yearStart, now),
+            fetchSessions(thisWeekBounds.startOfWeek, thisWeekBounds.endOfWeek),
+            fetchSessions(lastWeekBounds.startOfWeek, lastWeekBounds.endOfWeek),
+          ]);
+
+          // --- Section: Annual Summary ---
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(30, 30, 30);
+          doc.text('Annual Summary', 20, y);
+          y += 8;
+
+          if (yearSessions.length === 0) {
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(120, 120, 120);
+            doc.text('No session data yet. Complete some focus sessions to see your report.', 20, y);
+            y += 8;
+          } else {
+            const totalHours = (yearSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / 60);
+            const totalSessions = yearSessions.length;
+            const dailyMap = {};
+            yearSessions.forEach(s => {
+              const d = s.startedAt.toDate();
+              const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+              dailyMap[key] = true;
+            });
+            const activeDays = Object.keys(dailyMap).length;
+
+            // Longest streak
+            let longestStreak = 0;
+            let currentStreak = 0;
+            for (let d = new Date(yearStart); d <= now; d.setDate(d.getDate() + 1)) {
+              const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+              if (dailyMap[key]) { currentStreak++; longestStreak = Math.max(longestStreak, currentStreak); }
+              else { currentStreak = 0; }
+            }
+
+            // Most productive day
+            const dayOfWeekMinutes = [0, 0, 0, 0, 0, 0, 0];
+            yearSessions.forEach(s => { dayOfWeekMinutes[s.startedAt.toDate().getDay()] += s.duration || 0; });
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const mostProductiveDay = dayNames[dayOfWeekMinutes.indexOf(Math.max(...dayOfWeekMinutes))];
+
+            const annualRows = [
+              ['Total Focus Time', `${Math.round(totalHours * 10) / 10} hours`],
+              ['Total Sessions', `${totalSessions}`],
+              ['Active Days', `${activeDays}`],
+              ['Longest Streak', `${longestStreak} days`],
+              ['Most Productive Day', mostProductiveDay],
+            ];
+
+            doc.setFontSize(11);
+            annualRows.forEach(([label, value]) => {
+              checkPage();
+              doc.setFont('helvetica', 'normal');
+              doc.setTextColor(80, 80, 80);
+              doc.text(label + ':', 20, y);
+              doc.setFont('helvetica', 'bold');
+              doc.setTextColor(30, 30, 30);
+              doc.text(value, 90, y);
+              y += 7;
+            });
+          }
+
+          y += 6;
+          checkPage();
+
+          // --- Section: Weekly Summary ---
+          doc.setDrawColor(220, 220, 220);
+          doc.line(20, y, pageWidth - 20, y);
+          y += 10;
+
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(30, 30, 30);
+          doc.text('This Week', 20, y);
+          y += 8;
+
+          const thisWeekMinutes = thisWeekSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+          const lastWeekMinutes = lastWeekSessions.reduce((sum, s) => sum + (s.duration || 0), 0);
+          const weeklyScore = calculateProductivityScore(thisWeekSessions);
+          const scoreLabel = weeklyScore >= 70 ? 'Excellent' : weeklyScore >= 50 ? 'Good' : 'Building';
+
+          const vsLastWeek = lastWeekMinutes > 0
+            ? `${Math.round((thisWeekMinutes - lastWeekMinutes) / lastWeekMinutes * 100)}% vs last week`
+            : 'First week of data';
+
+          const weeklyRows = [
+            ['Focus Time', `${Math.round(thisWeekMinutes / 60 * 10) / 10} hours`],
+            ['Sessions', `${thisWeekSessions.length}`],
+            ['vs Last Week', vsLastWeek],
+            ['Productivity Score', `${weeklyScore}/100 — ${scoreLabel}`],
+          ];
+
+          doc.setFontSize(11);
+          weeklyRows.forEach(([label, value]) => {
+            checkPage();
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(80, 80, 80);
+            doc.text(label + ':', 20, y);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(30, 30, 30);
+            doc.text(value, 90, y);
+            y += 7;
+          });
+
+          y += 6;
+          checkPage();
+
+          // --- Section: Best Focus Hours ---
+          doc.setDrawColor(220, 220, 220);
+          doc.line(20, y, pageWidth - 20, y);
+          y += 10;
+
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(30, 30, 30);
+          doc.text('Best Focus Hours', 20, y);
+          y += 8;
+
+          const { recommendation } = analyzeBestFocusHours(thisWeekSessions.length > 0 ? thisWeekSessions : yearSessions);
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(60, 60, 60);
+          const recLines = doc.splitTextToSize(recommendation, pageWidth - 40);
+          recLines.forEach(line => {
+            checkPage();
+            doc.text(line, 20, y);
+            y += 6;
+          });
+
+          y += 4;
+          checkPage();
+
+          // --- Section: Top Projects ---
+          doc.setDrawColor(220, 220, 220);
+          doc.line(20, y, pageWidth - 20, y);
+          y += 10;
+
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(30, 30, 30);
+          doc.text('Top Projects', 20, y);
+          y += 8;
+
+          // Build project totals from year data
+          const projectLookup = {};
+          (state.projects || []).forEach(p => { projectLookup[p.id] = p.name; });
+
+          const projectMinutes = {};
+          yearSessions.forEach(s => {
+            const name = s.projectId ? (projectLookup[s.projectId] || 'Unknown Project') : 'No Project';
+            projectMinutes[name] = (projectMinutes[name] || 0) + (s.duration || 0);
+          });
+
+          const topProjects = Object.entries(projectMinutes)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
+          doc.setFontSize(11);
+          if (topProjects.length === 0) {
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(120, 120, 120);
+            doc.text('No project data yet.', 20, y);
+            y += 7;
+          } else {
+            topProjects.forEach(([name, minutes], i) => {
+              checkPage();
+              doc.setFont('helvetica', 'normal');
+              doc.setTextColor(80, 80, 80);
+              doc.text(`${i + 1}. ${name}`, 20, y);
+              doc.setFont('helvetica', 'bold');
+              doc.setTextColor(30, 30, 30);
+              doc.text(`${Math.round(minutes / 60 * 10) / 10} hrs`, 140, y);
+              y += 7;
+            });
+          }
+
+          // --- Footer ---
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(150, 150, 150);
+          doc.text('Generated by Pomodoro Timer — pomodorotimer.vip', 20, 287);
+
+          // Save the file
+          doc.save(`productivity-report-${now.toISOString().slice(0, 10)}.pdf`);
+
+        } catch (err) {
+          console.error('PDF export error:', err);
+          alert('Failed to generate PDF report. Please try again.');
+        } finally {
+          if (exportBtn) {
+            exportBtn.disabled = false;
+            exportBtn.innerHTML = originalText;
+          }
         }
       }
 
@@ -7090,6 +7353,10 @@
 
       closeAnalyticsBtn.addEventListener('click', () => {
         analyticsDialog.close();
+      });
+
+      document.getElementById('exportPdfBtn').addEventListener('click', () => {
+        exportProductivityReport();
       });
 
       analyticsDialog.addEventListener('click', (e) => {
