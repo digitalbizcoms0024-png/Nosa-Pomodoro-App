@@ -54,7 +54,7 @@
 
 ### Integrations
 
-- [ ] **INTG-01**: Premium user can import tasks from Todoist via one-way OAuth import
+- [x] **INTG-01**: Premium user can import tasks from Todoist via one-way OAuth import
 - [ ] **INTG-02**: Premium user can configure a webhook URL that fires JSON payload on focus session completion
 - [ ] **INTG-03**: Premium user can test webhook with a sample payload
 
@@ -123,7 +123,7 @@ Deferred beyond v2.0. Tracked but not in current roadmap.
 | ANLY-04 | Phase 6 | Complete |
 | ANLY-05 | Phase 6 | Complete |
 | ANLY-06 | Phase 6 | Complete |
-| INTG-01 | Phase 7 | Pending |
+| INTG-01 | Phase 7 | Complete |
 | INTG-02 | Phase 7 | Pending |
 | INTG-03 | Phase 7 | Pending |
 | EXPT-02 | Phase 7 | Pending |

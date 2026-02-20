@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** A seamless upgrade path from free to premium that feels valuable -- users should hit the trial wall wanting to pay, not feeling nickeled.
-**Current focus:** v2.0 Monetization -- Phase 5 Complete, Phase 6 In Progress
+**Current focus:** v2.0 Monetization -- Phase 6 Complete, Phase 7 In Progress
 
 ## Current Position
 
-Phase: 6 of 7 (Analytics Suite)
-Plan: 4 of 4 complete
-Status: Phase complete
-Last activity: 2026-02-08 -- Completed 06-04-PLAN.md (Yearly Heatmap and Percentile Ranking)
+Phase: 7 of 7 (Integrations)
+Plan: 1 of 3 complete
+Status: In progress
+Last activity: 2026-02-20 -- Completed 07-01-PLAN.md (Todoist OAuth Integration)
 
-Progress: [######░░░░] 86% (6/7 phases complete)
+Progress: [#######░░░] 90% (6/7 phases + 1 plan into Phase 7)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 3.4 min
-- Total execution time: 0.80 hours
+- Total plans completed: 15
+- Average duration: 3.5 min
+- Total execution time: 0.87 hours
 
 **By Phase:**
 
@@ -33,6 +33,7 @@ Progress: [######░░░░] 86% (6/7 phases complete)
 | 04-data-foundation-and-projects | 2/2 | 10 min | 5.0 min |
 | 05-premium-personalization-export | 2/2 | 11 min | 5.5 min |
 | 06-analytics-suite | 4/4 | 11 min | 2.8 min |
+| 07-integrations | 1/3 | 15 min | 15 min |
 
 *Updated after each plan completion*
 
@@ -80,6 +81,12 @@ Recent decisions affecting current work:
 - Percentile ranking based on last 7 days (not all-time) to keep rankings fresh (06-04)
 - Scheduled Cloud Function runs daily at 3am UTC for percentile calculation (06-04)
 - Only active users (totalMinutes > 0) included in percentile ranking (06-04)
+- Sync window.open() before await in connectTodoist() to avoid popup blocker — critical for cross-browser OAuth popup (07-01)
+- CSRF state stored in Firestore todoistOAuthStates collection with 10-min TTL and one-time deletion (07-01)
+- Native fetch() used in all Cloud Functions — no npm dependencies added (07-01)
+- Todoist API v1 endpoint (https://api.todoist.com/api/v1/tasks) for task import (07-01)
+- Token cleared from Firestore on 401 response from Todoist — forces reconnect flow (07-01)
+- All Todoist features (connect, import) gated behind requirePremium() (07-01)
 
 ### Pending Todos
 
@@ -94,13 +101,14 @@ None.
 - Webhook endpoint URL must be added to Stripe Dashboard after first deployment
 - Frontend STRIPE_PRICES config has placeholder values -- must replace with real price IDs
 - CSV export requires Firestore composite index on sessions.startedAt (one-time setup via provided link)
+- Todoist OAuth credentials (TODOIST_CLIENT_ID, TODOIST_CLIENT_SECRET, TODOIST_REDIRECT_URI) must be configured before Cloud Functions deployment
 
 ## Session Continuity
 
-Last session: 2026-02-08
-Stopped at: Completed 06-04 (Yearly Heatmap and Percentile Ranking) - Phase 6 Complete
-Resume file: .planning/phases/06-analytics-suite/06-04-SUMMARY.md
-Next action: Plan and execute Phase 7 (Integrations) — Todoist import, webhook triggers, PDF export
+Last session: 2026-02-20
+Stopped at: Completed 07-01 (Todoist OAuth Integration) - Phase 7 Plan 1 of 3
+Resume file: .planning/phases/07-integrations/07-01-SUMMARY.md
+Next action: Execute Phase 7 Plan 2 — webhook triggers or PDF export
 
 ## Quick Tasks
 
