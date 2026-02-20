@@ -1,11 +1,14 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { defineSecret } from 'firebase-functions/params';
 import { getStripe } from '../utils/stripe-helpers.js';
+
+const STRIPE_SECRET_KEY = defineSecret('STRIPE_SECRET_KEY');
 
 /**
  * Create a Stripe Checkout session for purchasing premium access
  * Supports both subscription (monthly/yearly with 7-day trial) and payment (lifetime, no trial) modes
  */
-export const createCheckoutSession = onCall(async (request) => {
+export const createCheckoutSession = onCall({ secrets: [STRIPE_SECRET_KEY] }, async (request) => {
   // Guard: require authentication
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Must be signed in to create checkout session');

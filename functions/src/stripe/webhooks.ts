@@ -1,6 +1,10 @@
 import { onRequest } from 'firebase-functions/v2/https';
+import { defineSecret } from 'firebase-functions/params';
 import type Stripe from 'stripe';
 import { getStripe, getDb } from '../utils/stripe-helpers.js';
+
+const STRIPE_SECRET_KEY = defineSecret('STRIPE_SECRET_KEY');
+const STRIPE_WEBHOOK_SECRET = defineSecret('STRIPE_WEBHOOK_SECRET');
 
 /**
  * Stripe webhook handler for subscription lifecycle events
@@ -11,6 +15,7 @@ export const stripeWebhook = onRequest(
     cors: false,
     timeoutSeconds: 60,
     memory: '256MiB',
+    secrets: [STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET],
   },
   async (req, res) => {
     // Only accept POST requests

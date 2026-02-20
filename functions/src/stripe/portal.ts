@@ -1,11 +1,14 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { defineSecret } from 'firebase-functions/params';
 import { getStripe, getDb } from '../utils/stripe-helpers.js';
+
+const STRIPE_SECRET_KEY = defineSecret('STRIPE_SECRET_KEY');
 
 /**
  * Create a Stripe Customer Portal session for managing subscription
  * Requires user to have an active subscription with a customerId in Firestore
  */
-export const createPortalSession = onCall(async (request) => {
+export const createPortalSession = onCall({ secrets: [STRIPE_SECRET_KEY] }, async (request) => {
   // Guard: require authentication
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Must be signed in to access customer portal');
