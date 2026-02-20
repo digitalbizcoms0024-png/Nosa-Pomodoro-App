@@ -44,7 +44,7 @@
 ### Export
 
 - [ ] **EXPT-01**: Premium user can export session data as CSV with date range filter
-- [ ] **EXPT-02**: Premium user can export productivity report as PDF
+- [x] **EXPT-02**: Premium user can export productivity report as PDF
 
 ### Personalization
 
@@ -55,8 +55,8 @@
 ### Integrations
 
 - [x] **INTG-01**: Premium user can import tasks from Todoist via one-way OAuth import
-- [ ] **INTG-02**: Premium user can configure a webhook URL that fires JSON payload on focus session completion
-- [ ] **INTG-03**: Premium user can test webhook with a sample payload
+- [x] **INTG-02**: Premium user can configure a webhook URL that fires JSON payload on focus session completion
+- [x] **INTG-03**: Premium user can test webhook with a sample payload
 
 ### Marketing
 
@@ -124,9 +124,9 @@ Deferred beyond v2.0. Tracked but not in current roadmap.
 | ANLY-05 | Phase 6 | Complete |
 | ANLY-06 | Phase 6 | Complete |
 | INTG-01 | Phase 7 | Complete |
-| INTG-02 | Phase 7 | Pending |
-| INTG-03 | Phase 7 | Pending |
-| EXPT-02 | Phase 7 | Pending |
+| INTG-02 | Phase 7 | Complete |
+| INTG-03 | Phase 7 | Complete |
+| EXPT-02 | Phase 7 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 33 total

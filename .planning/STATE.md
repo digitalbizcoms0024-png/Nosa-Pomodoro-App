@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 ## Current Position
 
 Phase: 7 of 7 (Integrations)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete (paused at human-verify checkpoint)
 Status: In progress
-Last activity: 2026-02-20 -- Completed 07-01-PLAN.md (Todoist OAuth Integration)
+Last activity: 2026-02-20 -- Completed 07-02-PLAN.md (Webhooks + PDF Export) — awaiting human verification
 
-Progress: [#######░░░] 90% (6/7 phases + 1 plan into Phase 7)
+Progress: [########░░] 95% (6/7 phases + 2 plans into Phase 7)
 
 ## Performance Metrics
 
@@ -33,7 +33,7 @@ Progress: [#######░░░] 90% (6/7 phases + 1 plan into Phase 7)
 | 04-data-foundation-and-projects | 2/2 | 10 min | 5.0 min |
 | 05-premium-personalization-export | 2/2 | 11 min | 5.5 min |
 | 06-analytics-suite | 4/4 | 11 min | 2.8 min |
-| 07-integrations | 1/3 | 15 min | 15 min |
+| 07-integrations | 2/3 | 20 min | 10 min |
 
 *Updated after each plan completion*
 
@@ -87,6 +87,11 @@ Recent decisions affecting current work:
 - Todoist API v1 endpoint (https://api.todoist.com/api/v1/tasks) for task import (07-01)
 - Token cleared from Firestore on 401 response from Todoist — forces reconnect flow (07-01)
 - All Todoist features (connect, import) gated behind requirePremium() (07-01)
+- fire-and-forget webhook with .catch(() => {}) after batch.commit() — session completion must never be delayed (07-02)
+- no-cors fetch mode for webhook — external endpoints like Zapier/webhook.site won't allow CORS (07-02)
+- HTTPS-only webhook URL validation — reject http:// for security (07-02)
+- jsPDF 3.0.3 from cdnjs CDN — consistent with existing Chart.js CDN pattern (07-02)
+- PDF data fetches annual + weekly sessions in parallel with Promise.all() — reuses existing fetchSessions() (07-02)
 
 ### Pending Todos
 
@@ -106,9 +111,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-20
-Stopped at: Completed 07-01 (Todoist OAuth Integration) - Phase 7 Plan 1 of 3
-Resume file: .planning/phases/07-integrations/07-01-SUMMARY.md
-Next action: Execute Phase 7 Plan 2 — webhook triggers or PDF export
+Stopped at: Completed 07-02 (Webhooks + PDF Export) — Task 3 human-verify checkpoint
+Resume file: .planning/phases/07-integrations/07-02-SUMMARY.md
+Next action: Human verification of webhook and PDF export features, then Phase 7 complete
 
 ## Quick Tasks
 
