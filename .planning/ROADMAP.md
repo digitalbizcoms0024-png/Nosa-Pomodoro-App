@@ -97,7 +97,10 @@ Plans:
   2. Premium user can configure a webhook URL and receive a JSON payload automatically after each completed focus session
   3. Premium user can send a test webhook payload to verify their endpoint works before relying on it
   4. Premium user can export a formatted productivity report as a downloadable PDF
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+  - [ ] 07-01-PLAN.md — Todoist OAuth Cloud Functions + client connect/import UI
+  - [ ] 07-02-PLAN.md — Webhook configuration/firing + PDF productivity report export
 
 ## Progress
 
@@ -112,4 +115,4 @@ Phases execute in numeric order: 3 -> 4 -> 5 -> 6 -> 7
 | 4. Data Foundation & Projects | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 5. Premium Personalization & Export | v2.0 | 2/2 | Complete | 2026-02-08 |
 | 6. Analytics Suite | v2.0 | 4/4 | Complete | 2026-02-08 |
-| 7. Integrations | v2.0 | 0/TBD | Not started | - |
+| 7. Integrations | v2.0 | 0/2 | Not started | - |
