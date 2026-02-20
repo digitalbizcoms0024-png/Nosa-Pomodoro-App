@@ -6089,6 +6089,17 @@
             };
           } else {
             state.subscription = { status: 'none', tier: null, customerId: null, currentPeriodEnd: null, cancelAtPeriodEnd: false, gracePeriod: false };
+            // Self-heal: check Stripe directly if Firestore has no subscription data
+            if (!state._subscriptionChecked) {
+              state._subscriptionChecked = true;
+              const verify = fbFunctions.httpsCallable('verifySubscription');
+              verify().then(result => {
+                if (result.data.hasAccess) {
+                  console.log('Subscription recovered from Stripe:', result.data.status);
+                  // onSnapshot will fire again after backfill writes to Firestore
+                }
+              }).catch(err => console.error('Subscription verify error:', err));
+            }
           }
           localStorage.setItem('subscriptionStatus', state.subscription.status);
           updatePremiumUI();
