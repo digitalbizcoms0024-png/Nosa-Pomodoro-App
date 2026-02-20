@@ -108,7 +108,7 @@ async function processWebhookEvent(event: Stripe.Event): Promise<void> {
         const subscriptionId = session.subscription as string;
         const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
-        await db.doc(`users/${uid}/subscription`).set(
+        await db.doc(`users/${uid}/subscription/status`).set(
           {
             subscriptionId,
             status: subscription.status,
@@ -124,7 +124,7 @@ async function processWebhookEvent(event: Stripe.Event): Promise<void> {
         console.log(`Subscription created for user ${uid}: ${subscriptionId}`);
       } else if (session.mode === 'payment') {
         // One-time payment (lifetime)
-        await db.doc(`users/${uid}/subscription`).set(
+        await db.doc(`users/${uid}/subscription/status`).set(
           {
             status: 'lifetime',
             paymentIntentId: session.payment_intent as string,
@@ -148,7 +148,7 @@ async function processWebhookEvent(event: Stripe.Event): Promise<void> {
         return;
       }
 
-      await db.doc(`users/${uid}/subscription`).set(
+      await db.doc(`users/${uid}/subscription/status`).set(
         {
           status: subscription.status,
           priceId: subscription.items.data[0]?.price.id || null,
@@ -172,7 +172,7 @@ async function processWebhookEvent(event: Stripe.Event): Promise<void> {
         return;
       }
 
-      await db.doc(`users/${uid}/subscription`).set(
+      await db.doc(`users/${uid}/subscription/status`).set(
         {
           status: 'canceled',
           canceledAt: new Date().toISOString(),
@@ -203,7 +203,7 @@ async function processWebhookEvent(event: Stripe.Event): Promise<void> {
         return;
       }
 
-      await db.doc(`users/${uid}/subscription`).set(
+      await db.doc(`users/${uid}/subscription/status`).set(
         {
           status: subscription.status, // Will be 'past_due'
           lastPaymentError: new Date().toISOString(),

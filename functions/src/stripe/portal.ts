@@ -18,7 +18,7 @@ export const createPortalSession = onCall({ secrets: [STRIPE_SECRET_KEY] }, asyn
   const stripe = getStripe();
 
   // Read subscription document from Firestore
-  const subscriptionDoc = await db.doc(`users/${request.auth.uid}/subscription`).get();
+  const subscriptionDoc = await db.doc(`users/${request.auth.uid}/subscription/status`).get();
 
   if (!subscriptionDoc.exists) {
     throw new HttpsError('failed-precondition', 'No active subscription found');

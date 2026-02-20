@@ -14,7 +14,7 @@ export const verifySubscription = onCall(async (request) => {
   const db = getDb();
 
   // Read subscription document from Firestore
-  const subscriptionDoc = await db.doc(`users/${request.auth.uid}/subscription`).get();
+  const subscriptionDoc = await db.doc(`users/${request.auth.uid}/subscription/status`).get();
 
   // No subscription document or no data
   if (!subscriptionDoc.exists || !subscriptionDoc.data()) {

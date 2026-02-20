@@ -6076,7 +6076,7 @@
 
       // --- Subscription Management ---
       function listenToSubscription(uid) {
-        fbDb.doc(`users/${uid}/subscription`).onSnapshot((doc) => {
+        fbDb.doc(`users/${uid}/subscription/status`).onSnapshot((doc) => {
           if (doc.exists) {
             const data = doc.data();
             state.subscription = {
@@ -6190,6 +6190,24 @@
       function hideUpgradePrompt() {
         const prompt = document.getElementById('upgrade-prompt');
         if (prompt) prompt.close();
+      }
+
+      function showCheckoutToast(message, type) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+          position: fixed; top: 24px; left: 50%; transform: translateX(-50%);
+          padding: 16px 28px; border-radius: 12px; z-index: 100000;
+          font-size: 15px; font-weight: 500; color: #fff;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+          animation: toastIn 0.4s ease-out;
+          background: ${type === 'success' ? 'linear-gradient(135deg, #34a853, #2d8f47)' : 'linear-gradient(135deg, #666, #555)'};
+        `;
+        toast.textContent = message;
+        const style = document.createElement('style');
+        style.textContent = '@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
+        document.head.appendChild(style);
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.style.transition = 'opacity 0.5s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 4000);
       }
 
       // --- Premium UI Event Listeners ---
@@ -7676,10 +7694,10 @@
         // Handle checkout return URLs
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('checkout') === 'success') {
-          alert('Payment successful! Premium features are activating...');
+          showCheckoutToast('Welcome to Premium! Your 7-day free trial is now active.', 'success');
           window.history.replaceState({}, '', window.location.pathname);
         } else if (urlParams.get('checkout') === 'canceled') {
-          alert('Checkout canceled.');
+          showCheckoutToast('Checkout canceled. You can try again anytime.', 'info');
           window.history.replaceState({}, '', window.location.pathname);
         }
 
