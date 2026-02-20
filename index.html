@@ -6067,9 +6067,11 @@
       let isNewSignIn = false; // Track fresh sign-ins vs page refreshes
 
       function signInWithGoogle() {
-        isNewSignIn = true; // Mark as fresh sign-in
+        isNewSignIn = true;
         const provider = new firebase.auth.GoogleAuthProvider();
-        fbAuth.signInWithRedirect(provider);
+        fbAuth.signInWithPopup(provider).catch((err) => {
+          console.error('Sign-in popup error:', err);
+        });
       }
 
       // --- Subscription Management ---
@@ -6113,9 +6115,17 @@
 
       async function startCheckout(priceId, mode) {
         if (!state.user) {
-          sessionStorage.setItem('pendingCheckout', JSON.stringify({ priceId, mode }));
-          signInWithGoogle();
-          return;
+          // Sign in first, then proceed to checkout in one flow
+          try {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            await fbAuth.signInWithPopup(provider);
+            // User is now signed in — fall through to checkout below
+          } catch (error) {
+            console.error('Sign-in for checkout failed:', error);
+            if (error.code === 'auth/popup-closed-by-user') return;
+            alert('Sign-in failed. Please try again.');
+            return;
+          }
         }
         try {
           const createCheckoutSession = fbFunctions.httpsCallable('createCheckoutSession');
@@ -7628,13 +7638,7 @@
           await loadWebhookUrl();
           updateStats();
           loadLeaderboard();
-          // Resume pending checkout after sign-in redirect
-          const pending = sessionStorage.getItem('pendingCheckout');
-          if (pending) {
-            sessionStorage.removeItem('pendingCheckout');
-            const { priceId, mode } = JSON.parse(pending);
-            startCheckout(priceId, mode);
-          }
+          // (checkout is handled inline in startCheckout via signInWithPopup)
         } else {
           // Reset subscription state on sign out
           state.subscription = { status: 'none', tier: null, customerId: null, currentPeriodEnd: null, cancelAtPeriodEnd: false, gracePeriod: false };
