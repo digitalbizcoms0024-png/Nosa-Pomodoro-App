@@ -6111,8 +6111,11 @@
         return null;
       }
 
+      let pendingCheckout = null;
+
       async function startCheckout(priceId, mode) {
         if (!state.user) {
+          pendingCheckout = { priceId, mode };
           signInWithGoogle();
           return;
         }
@@ -7627,6 +7630,12 @@
           await loadWebhookUrl();
           updateStats();
           loadLeaderboard();
+          // Resume pending checkout after sign-in
+          if (pendingCheckout) {
+            const { priceId, mode } = pendingCheckout;
+            pendingCheckout = null;
+            startCheckout(priceId, mode);
+          }
         } else {
           // Reset subscription state on sign out
           state.subscription = { status: 'none', tier: null, customerId: null, currentPeriodEnd: null, cancelAtPeriodEnd: false, gracePeriod: false };
