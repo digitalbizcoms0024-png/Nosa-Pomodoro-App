@@ -6069,7 +6069,7 @@
       function signInWithGoogle() {
         isNewSignIn = true; // Mark as fresh sign-in
         const provider = new firebase.auth.GoogleAuthProvider();
-        fbAuth.signInWithPopup(provider).catch(() => { isNewSignIn = false; });
+        fbAuth.signInWithRedirect(provider);
       }
 
       // --- Subscription Management ---
@@ -6111,11 +6111,9 @@
         return null;
       }
 
-      let pendingCheckout = null;
-
       async function startCheckout(priceId, mode) {
         if (!state.user) {
-          pendingCheckout = { priceId, mode };
+          sessionStorage.setItem('pendingCheckout', JSON.stringify({ priceId, mode }));
           signInWithGoogle();
           return;
         }
@@ -7630,10 +7628,11 @@
           await loadWebhookUrl();
           updateStats();
           loadLeaderboard();
-          // Resume pending checkout after sign-in
-          if (pendingCheckout) {
-            const { priceId, mode } = pendingCheckout;
-            pendingCheckout = null;
+          // Resume pending checkout after sign-in redirect
+          const pending = sessionStorage.getItem('pendingCheckout');
+          if (pending) {
+            sessionStorage.removeItem('pendingCheckout');
+            const { priceId, mode } = JSON.parse(pending);
             startCheckout(priceId, mode);
           }
         } else {
