@@ -1253,6 +1253,34 @@
       flex-shrink: 0;
     }
 
+    .settings-input {
+      height: 32px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0 10px;
+      background: var(--bg);
+      color: var(--text);
+      transition: border-color 200ms ease;
+      min-width: 0;
+    }
+
+    .settings-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .settings-input::placeholder {
+      color: var(--text-secondary);
+      opacity: 0.7;
+    }
+
+    /* Webhook integration extra row spacing */
+    .integration-row + .integration-row {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
     .btn-sm {
       height: 30px;
       padding: 0 12px;
@@ -3016,6 +3044,33 @@
             <button type="button" class="btn btn-danger btn-sm" id="todoistDisconnectBtn" style="display:none;">Disconnect</button>
           </div>
         </div>
+
+        <!-- Webhook Integration -->
+        <div class="integration-row" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+          <div class="integration-info" style="width: 100%;">
+            <div class="integration-logo" aria-hidden="true" style="background: var(--primary);">
+              <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" opacity="0.3"/>
+                <path d="M5 3H3v18h2V3zm16 0h-2v18h2V3zM9 8H7v8h2V8zm8 0h-2v8h2V8zm-4-1h-2v10h2V7z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="integration-name">Webhook</div>
+              <div class="integration-status" id="webhookStatus">Not configured</div>
+            </div>
+          </div>
+          <div style="width: 100%; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="url" id="webhookUrlInput" class="settings-input" placeholder="https://hooks.zapier.com/..." style="flex: 1; font-size: 13px;" autocomplete="off" spellcheck="false">
+              <button type="button" class="btn btn-secondary btn-sm" id="saveWebhookBtn">Save</button>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button type="button" class="btn btn-ghost btn-sm" id="testWebhookBtn" disabled>Send Test</button>
+              <span id="webhookTestStatus" style="font-size: 12px; color: var(--text-secondary);"></span>
+            </div>
+            <div id="webhookUrlError" style="font-size: 12px; color: #e74c3c; display: none;"></div>
+          </div>
+        </div>
       </div>
       <div class="dialog-actions">
         <button type="button" class="btn btn-ghost" id="cancelSettings">Cancel</button>
@@ -3750,6 +3805,7 @@
           gracePeriod: false
         },
         todoistConnected: false,
+        webhookUrl: null,
       };
 
       // --- Storage ---
@@ -6067,6 +6123,20 @@
         document.getElementById('todoist-import-dialog').close();
       }
 
+      // --- Webhook Event Listeners ---
+      document.getElementById('saveWebhookBtn').addEventListener('click', saveWebhookUrl);
+      document.getElementById('testWebhookBtn').addEventListener('click', async () => {
+        if (!requirePremium('Webhook Integration')) return;
+        const statusEl = document.getElementById('webhookTestStatus');
+        if (statusEl) statusEl.textContent = 'Sending...';
+        const ok = await fireWebhook(null, true);
+        if (statusEl) {
+          // With no-cors mode, we can't read the response body but a resolved promise means no network error
+          statusEl.textContent = ok !== false ? 'Test sent!' : 'Send failed (network error)';
+          setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 3000);
+        }
+      });
+
       // --- Todoist Dialog Event Listeners ---
       document.getElementById('todoistConnectBtn').addEventListener('click', connectTodoist);
       document.getElementById('todoistImportBtn').addEventListener('click', openTodoistImportDialog);
@@ -6173,6 +6243,121 @@
         } catch {}
       }
 
+      // --- Webhook Integration ---
+
+      function getProjectName(projectId) {
+        if (!projectId) return null;
+        const project = (state.projects || []).find(p => p.id === projectId);
+        return project ? project.name : null;
+      }
+
+      function getTaskName(taskId) {
+        if (!taskId) return null;
+        const task = (state.tasks || []).find(t => t.id === taskId);
+        return task ? task.title : null;
+      }
+
+      async function fireWebhook(sessionData, isTest = false) {
+        const webhookUrl = state.webhookUrl;
+        if (!webhookUrl) return;
+
+        const payload = {
+          event: isTest ? 'webhook.test' : 'session.completed',
+          timestamp: new Date().toISOString(),
+          session: isTest ? {
+            startedAt: new Date().toISOString(),
+            duration: 25,
+            projectId: 'sample-project',
+            projectName: 'Sample Project',
+            taskId: 'sample-task',
+            taskName: 'Sample Task',
+          } : {
+            startedAt: sessionData.startedAt instanceof Date ? sessionData.startedAt.toISOString() : sessionData.startedAt,
+            duration: sessionData.duration,
+            projectId: sessionData.projectId || null,
+            projectName: getProjectName(sessionData.projectId) || null,
+            taskId: sessionData.taskId || null,
+            taskName: getTaskName(sessionData.taskId) || null,
+          },
+        };
+
+        try {
+          await fetch(webhookUrl, {
+            method: 'POST',
+            mode: 'no-cors',  // Avoids CORS errors with external webhook endpoints
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(5000),
+          });
+          return true;
+        } catch {
+          return false; // Silent failure — never interrupt session flow
+        }
+      }
+
+      async function saveWebhookUrl() {
+        if (!requirePremium('Webhook Integration')) return;
+        if (!state.user) return;
+
+        const input = document.getElementById('webhookUrlInput');
+        const errorEl = document.getElementById('webhookUrlError');
+        const url = (input ? input.value : '').trim();
+
+        // Validate URL
+        if (url && !url.startsWith('https://')) {
+          if (errorEl) { errorEl.textContent = 'Webhook URL must start with https://'; errorEl.style.display = ''; }
+          return;
+        }
+        if (errorEl) errorEl.style.display = 'none';
+
+        try {
+          await fbDb.collection('users').doc(state.user.uid).set(
+            { webhookUrl: url || null },
+            { merge: true }
+          );
+          state.webhookUrl = url || null;
+          updateWebhookUI();
+        } catch (err) {
+          console.error('Failed to save webhook URL:', err);
+        }
+      }
+
+      function updateWebhookUI() {
+        const statusEl = document.getElementById('webhookStatus');
+        const testBtn = document.getElementById('testWebhookBtn');
+        const input = document.getElementById('webhookUrlInput');
+
+        if (statusEl) {
+          if (state.webhookUrl) {
+            statusEl.textContent = 'Configured';
+            statusEl.className = 'integration-status connected';
+          } else {
+            statusEl.textContent = 'Not configured';
+            statusEl.className = 'integration-status';
+          }
+        }
+        if (testBtn) testBtn.disabled = !state.webhookUrl;
+        if (input && state.webhookUrl && !input.value) {
+          input.value = state.webhookUrl;
+        }
+      }
+
+      async function loadWebhookUrl() {
+        if (!state.user) {
+          state.webhookUrl = null;
+          updateWebhookUI();
+          return;
+        }
+        try {
+          const userDoc = await fbDb.collection('users').doc(state.user.uid).get();
+          state.webhookUrl = (userDoc.exists && userDoc.data()?.webhookUrl) || null;
+        } catch (err) {
+          console.error('Failed to load webhook URL:', err);
+          state.webhookUrl = null;
+        }
+        updateWebhookUI();
+      }
+
       async function recordSessionData() {
         if (!state.user || state.mode !== 'focus') return;
         const uid = state.user.uid;
@@ -6213,6 +6398,9 @@
 
           // Commit atomic batch
           await batch.commit();
+
+          // Fire webhook after successful commit — fire-and-forget, never blocks session
+          fireWebhook(sessionData).catch(() => {});
         } catch (err) {
           console.error('Failed to record session data:', err);
         }
@@ -6927,6 +7115,10 @@
         $('#autoStart').checked = state.settings.autoStart;
         $('#soundEnabled').checked = state.settings.soundEnabled;
         updateChimeSettingLabel();
+        // Pre-populate webhook URL input
+        const webhookInput = document.getElementById('webhookUrlInput');
+        if (webhookInput) webhookInput.value = state.webhookUrl || '';
+        updateWebhookUI();
         settingsDialog.showModal();
       });
 
@@ -7165,15 +7357,18 @@
           await pullStatsFromFirestore();
           await loadProjectsFromFirestore();
           await loadTodoistConnectionStatus();
+          await loadWebhookUrl();
           updateStats();
           loadLeaderboard();
         } else {
           // Reset subscription state on sign out
           state.subscription = { status: 'none', tier: null, customerId: null, currentPeriodEnd: null, cancelAtPeriodEnd: false, gracePeriod: false };
           state.todoistConnected = false;
+          state.webhookUrl = null;
           localStorage.removeItem('subscriptionStatus');
           updatePremiumUI();
           updateTodoistUI();
+          updateWebhookUI();
         }
       });
 
