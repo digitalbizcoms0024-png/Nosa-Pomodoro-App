@@ -6,3 +6,6 @@ export { createCheckoutSession } from './stripe/checkout.js';
 export { createPortalSession } from './stripe/portal.js';
 export { verifySubscription } from './stripe/verify-subscription.js';
 export { aggregateUserStats } from './aggregateUserStats.js';
+export { todoistOauthInit } from './todoist/oauth-init.js';
+export { todoistOauthCallback } from './todoist/oauth-callback.js';
+export { importTodoistTasks } from './todoist/import-tasks.js';
