@@ -1187,6 +1187,172 @@
       padding-top: 8px;
     }
 
+    /* Todoist Integration */
+    .integration-section {
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      margin-top: 4px;
+    }
+
+    .integration-section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+    }
+
+    .integration-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .integration-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .integration-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: #db4035;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .integration-logo svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .integration-name {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .integration-status {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .integration-status.connected {
+      color: #27ae60;
+    }
+
+    .integration-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .btn-sm {
+      height: 30px;
+      padding: 0 12px;
+      font-size: 0.8125rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: #e74c3c;
+      border: 1.5px solid #e74c3c;
+    }
+
+    .btn-danger:hover {
+      background: #e74c3c;
+      color: #fff;
+    }
+
+    /* Import from Todoist button (in task list) */
+    .todoist-import-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 6px 12px;
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
+      transition: all 200ms ease;
+      margin-top: 4px;
+    }
+
+    .todoist-import-btn:hover {
+      color: var(--text);
+      border-color: var(--primary);
+      background: var(--bg);
+    }
+
+    .todoist-import-btn.visible {
+      display: flex;
+    }
+
+    /* Todoist import dialog task list */
+    .todoist-task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .todoist-task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 150ms ease;
+    }
+
+    .todoist-task-item:hover {
+      background: var(--bg);
+    }
+
+    .todoist-task-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .todoist-task-item label {
+      font-size: 0.875rem;
+      color: var(--text);
+      cursor: pointer;
+      flex: 1;
+      line-height: 1.4;
+    }
+
+    .todoist-import-empty {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      padding: 24px 0;
+    }
+
+    .todoist-import-loading {
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      padding: 24px 0;
+    }
+
     /* Theme selector grid */
     .theme-grid {
       display: grid;
@@ -2740,6 +2906,10 @@
           <button class="btn btn-primary" id="addTaskBtn">Add</button>
         </div>
         <ul class="task-list" id="taskList"></ul>
+        <button type="button" class="todoist-import-btn" id="openTodoistImportBtn" aria-label="Import tasks from Todoist">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M21.19 5.34L11.43 15.1l-4.3-4.3-1.41 1.41 5.71 5.71 11.18-11.17z"/></svg>
+          Import from Todoist
+        </button>
       </div>
     </div>
 
@@ -2826,11 +2996,53 @@
         <span>Timer Sound</span>
         <button type="button" class="btn btn-ghost btn-sm" id="openChimeSelector">Classic Bell &gt;</button>
       </div>
+      <div class="integration-section" id="integrationsSection" style="display:none;">
+        <div class="integration-section-label">Integrations</div>
+        <div class="integration-row">
+          <div class="integration-info">
+            <div class="integration-logo" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21.19 5.34L11.43 15.1l-4.3-4.3-1.41 1.41 5.71 5.71 11.18-11.17z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="integration-name">Todoist</div>
+              <div class="integration-status" id="todoistStatus">Not connected</div>
+            </div>
+          </div>
+          <div class="integration-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="todoistConnectBtn" style="display:none;">Connect</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="todoistImportBtn" style="display:none;">Import Tasks</button>
+            <button type="button" class="btn btn-danger btn-sm" id="todoistDisconnectBtn" style="display:none;">Disconnect</button>
+          </div>
+        </div>
+      </div>
       <div class="dialog-actions">
         <button type="button" class="btn btn-ghost" id="cancelSettings">Cancel</button>
         <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
+  </dialog>
+
+  <!-- Todoist Import Dialog -->
+  <dialog id="todoist-import-dialog" aria-labelledby="todoistImportTitle">
+    <div class="dialog-header">
+      <h2 id="todoistImportTitle">Import from Todoist</h2>
+      <button class="icon-btn" id="closeTodoistImport" aria-label="Close import dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div id="todoistImportLoading" class="todoist-import-loading">Loading your tasks...</div>
+      <ul id="todoistImportTaskList" class="todoist-task-list" style="display:none;"></ul>
+      <div id="todoistImportEmpty" class="todoist-import-empty" style="display:none;">No tasks found in your Todoist inbox.</div>
+      <div class="dialog-actions">
+        <button type="button" class="btn btn-ghost" id="cancelTodoistImport">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmTodoistImport" disabled>Import Selected</button>
+      </div>
+    </div>
   </dialog>
 
   <dialog id="statsDialog" aria-labelledby="statsTitle">
@@ -3536,7 +3748,8 @@
           currentPeriodEnd: null,
           cancelAtPeriodEnd: false,
           gracePeriod: false
-        }
+        },
+        todoistConnected: false,
       };
 
       // --- Storage ---
@@ -5663,6 +5876,213 @@
       document.getElementById('pricing-page').addEventListener('click', (e) => { if (e.target === e.currentTarget) hidePricingPage(); });
       document.getElementById('upgrade-prompt').addEventListener('click', (e) => { if (e.target === e.currentTarget) hideUpgradePrompt(); });
 
+      // --- Todoist Integration ---
+
+      function updateTodoistUI() {
+        const connected = state.todoistConnected;
+        const premium = isPremium();
+        const statusEl = document.getElementById('todoistStatus');
+        const connectBtn = document.getElementById('todoistConnectBtn');
+        const importBtn = document.getElementById('todoistImportBtn');
+        const disconnectBtn = document.getElementById('todoistDisconnectBtn');
+        const integrationsSection = document.getElementById('integrationsSection');
+        const taskImportBtn = document.getElementById('openTodoistImportBtn');
+
+        // Show integrations section only for logged-in users
+        if (integrationsSection) {
+          integrationsSection.style.display = state.user ? '' : 'none';
+        }
+
+        if (statusEl) {
+          statusEl.textContent = connected ? 'Connected' : 'Not connected';
+          statusEl.className = 'integration-status' + (connected ? ' connected' : '');
+        }
+
+        if (connectBtn) connectBtn.style.display = (!connected) ? '' : 'none';
+        if (importBtn) importBtn.style.display = connected ? '' : 'none';
+        if (disconnectBtn) disconnectBtn.style.display = connected ? '' : 'none';
+
+        // Show "Import from Todoist" button in task list only when connected and premium
+        if (taskImportBtn) {
+          if (connected && premium) {
+            taskImportBtn.classList.add('visible');
+          } else {
+            taskImportBtn.classList.remove('visible');
+          }
+        }
+      }
+
+      async function loadTodoistConnectionStatus() {
+        if (!state.user) {
+          state.todoistConnected = false;
+          updateTodoistUI();
+          return;
+        }
+        try {
+          const userDoc = await fbDb.collection('users').doc(state.user.uid).get();
+          state.todoistConnected = !!(userDoc.exists && userDoc.data()?.todoistToken);
+        } catch (err) {
+          console.error('Failed to load Todoist connection status:', err);
+          state.todoistConnected = false;
+        }
+        updateTodoistUI();
+      }
+
+      async function connectTodoist() {
+        if (!requirePremium('Todoist Integration')) return;
+        if (!state.user) return;
+
+        // CRITICAL: window.open() must be called synchronously in click handler
+        // to avoid popup blocker. Navigate the popup after the async CF call resolves.
+        const popup = window.open('', 'todoist_oauth', 'width=600,height=700,scrollbars=yes,resizable=yes');
+        if (!popup) {
+          alert('Popup blocked. Please allow popups for this site and try again.');
+          return;
+        }
+
+        try {
+          const todoistOauthInitFn = fbFunctions.httpsCallable('todoistOauthInit');
+          const result = await todoistOauthInitFn();
+          popup.location.href = result.data.url;
+        } catch (err) {
+          console.error('Todoist OAuth init error:', err);
+          popup.close();
+          alert('Failed to connect Todoist. Please try again.');
+        }
+      }
+
+      async function disconnectTodoist() {
+        if (!state.user) return;
+        try {
+          await fbDb.collection('users').doc(state.user.uid).set(
+            { todoistToken: null, todoistConnectedAt: null },
+            { merge: true }
+          );
+          state.todoistConnected = false;
+          updateTodoistUI();
+        } catch (err) {
+          console.error('Todoist disconnect error:', err);
+          alert('Failed to disconnect Todoist. Please try again.');
+        }
+      }
+
+      async function openTodoistImportDialog() {
+        if (!requirePremium('Todoist Import')) return;
+
+        const dialog = document.getElementById('todoist-import-dialog');
+        const loadingEl = document.getElementById('todoistImportLoading');
+        const taskListEl = document.getElementById('todoistImportTaskList');
+        const emptyEl = document.getElementById('todoistImportEmpty');
+        const confirmBtn = document.getElementById('confirmTodoistImport');
+
+        // Reset state
+        loadingEl.style.display = '';
+        taskListEl.style.display = 'none';
+        emptyEl.style.display = 'none';
+        taskListEl.innerHTML = '';
+        confirmBtn.disabled = true;
+
+        dialog.showModal();
+
+        try {
+          const importFn = fbFunctions.httpsCallable('importTodoistTasks');
+          const result = await importFn();
+          const tasks = result.data.tasks || [];
+
+          loadingEl.style.display = 'none';
+
+          if (tasks.length === 0) {
+            emptyEl.textContent = 'No tasks found in your Todoist inbox.';
+            emptyEl.style.display = '';
+          } else {
+            taskListEl.style.display = '';
+            tasks.forEach((task) => {
+              const li = document.createElement('li');
+              li.className = 'todoist-task-item';
+
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.id = 'todoist-task-' + task.id;
+              checkbox.dataset.taskId = task.id;
+              checkbox.dataset.taskContent = task.content;
+
+              const label = document.createElement('label');
+              label.htmlFor = checkbox.id;
+              label.textContent = task.content;
+
+              li.appendChild(checkbox);
+              li.appendChild(label);
+              taskListEl.appendChild(li);
+            });
+
+            // Update confirm button state when checkboxes change
+            taskListEl.addEventListener('change', () => {
+              const checked = taskListEl.querySelectorAll('input[type="checkbox"]:checked');
+              confirmBtn.disabled = checked.length === 0;
+            }, { once: false });
+          }
+        } catch (err) {
+          console.error('Todoist import error:', err);
+          loadingEl.style.display = 'none';
+          const errCode = (err && err.code) ? err.code : '';
+          if (errCode === 'functions/unauthenticated') {
+            // Token expired — update connection state and prompt reconnect
+            state.todoistConnected = false;
+            updateTodoistUI();
+            dialog.close();
+            alert('Todoist connection expired. Please reconnect.');
+          } else {
+            emptyEl.textContent = 'Failed to load tasks. Please try again.';
+            emptyEl.style.display = '';
+          }
+        }
+      }
+
+      function confirmTodoistImport() {
+        const taskListEl = document.getElementById('todoistImportTaskList');
+        const checked = taskListEl.querySelectorAll('input[type="checkbox"]:checked');
+        let importCount = 0;
+
+        checked.forEach((checkbox) => {
+          const content = checkbox.dataset.taskContent;
+          if (!content) return;
+          // Avoid duplicate imports by checking existing task titles
+          const alreadyExists = state.tasks.some(t => t.title === content);
+          if (alreadyExists) return;
+          state.tasks.push({
+            id: crypto.randomUUID(),
+            title: content,
+            completed: false,
+          });
+          importCount++;
+        });
+
+        if (importCount > 0) {
+          saveTasks();
+          renderTasks();
+        } else {
+          alert('No new tasks to import (all selected tasks are already in your list).');
+        }
+
+        document.getElementById('todoist-import-dialog').close();
+      }
+
+      // --- Todoist Dialog Event Listeners ---
+      document.getElementById('todoistConnectBtn').addEventListener('click', connectTodoist);
+      document.getElementById('todoistImportBtn').addEventListener('click', openTodoistImportDialog);
+      document.getElementById('todoistDisconnectBtn').addEventListener('click', disconnectTodoist);
+      document.getElementById('openTodoistImportBtn').addEventListener('click', openTodoistImportDialog);
+      document.getElementById('closeTodoistImport').addEventListener('click', () => {
+        document.getElementById('todoist-import-dialog').close();
+      });
+      document.getElementById('cancelTodoistImport').addEventListener('click', () => {
+        document.getElementById('todoist-import-dialog').close();
+      });
+      document.getElementById('confirmTodoistImport').addEventListener('click', confirmTodoistImport);
+      document.getElementById('todoist-import-dialog').addEventListener('click', (e) => {
+        if (e.target === e.currentTarget) e.currentTarget.close();
+      });
+
       // --- Firestore Sync ---
       async function syncStatsToFirestore() {
         if (!state.user) return;
@@ -6744,13 +7164,16 @@
           // Pull latest data from Firestore
           await pullStatsFromFirestore();
           await loadProjectsFromFirestore();
+          await loadTodoistConnectionStatus();
           updateStats();
           loadLeaderboard();
         } else {
           // Reset subscription state on sign out
           state.subscription = { status: 'none', tier: null, customerId: null, currentPeriodEnd: null, cancelAtPeriodEnd: false, gracePeriod: false };
+          state.todoistConnected = false;
           localStorage.removeItem('subscriptionStatus');
           updatePremiumUI();
+          updateTodoistUI();
         }
       });
 
@@ -6784,6 +7207,18 @@
         } else if (urlParams.get('checkout') === 'canceled') {
           alert('Checkout canceled.');
           window.history.replaceState({}, '', window.location.pathname);
+        }
+
+        // Handle Todoist OAuth redirect
+        const todoistParam = urlParams.get('todoist');
+        if (todoistParam === 'success') {
+          window.history.replaceState({}, '', window.location.pathname);
+          // Re-load connection status (token was stored by Cloud Function)
+          loadTodoistConnectionStatus();
+        } else if (todoistParam === 'error') {
+          const reason = urlParams.get('reason') || 'unknown';
+          window.history.replaceState({}, '', window.location.pathname);
+          alert('Todoist connection failed (' + reason + '). Please try again.');
         }
 
         // Service worker registration
