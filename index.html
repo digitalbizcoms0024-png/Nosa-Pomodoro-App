@@ -7734,8 +7734,12 @@
           alert('Todoist connection failed (' + reason + '). Please try again.');
         }
 
-        // Service worker registration
+        // Service worker registration with auto-reload on update
         if ('serviceWorker' in navigator) {
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!refreshing) { refreshing = true; window.location.reload(); }
+          });
           window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').catch(() => {});
           });
