@@ -3,7 +3,7 @@
 ## Milestones
 
 - SHIPPED **v1.0 Background Audio** -- Phases 1-2 (shipped 2026-02-07)
-- **v2.0 Monetization** -- Phases 3-7 (in progress)
+- COMPLETE **v2.0 Monetization** -- Phases 3-7 (completed 2026-02-20)
 
 ## Phases
 
@@ -23,7 +23,7 @@
 - [x] **Phase 4: Data Foundation & Projects** - Session-level data model and project-based task organization
 - [x] **Phase 5: Premium Personalization & Export** - Custom themes, sounds, and CSV data export
 - [x] **Phase 6: Analytics Suite** - Smart Insights, Focus Forecast, project analytics, and yearly report
-- [ ] **Phase 7: Integrations** - Todoist import, webhook triggers, and PDF export
+- [x] **Phase 7: Integrations** - Todoist import, webhook triggers, and PDF export
 
 ## Phase Details
 
@@ -100,7 +100,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
   - [x] 07-01-PLAN.md — Todoist OAuth Cloud Functions + client connect/import UI
-  - [ ] 07-02-PLAN.md — Webhook configuration/firing + PDF productivity report export
+  - [x] 07-02-PLAN.md — Webhook configuration/firing + PDF productivity report export
 
 ## Progress
 
@@ -115,4 +115,4 @@ Phases execute in numeric order: 3 -> 4 -> 5 -> 6 -> 7
 | 4. Data Foundation & Projects | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 5. Premium Personalization & Export | v2.0 | 2/2 | Complete | 2026-02-08 |
 | 6. Analytics Suite | v2.0 | 4/4 | Complete | 2026-02-08 |
-| 7. Integrations | v2.0 | 1/2 | In progress | - |
+| 7. Integrations | v2.0 | 2/2 | Complete | 2026-02-20 |
