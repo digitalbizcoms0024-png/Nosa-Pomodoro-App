@@ -2126,6 +2126,135 @@
       transition: color var(--transition);
     }
 
+    /* --- Billing Modal --- */
+    #billingDialog {
+      max-width: 420px;
+    }
+    .billing-body {
+      padding: 20px 24px 24px;
+    }
+    .billing-plan-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .billing-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    .billing-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .billing-status-badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+    .billing-status-badge.active,
+    .billing-status-badge.trialing {
+      background: rgba(52, 168, 83, 0.15);
+      color: #34a853;
+    }
+    .billing-status-badge.canceling {
+      background: rgba(251, 188, 4, 0.15);
+      color: #f59e0b;
+    }
+    .billing-status-badge.past_due {
+      background: rgba(234, 67, 53, 0.15);
+      color: #ea4335;
+    }
+    .billing-cancel-notice {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(251, 188, 4, 0.1);
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      line-height: 1.4;
+    }
+    .billing-actions {
+      margin-top: 20px;
+    }
+    .billing-cancel-btn {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ea4335;
+      border-radius: 8px;
+      background: none;
+      color: #ea4335;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .billing-cancel-btn:hover {
+      background: #ea4335;
+      color: #fff;
+    }
+    .billing-cancel-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .billing-cancel-btn:disabled:hover {
+      background: none;
+      color: #ea4335;
+    }
+    .billing-confirm {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+    }
+    .billing-confirm p {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .billing-confirm-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .billing-confirm-yes {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: #ea4335;
+      color: #fff;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .billing-confirm-no {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: none;
+      color: var(--text-primary);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .billing-support {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 20px;
+    }
+    .billing-support a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
     /* --- Upgrade Prompt --- */
     #upgrade-prompt {
       max-width: 420px;
@@ -3310,6 +3439,46 @@
         </div>
       </div>
       <p class="pricing-guarantee">🔒 No Ads Ever • Cancel anytime • Secure payment via Stripe</p>
+    </div>
+  </dialog>
+
+  <!-- Billing / Manage Subscription Modal -->
+  <dialog id="billingDialog" aria-labelledby="billingTitle">
+    <div class="dialog-header">
+      <h2 id="billingTitle">Manage Subscription</h2>
+      <button class="icon-btn" id="closeBilling" aria-label="Close billing">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dialog-body billing-body">
+      <div class="billing-plan-row">
+        <span class="billing-label">Plan</span>
+        <span class="billing-value" id="billing-plan-name">—</span>
+      </div>
+      <div class="billing-plan-row">
+        <span class="billing-label">Status</span>
+        <span class="billing-value"><span class="billing-status-badge" id="billing-status-badge">—</span></span>
+      </div>
+      <div class="billing-plan-row" id="billing-date-row">
+        <span class="billing-label" id="billing-date-label">Next billing date</span>
+        <span class="billing-value" id="billing-date-value">—</span>
+      </div>
+      <div class="billing-cancel-notice" id="billing-cancel-notice" style="display:none">
+        Your subscription will remain active until the date shown above. You will not be charged again.
+      </div>
+      <div class="billing-actions">
+        <button class="billing-cancel-btn" id="billing-cancel-btn">Cancel Subscription</button>
+      </div>
+      <div class="billing-confirm" id="billing-confirm" style="display:none">
+        <p>Are you sure you want to cancel? You'll keep access until your current period ends.</p>
+        <div class="billing-confirm-actions">
+          <button class="billing-confirm-yes" id="billing-confirm-yes">Yes, Cancel</button>
+          <button class="billing-confirm-no" id="billing-confirm-no">Keep Subscription</button>
+        </div>
+      </div>
+      <p class="billing-support">Need help? Contact <a href="mailto:support@pomodorotimer.vip">support@pomodorotimer.vip</a></p>
     </div>
   </dialog>
 
@@ -6060,7 +6229,7 @@
           manageSubItem.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Manage Subscription';
           manageSubItem.addEventListener('click', () => {
             hideUserMenu();
-            openCustomerPortal();
+            showBillingDialog();
           });
           menu.appendChild(manageSubItem);
         }
@@ -6199,14 +6368,84 @@
         }
       }
 
-      async function openCustomerPortal() {
+      function showBillingDialog() {
+        const dialog = document.getElementById('billingDialog');
+        if (!dialog) return;
+        const sub = state.subscription;
+
+        // Plan name
+        const planName = document.getElementById('billing-plan-name');
+        if (sub.tier === 'monthly') planName.textContent = 'Premium Monthly';
+        else if (sub.tier === 'yearly') planName.textContent = 'Premium Yearly';
+        else planName.textContent = 'Premium';
+
+        // Status badge
+        const badge = document.getElementById('billing-status-badge');
+        const cancelNotice = document.getElementById('billing-cancel-notice');
+        const cancelBtn = document.getElementById('billing-cancel-btn');
+        const confirmEl = document.getElementById('billing-confirm');
+        confirmEl.style.display = 'none';
+
+        if (sub.cancelAtPeriodEnd) {
+          badge.textContent = 'Canceling';
+          badge.className = 'billing-status-badge canceling';
+          cancelNotice.style.display = '';
+          cancelBtn.style.display = 'none';
+        } else if (sub.status === 'trialing') {
+          badge.textContent = 'Trial';
+          badge.className = 'billing-status-badge trialing';
+          cancelNotice.style.display = 'none';
+          cancelBtn.style.display = '';
+        } else if (sub.status === 'past_due') {
+          badge.textContent = 'Past Due';
+          badge.className = 'billing-status-badge past_due';
+          cancelNotice.style.display = 'none';
+          cancelBtn.style.display = '';
+        } else {
+          badge.textContent = 'Active';
+          badge.className = 'billing-status-badge active';
+          cancelNotice.style.display = 'none';
+          cancelBtn.style.display = '';
+        }
+
+        // Date
+        const dateLabel = document.getElementById('billing-date-label');
+        const dateValue = document.getElementById('billing-date-value');
+        if (sub.currentPeriodEnd) {
+          const date = new Date(sub.currentPeriodEnd * 1000);
+          const formatted = date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+          dateValue.textContent = formatted;
+          dateLabel.textContent = sub.cancelAtPeriodEnd ? 'Access until' : 'Next billing date';
+        } else {
+          dateValue.textContent = '—';
+          dateLabel.textContent = 'Next billing date';
+        }
+
+        dialog.showModal();
+      }
+
+      function hideBillingDialog() {
+        const dialog = document.getElementById('billingDialog');
+        if (dialog) dialog.close();
+      }
+
+      async function handleCancelSubscription() {
+        const cancelBtn = document.getElementById('billing-cancel-btn');
+        const confirmEl = document.getElementById('billing-confirm');
+        cancelBtn.disabled = true;
+        cancelBtn.textContent = 'Canceling...';
         try {
-          const createPortalSession = fbFunctions.httpsCallable('createPortalSession');
-          const result = await createPortalSession();
-          window.location.href = result.data.url;
+          const cancelSub = fbFunctions.httpsCallable('cancelSubscription');
+          await cancelSub();
+          // Firestore listener will update state.subscription automatically
+          hideBillingDialog();
+          showCheckoutToast('Subscription canceled. You\'ll keep access until your current period ends.', 'success');
         } catch (error) {
-          console.error('Portal error:', error);
-          alert('Failed to open subscription management.');
+          console.error('Cancel error:', error);
+          cancelBtn.disabled = false;
+          cancelBtn.textContent = 'Cancel Subscription';
+          confirmEl.style.display = 'none';
+          alert('Failed to cancel subscription. Please try again or contact support.');
         }
       }
 
@@ -6291,9 +6530,22 @@
       document.getElementById('upgrade-prompt-dismiss').addEventListener('click', hideUpgradePrompt);
       document.getElementById('upgrade-prompt-view-plans').addEventListener('click', () => { hideUpgradePrompt(); showPricingPage(); });
 
-      // Close pricing/upgrade dialogs on backdrop click
+      // Billing dialog listeners
+      document.getElementById('closeBilling').addEventListener('click', hideBillingDialog);
+      document.getElementById('billing-cancel-btn').addEventListener('click', () => {
+        document.getElementById('billing-cancel-btn').style.display = 'none';
+        document.getElementById('billing-confirm').style.display = '';
+      });
+      document.getElementById('billing-confirm-yes').addEventListener('click', handleCancelSubscription);
+      document.getElementById('billing-confirm-no').addEventListener('click', () => {
+        document.getElementById('billing-confirm').style.display = 'none';
+        document.getElementById('billing-cancel-btn').style.display = '';
+      });
+
+      // Close pricing/upgrade/billing dialogs on backdrop click
       document.getElementById('pricing-page').addEventListener('click', (e) => { if (e.target === e.currentTarget) hidePricingPage(); });
       document.getElementById('upgrade-prompt').addEventListener('click', (e) => { if (e.target === e.currentTarget) hideUpgradePrompt(); });
+      document.getElementById('billingDialog').addEventListener('click', (e) => { if (e.target === e.currentTarget) hideBillingDialog(); });
 
       // --- Todoist Integration ---
 
@@ -7550,7 +7802,8 @@
             reset();
             break;
           case 'Escape':
-            if (pricingPage.open) hidePricingPage();
+            if (document.getElementById('billingDialog').open) hideBillingDialog();
+            else if (pricingPage.open) hidePricingPage();
             else if (upgradePrompt.open) hideUpgradePrompt();
             else if (analyticsDialog.open) analyticsDialog.close();
             else if (exportDialog.open) exportDialog.close();
