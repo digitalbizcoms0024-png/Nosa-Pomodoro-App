@@ -6109,8 +6109,25 @@
       }
 
       // --- Subscription Management ---
+      let _subscriptionUnsubscribe = null;
+
       function listenToSubscription(uid) {
-        fbDb.doc(`users/${uid}/subscription/status`).onSnapshot((doc) => {
+        // Unsubscribe from any previous listener (e.g., after sign-out/sign-in)
+        if (_subscriptionUnsubscribe) {
+          _subscriptionUnsubscribe();
+          _subscriptionUnsubscribe = null;
+        }
+        // Reset self-heal flag for this sign-in session
+        state._subscriptionChecked = false;
+
+        // Use cached subscription status while Firestore loads
+        const cached = localStorage.getItem('subscriptionStatus');
+        if (cached && PREMIUM_STATUSES.includes(cached)) {
+          state.subscription.status = cached;
+          updatePremiumUI();
+        }
+
+        _subscriptionUnsubscribe = fbDb.doc(`users/${uid}/subscription/status`).onSnapshot((doc) => {
           if (doc.exists) {
             const data = doc.data();
             state.subscription = {
@@ -7712,8 +7729,14 @@
           loadLeaderboard();
           // (checkout is handled inline in startCheckout via signInWithPopup)
         } else {
+          // Unsubscribe from Firestore listener
+          if (_subscriptionUnsubscribe) {
+            _subscriptionUnsubscribe();
+            _subscriptionUnsubscribe = null;
+          }
           // Reset subscription state on sign out
           state.subscription = { status: 'none', tier: null, customerId: null, currentPeriodEnd: null, cancelAtPeriodEnd: false, gracePeriod: false };
+          state._subscriptionChecked = false;
           state.todoistConnected = false;
           state.webhookUrl = null;
           localStorage.removeItem('subscriptionStatus');
