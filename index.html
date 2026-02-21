@@ -6297,7 +6297,6 @@
         }
 
         _subscriptionUnsubscribe = fbDb.doc(`users/${uid}/subscription/status`).onSnapshot((doc) => {
-          console.log('[SUB] onSnapshot fired — exists:', doc.exists, 'data:', doc.exists ? JSON.stringify(doc.data()) : 'N/A');
           if (doc.exists) {
             const data = doc.data();
             state.subscription = {
@@ -6322,11 +6321,10 @@
               }).catch(err => console.error('Subscription verify error:', err));
             }
           }
-          console.log('[SUB] state.subscription.status =', state.subscription.status, 'isPremium:', PREMIUM_STATUSES.includes(state.subscription.status));
           localStorage.setItem('subscriptionStatus', state.subscription.status);
           updatePremiumUI();
         }, (error) => {
-          console.error('[SUB] onSnapshot ERROR:', error.code, error.message);
+          console.error('Subscription listener error:', error.code, error.message);
         });
       }
 
