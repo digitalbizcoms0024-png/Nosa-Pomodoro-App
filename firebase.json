@@ -8,5 +8,8 @@
         ".git"
       ]
     }
-  ]
+  ],
+  "firestore": {
+    "rules": "firestore.rules"
+  }
 }
