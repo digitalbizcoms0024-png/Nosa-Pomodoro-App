@@ -12,3 +12,4 @@ export { aggregateUserStats } from './aggregateUserStats.js';
 export { todoistOauthInit } from './todoist/oauth-init.js';
 export { todoistOauthCallback } from './todoist/oauth-callback.js';
 export { importTodoistTasks } from './todoist/import-tasks.js';
+export { submitFeedback } from './feedback.js';
