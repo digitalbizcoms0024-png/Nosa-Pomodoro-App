@@ -3127,6 +3127,167 @@
         padding: 12px;
       }
     }
+
+    /* ========== Landing Page ========== */
+    .landing {
+      width: 100%;
+      padding-top: 64px;
+    }
+
+    .landing-section {
+      width: 100%;
+      padding: 72px 24px;
+    }
+
+    .landing-section:nth-child(odd) {
+      background: var(--bg);
+    }
+
+    .landing-section:nth-child(even) {
+      background: var(--surface);
+    }
+
+    .landing-inner {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .landing-headline {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+
+    .landing-body {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+
+    .landing-body:last-child {
+      margin-bottom: 0;
+    }
+
+    .landing-body strong {
+      color: var(--text);
+    }
+
+    .landing-cta {
+      display: inline-block;
+      padding: 16px 40px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      transition: background 200ms ease, transform 200ms ease;
+      margin-top: 24px;
+    }
+
+    .landing-cta:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .landing-cta-sub {
+      display: block;
+      margin-top: 12px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .landing-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .landing-feature-item {
+      background: var(--bg);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      border: 1px solid var(--border);
+    }
+
+    .landing-feature-item strong {
+      display: block;
+      color: var(--text);
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+
+    .landing-feature-item span {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+
+    .landing-pricing {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-top: 24px;
+    }
+
+    .landing-pricing ul {
+      list-style: none;
+      padding: 0;
+      margin: 16px 0;
+    }
+
+    .landing-pricing ul li {
+      padding: 6px 0;
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+
+    .landing-pricing ul li::before {
+      content: "\2713\0020";
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .landing-price {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text);
+      margin-top: 16px;
+    }
+
+    .landing-price-alt {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 480px) {
+      .landing-section {
+        padding: 48px 20px;
+      }
+
+      .landing-headline {
+        font-size: 1.5rem;
+      }
+
+      .landing-body {
+        font-size: 16px;
+      }
+
+      .landing-features {
+        grid-template-columns: 1fr;
+      }
+
+      .landing-cta {
+        width: 100%;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -3269,6 +3430,93 @@
     </div>
 
     </div>
+  </div>
+
+  <div class="landing" id="landing">
+
+    <section class="landing-section">
+      <div class="landing-inner">
+        <h2 class="landing-headline">Your brain isn't broken. Your timer is.</h2>
+        <p class="landing-body">Most pomodoro timers force you into a rigid 25-minute box. When your brain works differently, that box becomes a cage. Pomodoro Timer adapts to you: flexible intervals, visual countdowns your brain can actually process, and analytics that reveal when you focus best. Not when some textbook says you should.</p>
+        <button class="landing-cta">Start Focusing &mdash; Free</button>
+        <span class="landing-cta-sub">No account required. Works offline. Installs from your browser.</span>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-inner">
+        <h2 class="landing-headline">Why standard pomodoro timers fail ADHD brains</h2>
+        <p class="landing-body">You know the drill. You sit down to work. You open a timer. You hit start.</p>
+        <p class="landing-body">Fifteen minutes in, you're finally loading the problem into your head. The pieces are connecting. You can feel the momentum building.</p>
+        <p class="landing-body">Then the timer goes off.</p>
+        <p class="landing-body">"Take a break," it says. As if your brain has an on/off switch.</p>
+        <p class="landing-body">So you stop. You check your phone. Five minutes turns into forty-five. Getting back into that task feels like pushing a boulder uphill. By the time you restart, the mental context is gone. You're starting from zero.</p>
+        <p class="landing-body">And the worst part? You blame yourself. "Why can't I just follow a simple timer like everyone else?"</p>
+        <p class="landing-body">Here's the truth: <strong>the timer was never built for you.</strong></p>
+        <p class="landing-body">Standard pomodoro was designed for neurotypical brains that experience time linearly, that can pause and resume focus on command, that find 25 minutes to be a natural work rhythm. If your brain runs on a different operating system, forcing it into that box doesn't build discipline. It builds shame.</p>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-inner">
+        <h2 class="landing-headline">A focus timer that works with your brain, not against it</h2>
+        <p class="landing-body">Pomodoro Timer was built on a simple principle: your brain knows what it needs. The tool should follow, not lead.</p>
+        <p class="landing-body"><strong>Set your own rhythm.</strong> Some days you can lock in for 50 minutes. Other days, 10 is a win. Adjust your focus and break intervals to match your actual capacity today. Not some number a productivity book picked.</p>
+        <p class="landing-body"><strong>See time, don't just read it.</strong> Numbers ticking down on a screen don't register when you have time blindness. Our visual progress ring shows you exactly how much time remains as a shrinking arc you can process at a glance. No mental math. No guessing.</p>
+        <p class="landing-body"><strong>Know when YOUR brain focuses best.</strong> Focus Forecast analyzes your sessions and shows you your personal peak focus windows. Stop fighting your biology. Schedule deep work when your brain is ready for it.</p>
+        <p class="landing-body"><strong>No shame. No streaks. No guilt.</strong> We don't punish you for missing a day. We don't gamify your focus with trees that die when you check your phone. You show up when you can, and the tool meets you where you are.</p>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-inner">
+        <h2 class="landing-headline">Built for how you actually work</h2>
+        <div class="landing-features">
+          <div class="landing-feature-item"><strong>Flexible intervals</strong><span>10 minutes, 25 minutes, 50 minutes, 90 minutes. Change it session by session. Your call.</span></div>
+          <div class="landing-feature-item"><strong>Visual progress ring</strong><span>A color-coded arc that shrinks as time passes. Your brain sees progress without reading numbers.</span></div>
+          <div class="landing-feature-item"><strong>ADHD-friendly presets</strong><span>"Quick Start" (10/3), "Standard" (25/5), "Deep Work" (50/10). Pick one and go. Zero decision fatigue.</span></div>
+          <div class="landing-feature-item"><strong>Focus Forecast</strong><span>See your personal peak focus hours based on real session data. Stop guessing when to do hard work.</span></div>
+          <div class="landing-feature-item"><strong>Smart Insights</strong><span>Track your patterns over days, weeks, and months. See what's actually improving, not what you think is improving.</span></div>
+          <div class="landing-feature-item"><strong>Task list</strong><span>Break big projects into small pieces. Check them off as you go. Momentum you can see.</span></div>
+          <div class="landing-feature-item"><strong>Works offline</strong><span>Installs from your browser in two seconds. No app store. No download. Works on a plane, in a library, on bad wifi.</span></div>
+          <div class="landing-feature-item"><strong>Calming sounds</strong><span>Gentle chimes that don't jolt you out of focus. Choose from soft bells, singing bowls, or crystal tones.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-inner">
+        <h2 class="landing-headline">Free to start. $2/month when you're ready for more.</h2>
+        <p class="landing-body">The full timer with flexible intervals, visual tracking, tasks, and offline support is free. No limits. No ads. No catch.</p>
+        <p class="landing-body">When you want deeper insights into your focus patterns, unlock Premium:</p>
+        <div class="landing-pricing">
+          <ul>
+            <li>Focus Forecast (your personal peak hours)</li>
+            <li>Smart Insights and analytics dashboard</li>
+            <li>Project tracking across multiple areas of your life</li>
+            <li>Premium sounds and themes</li>
+            <li>CSV and PDF export</li>
+            <li>Todoist integration and webhook automation</li>
+          </ul>
+          <p class="landing-price">$2/month <span class="landing-price-alt">or $15/year &middot; or $47 once, forever</span></p>
+        </div>
+        <p class="landing-body" style="margin-top: 24px;">That's less than the latte you're drinking while you read this. And unlike the latte, it might actually help you finish what you started.</p>
+        <button class="landing-cta">Start Focusing &mdash; Free</button>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-inner">
+        <h2 class="landing-headline">Two paths from here</h2>
+        <p class="landing-body">You can close this tab and go back to the timer that makes you feel broken every time the 25-minute mark hits.</p>
+        <p class="landing-body">Or you can try the one built for your brain.</p>
+        <p class="landing-body">It's free. It takes two seconds to start. And if it doesn't work for you, you haven't lost a thing.</p>
+        <p class="landing-body">But if it does work? If you finally have a focus tool that bends to your rhythm instead of breaking it?</p>
+        <p class="landing-body"><strong>That changes everything.</strong></p>
+        <button class="landing-cta">Start Focusing &mdash; Free</button>
+      </div>
+    </section>
+
   </div>
 
   <button class="theme-toggle-fixed" id="themeToggle" aria-label="Choose theme" data-tooltip="Theme">
@@ -8385,6 +8633,17 @@
 
       init();
     })();
+
+    // Landing page CTA — scroll to top and start timer
+    document.getElementById('landing').addEventListener('click', function(e) {
+      var btn = e.target.closest('.landing-cta');
+      if (!btn) return;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      var startBtn = document.getElementById('startBtn');
+      if (startBtn && startBtn.textContent.trim().toLowerCase() === 'start') {
+        setTimeout(function() { startBtn.click(); }, 600);
+      }
+    });
   </script>
 </body>
 </html>
