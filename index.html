@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#e74c3c">
   <meta name="description" content="Free focus timer designed for ADHD and neurodivergent brains. Flexible intervals, visual time tracking, focus analytics. No rigid rules. No shame. Works offline.">
-  <title>Pomodoro Timer — Focus Timer for ADHD &amp; Neurodivergent Brains</title>
+  <title>Pomodoro Timer for ADHD — Free Focus Timer | pomodorotimer.vip</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='280' r='200' fill='%23e74c3c'/%3E%3Ccircle cx='256' cy='280' r='170' fill='%23c0392b'/%3E%3Ccircle cx='256' cy='280' r='160' fill='%23e74c3c'/%3E%3Crect x='250' y='130' width='12' height='100' rx='6' fill='%23fff'/%3E%3Crect x='250' y='230' width='12' height='60' rx='6' fill='%23fff' transform='rotate(30 256 280)'/%3E%3Cellipse cx='256' cy='100' rx='12' ry='20' fill='%2327ae60'/%3E%3Cellipse cx='240' cy='95' rx='18' ry='10' fill='%2327ae60' transform='rotate(-30 240 95)'/%3E%3Cellipse cx='272' cy='95' rx='18' ry='10' fill='%2327ae60' transform='rotate(30 272 95)'/%3E%3C/svg%3E">
   <link rel="canonical" href="https://pomodorotimer.vip/">
@@ -62,6 +62,67 @@
         "@type": "Organization",
         "name": "Pomodoro Timer",
         "url": "https://pomodorotimer.vip/"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Does the Pomodoro Technique work for ADHD?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The standard 25-minute Pomodoro often frustrates ADHD brains because it assumes consistent focus capacity and linear time perception. But a modified Pomodoro approach for ADHD — with flexible intervals, visual countdowns, and structured breaks — can be highly effective. The key is adapting the method to your brain, not forcing your brain into the method."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is time blindness?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Time blindness is the difficulty sensing how much time has passed or estimating how long tasks will take. It's common in ADHD and is caused by differences in how the prefrontal cortex processes time. Visual timers — like a progress ring that fills as time passes — help externalize time perception so you can see it rather than relying on an internal clock that doesn't work reliably."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How long should ADHD focus sessions be?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "There's no single answer — it depends on the task, your energy, and the day. Many people with ADHD find that starting with 10-15 minute sessions reduces initiation friction. On high-energy days, 35-50 minutes may work. The important thing is choosing your interval based on honest self-assessment, not a rigid default."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is this timer free?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The core timer with flexible intervals, visual progress ring, task list, and offline support is completely free — no account required, no ads, no limits. Premium ($2/month) adds Focus Forecast analytics, Smart Insights, and additional themes and sounds."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is this different from Pomofocus?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Pomofocus is a solid basic timer, but it wasn't designed for ADHD. Pomodoro Timer offers ADHD-friendly presets, a visual progress ring for time blindness, offline PWA support, focus analytics, and flexible intervals you can change session-by-session."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What are the best focus techniques for ADHD?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Evidence-based techniques include body doubling, task decomposition, the 'just 5 minutes' rule, environmental design, and modified Pomodoro with visual timers. The common thread: they work with ADHD neurology instead of against it, reducing friction and providing external structure your brain can lean on."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use this timer offline?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Pomodoro Timer is a Progressive Web App (PWA) that installs from your browser in two seconds. Once installed, it works fully offline — on a plane, in a library, or anywhere with no internet. Your data syncs when you're back online."
+            }
+          }
+        ]
       }
     ]
   }
@@ -3286,6 +3347,30 @@
       color: var(--text-secondary);
     }
 
+    .landing-faq { margin-top: 32px; }
+    .landing-faq-item { border-bottom: 1px solid var(--border); }
+    .landing-faq-item:first-child { border-top: 1px solid var(--border); }
+    .landing-faq-q {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 0; cursor: pointer; background: none; border: none;
+      width: 100%; text-align: left; font: inherit; color: var(--text);
+      font-size: 17px; font-weight: 600; gap: 16px;
+    }
+    .landing-faq-q:hover { color: var(--primary); }
+    .landing-faq-arrow {
+      flex-shrink: 0; width: 20px; height: 20px;
+      transition: transform .2s; color: var(--text-secondary);
+    }
+    .landing-faq-item.open .landing-faq-arrow { transform: rotate(180deg); }
+    .landing-faq-a {
+      max-height: 0; overflow: hidden; transition: max-height .3s ease;
+      font-size: 15px; line-height: 1.7; color: var(--text-secondary);
+    }
+    .landing-faq-item.open .landing-faq-a { max-height: 400px; }
+    .landing-faq-a p { padding: 0 0 20px; margin: 0; }
+    .landing-faq-a a { color: var(--primary); text-decoration: none; }
+    .landing-faq-a a:hover { text-decoration: underline; }
+
     .landing-pricing {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -3561,6 +3646,42 @@
         </div>
         <p class="landing-body" style="margin-top: 24px;">That's less than the latte you're drinking while you read this. And unlike the latte, it might actually help you finish what you started.</p>
         <button class="landing-cta">Start Focusing &mdash; Free</button>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-inner">
+        <h2 class="landing-headline">Frequently Asked Questions</h2>
+        <div class="landing-faq">
+          <div class="landing-faq-item">
+            <button class="landing-faq-q" aria-expanded="false">Does the Pomodoro Technique work for ADHD?<svg class="landing-faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="landing-faq-a"><p>The standard 25-minute Pomodoro often frustrates ADHD brains because it assumes consistent focus capacity and linear time perception. But a <a href="/blog/pomodoro-technique-adhd/">modified Pomodoro approach for ADHD</a> — with flexible intervals, visual countdowns, and structured breaks — can be highly effective. The key is adapting the method to your brain, not forcing your brain into the method.</p></div>
+          </div>
+          <div class="landing-faq-item">
+            <button class="landing-faq-q" aria-expanded="false">What is time blindness?<svg class="landing-faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="landing-faq-a"><p><a href="/blog/time-blindness-adhd/">Time blindness</a> is the difficulty sensing how much time has passed or estimating how long tasks will take. It's common in ADHD and is caused by differences in how the prefrontal cortex processes time. Visual timers — like a progress ring that fills as time passes — help externalize time perception so you can see it rather than relying on an internal clock that doesn't work reliably.</p></div>
+          </div>
+          <div class="landing-faq-item">
+            <button class="landing-faq-q" aria-expanded="false">How long should ADHD focus sessions be?<svg class="landing-faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="landing-faq-a"><p>There's no single answer — it depends on the task, your energy, and the day. Many people with ADHD find that <a href="/blog/best-pomodoro-intervals/">starting with 10-15 minute sessions</a> reduces initiation friction. On high-energy days, 35-50 minutes may work. The important thing is choosing your interval based on honest self-assessment, not a rigid default.</p></div>
+          </div>
+          <div class="landing-faq-item">
+            <button class="landing-faq-q" aria-expanded="false">Is this timer free?<svg class="landing-faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="landing-faq-a"><p>Yes. The core timer with flexible intervals, visual progress ring, task list, and offline support is completely free — no account required, no ads, no limits. Premium ($2/month) adds Focus Forecast analytics, Smart Insights, and additional themes and sounds.</p></div>
+          </div>
+          <div class="landing-faq-item">
+            <button class="landing-faq-q" aria-expanded="false">How is this different from Pomofocus?<svg class="landing-faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="landing-faq-a"><p>Pomofocus is a solid basic timer, but it wasn't designed for ADHD. Pomodoro Timer offers ADHD-friendly presets, a visual progress ring for time blindness, offline PWA support, focus analytics, and flexible intervals you can change session-by-session. See our full <a href="/blog/pomofocus-alternatives/">Pomofocus alternatives comparison</a>.</p></div>
+          </div>
+          <div class="landing-faq-item">
+            <button class="landing-faq-q" aria-expanded="false">What are the best focus techniques for ADHD?<svg class="landing-faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="landing-faq-a"><p>Evidence-based techniques include body doubling, task decomposition, the "just 5 minutes" rule, environmental design, and <a href="/blog/adhd-focus-techniques/">modified Pomodoro with visual timers</a>. The common thread: they work with ADHD neurology instead of against it, reducing friction and providing external structure your brain can lean on.</p></div>
+          </div>
+          <div class="landing-faq-item">
+            <button class="landing-faq-q" aria-expanded="false">Can I use this timer offline?<svg class="landing-faq-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="landing-faq-a"><p>Yes. Pomodoro Timer is a Progressive Web App (PWA) that installs from your browser in two seconds. Once installed, it works fully offline — on a plane, in a library, or anywhere with no internet. Your data syncs when you're back online.</p></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -8692,6 +8813,17 @@
 
       init();
     })();
+
+    // FAQ accordion
+    document.querySelectorAll('.landing-faq-q').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var item = btn.parentElement;
+        var isOpen = item.classList.contains('open');
+        item.parentElement.querySelectorAll('.landing-faq-item').forEach(function(i) { i.classList.remove('open'); });
+        if (!isOpen) item.classList.add('open');
+        btn.setAttribute('aria-expanded', !isOpen);
+      });
+    });
 
     // Landing page CTA — scroll to top and start timer
     document.getElementById('landing').addEventListener('click', function(e) {
