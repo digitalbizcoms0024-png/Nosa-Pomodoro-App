@@ -3471,6 +3471,77 @@
     @media (max-width: 600px) {
       .site-footer-inner { grid-template-columns: 1fr; gap: 28px; }
     }
+
+    /* Feedback button & dialog */
+    .feedback-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 900;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 10px 16px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 200ms, box-shadow 200ms, transform 200ms;
+    }
+    .feedback-btn:hover { background: var(--primary-hover); box-shadow: var(--shadow-lg); }
+    .feedback-btn:active { transform: scale(0.96); }
+    .feedback-btn svg { flex-shrink: 0; }
+
+    #feedbackDialog {
+      max-width: 420px;
+      width: calc(100% - 32px);
+    }
+    #feedbackDialog textarea {
+      width: 100%;
+      min-height: 120px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 0.9375rem;
+      font-family: inherit;
+      background: var(--bg);
+      color: var(--text);
+      resize: vertical;
+      transition: border-color 200ms;
+    }
+    #feedbackDialog textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    .feedback-char-count {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-align: right;
+    }
+    .feedback-status {
+      font-size: 0.8125rem;
+      text-align: center;
+      padding: 8px;
+      border-radius: var(--radius-sm);
+    }
+    .feedback-status.success {
+      background: rgba(46, 204, 113, 0.15);
+      color: #27ae60;
+    }
+    .feedback-status.error {
+      background: rgba(231, 76, 60, 0.15);
+      color: #e74c3c;
+    }
+    .dialog-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      padding: 0 24px 20px;
+    }
   </style>
 </head>
 <body>
@@ -4315,6 +4386,34 @@
       <div class="analytics-panel" data-tab-panel="yearly" style="display:none">
         <div class="analytics-loading">Loading yearly report...</div>
       </div>
+    </div>
+  </dialog>
+
+  <!-- Feedback Widget -->
+  <button class="feedback-btn" id="feedbackBtn" aria-label="Send feedback">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    Feedback
+  </button>
+
+  <dialog id="feedbackDialog" aria-labelledby="feedbackTitle">
+    <div class="dialog-header">
+      <h2 id="feedbackTitle">Send Feedback</h2>
+      <button class="icon-btn" id="closeFeedback" aria-label="Close feedback">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <textarea id="feedbackMessage" placeholder="What features would you like to see? Found a bug? Let us know!" maxlength="2000"></textarea>
+      <div class="feedback-char-count"><span id="feedbackCharCount">0</span>/2000</div>
+      <div id="feedbackStatus" class="feedback-status" style="display:none"></div>
+    </div>
+    <div class="dialog-actions">
+      <button class="btn btn-ghost" id="feedbackCancel">Cancel</button>
+      <button class="btn btn-primary" id="feedbackSubmit">Submit</button>
     </div>
   </dialog>
 
@@ -7717,6 +7816,17 @@
           };
           batch.set(userRef, userUpdate, { merge: true });
 
+          // Denormalized leaderboard entry (readable by all signed-in users)
+          const leaderboardRef = fbDb.collection('leaderboard').doc(uid);
+          batch.set(leaderboardRef, {
+            uid,
+            displayName: state.user.displayName || '',
+            photoURL: state.user.photoURL || '',
+            totalMinutes: firebase.firestore.FieldValue.increment(state.settings.focusDuration),
+            totalSessions: firebase.firestore.FieldValue.increment(1),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          }, { merge: true });
+
           // Commit atomic batch
           await batch.commit();
 
@@ -7753,15 +7863,40 @@
       }
 
       // --- Leaderboard ---
+      async function seedLeaderboardEntry() {
+        if (!state.user) return;
+        try {
+          const uid = state.user.uid;
+          const lbDoc = await fbDb.collection('leaderboard').doc(uid).get();
+          if (!lbDoc.exists) {
+            // Copy from users collection if it exists
+            const userDoc = await fbDb.collection('users').doc(uid).get();
+            if (userDoc.exists) {
+              const d = userDoc.data();
+              await fbDb.collection('leaderboard').doc(uid).set({
+                uid,
+                displayName: d.displayName || state.user.displayName || '',
+                photoURL: d.photoURL || state.user.photoURL || '',
+                totalMinutes: d.totalMinutes || 0,
+                totalSessions: d.totalSessions || 0,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              });
+            }
+          }
+        } catch (err) {
+          console.error('Seed leaderboard failed:', err);
+        }
+      }
+
       async function loadLeaderboard() {
         if (!state.user) return;
         try {
-          const snap = await fbDb.collection('users')
+          const snap = await fbDb.collection('leaderboard')
             .orderBy('totalMinutes', 'desc')
             .limit(10)
             .get();
 
-          leaderboardList.innerHTML = '';
+          while (leaderboardList.firstChild) leaderboardList.firstChild.remove();
           let currentInTop10 = false;
           let rank = 0;
 
@@ -7783,12 +7918,11 @@
 
           // If current user not in top 10, find their rank and append
           if (!currentInTop10) {
-            const userDoc = await fbDb.collection('users').doc(state.user.uid).get();
+            const userDoc = await fbDb.collection('leaderboard').doc(state.user.uid).get();
             if (userDoc.exists) {
               const userData = userDoc.data();
               const userMinutes = userData.totalMinutes || 0;
-              // Count how many users have more minutes
-              const countSnap = await fbDb.collection('users')
+              const countSnap = await fbDb.collection('leaderboard')
                 .where('totalMinutes', '>', userMinutes)
                 .get();
               const userRank = countSnap.size + 1;
@@ -7800,7 +7934,9 @@
               leaderboardList.appendChild(createLeaderboardRow(userRank, userData, true));
             }
           }
-        } catch {}
+        } catch (err) {
+          console.error('Leaderboard load failed:', err);
+        }
       }
 
       function createLeaderboardRow(rank, data, isCurrent) {
@@ -8798,6 +8934,8 @@
           }
           // Pull latest data from Firestore
           await pullStatsFromFirestore();
+          // Ensure leaderboard entry exists (migration for existing users)
+          await seedLeaderboardEntry();
           await loadProjectsFromFirestore();
           await loadTodoistConnectionStatus();
           await loadWebhookUrl();
@@ -8912,6 +9050,89 @@
         setTimeout(function() { startBtn.click(); }, 600);
       }
     });
+
+    // Feedback widget
+    (function() {
+      var feedbackBtn = document.getElementById('feedbackBtn');
+      var feedbackDialog = document.getElementById('feedbackDialog');
+      var closeFeedback = document.getElementById('closeFeedback');
+      var feedbackCancel = document.getElementById('feedbackCancel');
+      var feedbackSubmit = document.getElementById('feedbackSubmit');
+      var feedbackMessage = document.getElementById('feedbackMessage');
+      var feedbackCharCount = document.getElementById('feedbackCharCount');
+      var feedbackStatus = document.getElementById('feedbackStatus');
+
+      var FEEDBACK_URL = 'https://us-central1-pomodoro-timer-82980.cloudfunctions.net/submitFeedback';
+
+      function openFeedback() {
+        feedbackMessage.value = '';
+        feedbackCharCount.textContent = '0';
+        feedbackStatus.style.display = 'none';
+        feedbackSubmit.disabled = false;
+        feedbackSubmit.textContent = 'Submit';
+        feedbackDialog.showModal();
+      }
+
+      function closeFeedbackDialog() {
+        feedbackDialog.close();
+      }
+
+      feedbackBtn.addEventListener('click', openFeedback);
+      closeFeedback.addEventListener('click', closeFeedbackDialog);
+      feedbackCancel.addEventListener('click', closeFeedbackDialog);
+      feedbackDialog.addEventListener('click', function(e) {
+        if (e.target === feedbackDialog) closeFeedbackDialog();
+      });
+
+      feedbackMessage.addEventListener('input', function() {
+        feedbackCharCount.textContent = feedbackMessage.value.length;
+      });
+
+      feedbackSubmit.addEventListener('click', async function() {
+        var msg = feedbackMessage.value.trim();
+        if (!msg) {
+          feedbackStatus.textContent = 'Please enter a message.';
+          feedbackStatus.className = 'feedback-status error';
+          feedbackStatus.style.display = 'block';
+          return;
+        }
+
+        feedbackSubmit.disabled = true;
+        feedbackSubmit.textContent = 'Sending...';
+        feedbackStatus.style.display = 'none';
+
+        try {
+          var res = await fetch(FEEDBACK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: msg,
+              page: window.location.pathname,
+              userAgent: navigator.userAgent
+            })
+          });
+
+          if (res.ok) {
+            feedbackStatus.textContent = 'Thanks for your feedback!';
+            feedbackStatus.className = 'feedback-status success';
+            feedbackStatus.style.display = 'block';
+            feedbackMessage.value = '';
+            feedbackCharCount.textContent = '0';
+            setTimeout(closeFeedbackDialog, 1500);
+          } else {
+            var data = await res.json().catch(function() { return {}; });
+            throw new Error(data.error || 'Something went wrong.');
+          }
+        } catch (err) {
+          feedbackStatus.textContent = err.message || 'Failed to send. Please try again.';
+          feedbackStatus.className = 'feedback-status error';
+          feedbackStatus.style.display = 'block';
+        } finally {
+          feedbackSubmit.disabled = false;
+          feedbackSubmit.textContent = 'Submit';
+        }
+      });
+    })();
   </script>
 </body>
 </html>

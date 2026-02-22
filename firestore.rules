@@ -6,10 +6,11 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Leaderboard is readable by anyone signed in
-    match /leaderboard/{entry} {
+    // Leaderboard: readable by any signed-in user, writable only by the owning user
+    match /leaderboard/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
     }
 
     // Stripe webhook events (server-only, no client access)
