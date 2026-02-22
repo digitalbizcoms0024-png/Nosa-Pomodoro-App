@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#e74c3c">
-  <meta name="description" content="A focused pomodoro timer to boost your productivity">
-  <title>Pomodoro Timer</title>
+  <meta name="description" content="Free focus timer designed for ADHD and neurodivergent brains. Flexible intervals, visual time tracking, focus analytics. No rigid rules. No shame. Works offline.">
+  <title>Pomodoro Timer — Focus Timer for ADHD &amp; Neurodivergent Brains</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Ccircle cx='256' cy='280' r='200' fill='%23e74c3c'/%3E%3Ccircle cx='256' cy='280' r='170' fill='%23c0392b'/%3E%3Ccircle cx='256' cy='280' r='160' fill='%23e74c3c'/%3E%3Crect x='250' y='130' width='12' height='100' rx='6' fill='%23fff'/%3E%3Crect x='250' y='230' width='12' height='60' rx='6' fill='%23fff' transform='rotate(30 256 280)'/%3E%3Cellipse cx='256' cy='100' rx='12' ry='20' fill='%2327ae60'/%3E%3Cellipse cx='240' cy='95' rx='18' ry='10' fill='%2327ae60' transform='rotate(-30 240 95)'/%3E%3Cellipse cx='272' cy='95' rx='18' ry='10' fill='%2327ae60' transform='rotate(30 272 95)'/%3E%3C/svg%3E">
   <script>
@@ -477,6 +477,11 @@
       transform: rotate(-90deg) scaleX(-1);
     }
 
+    .ring-disc {
+      fill: var(--primary);
+      transition: r 0.3s linear, fill 0.5s ease, opacity 0.5s ease;
+    }
+
     .ring-track {
       fill: none;
       stroke: #ffffff !important;
@@ -490,7 +495,20 @@
       stroke-linecap: round;
       stroke-dasharray: 565.49;
       stroke-dashoffset: 0;
-      transition: stroke var(--transition), stroke-dashoffset 0.3s linear;
+      transition: stroke 0.5s ease, stroke-dashoffset 0.3s linear;
+    }
+
+    .ring-progress.ending-soon {
+      stroke: #e67e22;
+    }
+
+    .ring-progress.pulse {
+      animation: ringPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes ringPulse {
+      0%, 100% { stroke-width: 8; }
+      50% { stroke-width: 10; }
     }
 
     .timer-display {
@@ -559,6 +577,94 @@
     }
 
     .btn-ghost:hover { color: var(--text); background: var(--surface); }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .preset-pill {
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .preset-pill:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .preset-pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .break-suggestion {
+      text-align: center;
+      padding: 10px 16px;
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      opacity: 0;
+      transform: translateY(-8px);
+      animation: fadeSlideIn 0.4s ease forwards;
+    }
+    .break-suggestion-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+    .breadcrumb-prompt, .breadcrumb-display {
+      text-align: center;
+      padding: 10px 16px;
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      opacity: 0;
+      transform: translateY(-8px);
+      animation: fadeSlideIn 0.4s ease forwards;
+    }
+    .breadcrumb-prompt label {
+      font-size: 12px;
+      display: block;
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+    .breadcrumb-prompt input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }
+    .breadcrumb-prompt input:focus {
+      border-color: var(--primary);
+    }
+    .breadcrumb-display {
+      font-style: italic;
+    }
+    @keyframes fadeSlideIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
 
     .hidden { display: none !important; }
 
@@ -3087,10 +3193,11 @@
       <button class="mode-tab" role="tab" data-mode="break" aria-selected="false">Short Break</button>
       <button class="mode-tab" role="tab" data-mode="longbreak" aria-selected="false">Long Break</button>
     </div>
-    <div class="mode-label" id="modeLabel" aria-live="polite">Focus Time</div>
+    <div class="mode-label" id="modeLabel" aria-live="polite">Focus</div>
 
     <div class="timer-container" role="timer" aria-label="Timer">
       <svg class="timer-svg" viewBox="0 0 200 200">
+        <circle class="ring-disc" id="ringDisc" cx="100" cy="100" r="82" opacity="0.08"/>
         <circle class="ring-track" cx="100" cy="100" r="90"/>
         <circle class="ring-progress" id="progressRing" cx="100" cy="100" r="90"
                 stroke-dasharray="565.49" stroke-dashoffset="0"/>
@@ -3106,6 +3213,8 @@
       <button class="btn btn-ghost" id="resetBtn">Reset</button>
     </div>
 
+    <div id="breakSuggestion" class="break-suggestion" style="display:none;"></div>
+    <div id="breadcrumbArea"></div>
     <div class="session-dots" id="sessionDots" aria-label="Session progress">
       <div class="dot" data-dot="0"></div>
       <div class="dot" data-dot="1"></div>
@@ -3180,6 +3289,13 @@
       </button>
     </div>
     <form class="dialog-body" id="settingsForm">
+      <label style="font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Presets</label>
+      <div class="preset-row" id="presetRow">
+        <button type="button" class="preset-pill" data-preset="quickstart">Quick Start</button>
+        <button type="button" class="preset-pill" data-preset="standard">Standard</button>
+        <button type="button" class="preset-pill" data-preset="deepwork">Deep Work</button>
+        <button type="button" class="preset-pill" data-preset="ultrafocus">Ultra Focus</button>
+      </div>
       <div class="field">
         <label for="focusDuration">Focus Duration (min)</label>
         <input type="number" id="focusDuration" min="1" max="120" value="25">
@@ -3910,7 +4026,30 @@
         audioMuted: false,
         audioCategory: 'ambient',
         audioStationIndex: 0,
+        selectedPreset: null,
       };
+
+      const PRESETS = {
+        quickstart:  { focusDuration: 10, breakDuration: 3,  longBreakDuration: 8,  label: 'Quick Start' },
+        standard:    { focusDuration: 25, breakDuration: 5,  longBreakDuration: 15, label: 'Standard' },
+        deepwork:    { focusDuration: 50, breakDuration: 10, longBreakDuration: 20, label: 'Deep Work' },
+        ultrafocus:  { focusDuration: 90, breakDuration: 20, longBreakDuration: 30, label: 'Ultra Focus' },
+      };
+
+      const BREAK_ACTIVITIES = [
+        'Stand up and stretch for 30 seconds',
+        'Get a glass of water',
+        'Look out the window for 20 seconds',
+        'Do 10 jumping jacks',
+        'Take 5 deep breaths',
+        'Walk to another room and back',
+        'Roll your shoulders and neck',
+        'Splash cold water on your face',
+        'Do a quick body scan — unclench your jaw, drop your shoulders',
+        'Wiggle your fingers and toes for 10 seconds',
+        'Step outside for a moment of fresh air',
+        'Close your eyes and count to 20',
+      ];
 
       // --- Audio station data ---
       const AUDIO_STATIONS = {
@@ -5811,7 +5950,7 @@
 
       function getModeName(mode) {
         switch (mode) {
-          case 'focus': return 'Focus Time';
+          case 'focus': return 'Focus';
           case 'break': return 'Break';
           case 'longbreak': return 'Long Break';
         }
@@ -5992,6 +6131,23 @@
           : 1;
         const offset = CIRCUMFERENCE * (1 - fraction);
         progressRing.style.strokeDashoffset = offset;
+
+        // Shrinking disc effect
+        const disc = document.getElementById('ringDisc');
+        if (disc) {
+          const maxR = 82;
+          const minR = 10;
+          const discR = minR + (maxR - minR) * fraction;
+          disc.setAttribute('r', state.status === 'idle' ? maxR : discR);
+          disc.style.opacity = state.status === 'idle' ? '0.08' : (0.04 + 0.06 * fraction);
+        }
+
+        // Color transition in final 20% + pulse in final 60s
+        const isRunning = state.status === 'running';
+        const endingSoon = isRunning && fraction <= 0.2;
+        const finalMinute = isRunning && state.timeRemaining <= 60 && state.timeRemaining > 0;
+        progressRing.classList.toggle('ending-soon', endingSoon);
+        progressRing.classList.toggle('pulse', finalMinute);
       }
 
       function updateControls() {
@@ -6183,7 +6339,7 @@
         if (state.status === 'running' || state.status === 'paused') {
           document.title = `${formatTime(state.timeRemaining)} — ${getModeName(state.mode)}`;
         } else {
-          document.title = 'Pomodoro Timer';
+          document.title = 'Pomodoro Timer — Focus Timer for ADHD & Neurodivergent Brains';
         }
       }
 
@@ -7202,6 +7358,12 @@
         updateProgressRing();
         updateDocumentTitle();
 
+        // 1-minute warning during breaks
+        if (!breakWarningFired && (state.mode === 'break' || state.mode === 'longbreak') && state.timeRemaining === 60) {
+          breakWarningFired = true;
+          sendNotification('Break ending soon', 'Your break ends in 1 minute. Start wrapping up.');
+        }
+
         if (state.timeRemaining <= 0) {
           complete();
         }
@@ -7218,8 +7380,15 @@
           // Capture session start time and current task for analytics
           state.sessionStartTime = Date.now();
           state.currentTaskId = state.tasks.find(t => !t.completed)?.id || null;
+
+          // Show breadcrumb from previous focus session
+          if (state.mode === 'focus') {
+            showBreadcrumbDisplay();
+          }
         }
 
+        breakWarningFired = false;
+        hideBreakSuggestion();
         state.endTime = Date.now() + state.timeRemaining * 1000;
         state.status = 'running';
         state.intervalId = setInterval(tick, 250);
@@ -7246,11 +7415,83 @@
         updateAll();
       }
 
+      function showBreakSuggestion() {
+        const el = document.getElementById('breakSuggestion');
+        el.textContent = '';
+        const label = document.createElement('div');
+        label.className = 'break-suggestion-label';
+        label.textContent = 'Try this';
+        const activity = BREAK_ACTIVITIES[Math.floor(Math.random() * BREAK_ACTIVITIES.length)];
+        el.appendChild(label);
+        el.appendChild(document.createTextNode(activity));
+        el.style.display = 'block';
+        el.style.animation = 'none';
+        el.offsetHeight; // reflow
+        el.style.animation = '';
+      }
+
+      function hideBreakSuggestion() {
+        document.getElementById('breakSuggestion').style.display = 'none';
+      }
+
+      function showBreadcrumbPrompt() {
+        const area = document.getElementById('breadcrumbArea');
+        area.textContent = '';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'breadcrumb-prompt';
+        const lbl = document.createElement('label');
+        lbl.textContent = 'Quick note for later: what were you in the middle of?';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'breadcrumbInput';
+        input.placeholder = 'e.g. Refactoring the login flow...';
+        input.maxLength = 200;
+        wrapper.appendChild(lbl);
+        wrapper.appendChild(input);
+        area.appendChild(wrapper);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            saveBreadcrumb(input.value);
+          }
+        });
+        input.addEventListener('blur', () => {
+          saveBreadcrumb(input.value);
+        });
+      }
+
+      function saveBreadcrumb(text) {
+        const trimmed = text.trim();
+        if (trimmed) {
+          localStorage.setItem('pomodoro-breadcrumb', trimmed);
+        }
+        document.getElementById('breadcrumbArea').textContent = '';
+      }
+
+      function showBreadcrumbDisplay() {
+        const saved = localStorage.getItem('pomodoro-breadcrumb');
+        if (!saved) return;
+        const area = document.getElementById('breadcrumbArea');
+        area.textContent = '';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'breadcrumb-display';
+        wrapper.textContent = 'Last time you were working on: ';
+        const strong = document.createElement('strong');
+        strong.textContent = saved;
+        wrapper.appendChild(strong);
+        area.appendChild(wrapper);
+        setTimeout(() => { area.textContent = ''; }, 5000);
+        localStorage.removeItem('pomodoro-breadcrumb');
+      }
+
+      let breakWarningFired = false;
+
       function complete() {
         clearInterval(state.intervalId);
         state.intervalId = null;
         state.status = 'idle';
         state.timeRemaining = 0;
+        breakWarningFired = false;
 
         updateTimerDisplay();
         updateProgressRing();
@@ -7268,12 +7509,12 @@
           saveStats();
 
           playChime('focus');
-          sendNotification('Pomodoro Complete!', 'Time for a break.');
+          sendNotification('Nice work!', 'You earned it. Step away for a moment.');
           recordSessionData().then(() => loadLeaderboard());
 
           // Show celebration for first pomodoro of the day
           if (isFirstOfDay) {
-            showCelebration("You just completed your 1st pomodoro, keep going!");
+            showCelebration("That's a great start. One step at a time.");
           }
 
           // Switch to break
@@ -7282,10 +7523,14 @@
           } else {
             switchMode('break');
           }
+          showBreakSuggestion();
+          showBreadcrumbPrompt();
         } else {
           // Break complete
           playChime('break');
-          sendNotification('Break Over!', 'Time to focus.');
+          sendNotification('Ready when you are.', "Let's ease back in.");
+          hideBreakSuggestion();
+          document.getElementById('breadcrumbArea').textContent = '';
 
           if (state.mode === 'longbreak') {
             state.completedInCycle = 0;
@@ -7779,6 +8024,10 @@
         $('#autoStart').checked = state.settings.autoStart;
         $('#soundEnabled').checked = state.settings.soundEnabled;
         updateChimeSettingLabel();
+        // Highlight active preset
+        document.querySelectorAll('.preset-pill').forEach(p => {
+          p.classList.toggle('active', p.dataset.preset === state.settings.selectedPreset);
+        });
         // Pre-populate webhook URL input
         const webhookInput = document.getElementById('webhookUrlInput');
         if (webhookInput) webhookInput.value = state.webhookUrl || '';
@@ -7788,6 +8037,30 @@
 
       closeSettingsBtn.addEventListener('click', () => settingsDialog.close());
       cancelSettingsBtn.addEventListener('click', () => settingsDialog.close());
+
+      // Clear preset highlight when user manually edits durations
+      ['focusDuration', 'breakDuration', 'longBreakDuration'].forEach(id => {
+        $('#' + id).addEventListener('input', () => {
+          document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
+          state.settings.selectedPreset = null;
+        });
+      });
+
+      // Preset buttons
+      document.getElementById('presetRow').addEventListener('click', (e) => {
+        const pill = e.target.closest('.preset-pill');
+        if (!pill) return;
+        const key = pill.dataset.preset;
+        const preset = PRESETS[key];
+        if (!preset) return;
+        $('#focusDuration').value = preset.focusDuration;
+        $('#breakDuration').value = preset.breakDuration;
+        $('#longBreakDuration').value = preset.longBreakDuration;
+        // Update active pill styling
+        document.querySelectorAll('.preset-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        state.settings.selectedPreset = key;
+      });
 
       settingsForm.addEventListener('submit', (e) => {
         e.preventDefault();
