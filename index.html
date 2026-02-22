@@ -3329,7 +3329,7 @@
             </svg>
           </button>
         </div>
-        <button class="btn btn-primary" id="upgrade-btn" aria-label="Upgrade to Premium" style="font-size: 0.75rem; padding: 5px 12px;">Upgrade</button>
+        <button class="btn btn-primary" id="upgrade-btn" aria-label="Upgrade to Premium" style="font-size: 0.75rem; padding: 5px 12px; display: none;">Upgrade</button>
         <span id="premium-badge" class="premium-badge" style="display:none;">
           <svg class="premium-badge-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 0l2.1 5.3L16 6.2l-4 3.8 1 5.7L8 13l-5 2.7 1-5.7-4-3.8 5.9-.9z"/>
@@ -6911,7 +6911,7 @@
         }
         const upgradeBtn = document.getElementById('upgrade-btn');
         if (upgradeBtn) {
-          upgradeBtn.style.display = premium ? 'none' : '';
+          upgradeBtn.style.display = (state.user && !premium) ? '' : 'none';
         }
         const projectBar = document.getElementById('projectBar');
         if (projectBar) {
