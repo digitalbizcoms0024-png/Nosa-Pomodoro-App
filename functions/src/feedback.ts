@@ -54,9 +54,6 @@ export const submitFeedback = onRequest(
       const auth = new google.auth.GoogleAuth({
         scopes: ['https://www.googleapis.com/auth/spreadsheets'],
       });
-      const email = await auth.getCredentials();
-      console.log('Using service account:', email?.client_email || 'unknown');
-
       const sheets = google.sheets({ version: 'v4', auth });
 
       await sheets.spreadsheets.values.append({
