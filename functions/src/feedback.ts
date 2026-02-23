@@ -54,9 +54,8 @@ export const submitFeedback = onRequest(
       const auth = new google.auth.GoogleAuth({
         scopes: ['https://www.googleapis.com/auth/spreadsheets'],
       });
-      const client = await auth.getClient();
-      const credentials = client.credentials || {};
-      console.log('Using service account:', (credentials as Record<string, unknown>).client_email || 'unknown (ADC)');
+      const email = await auth.getCredentials();
+      console.log('Using service account:', email?.client_email || 'unknown');
 
       const sheets = google.sheets({ version: 'v4', auth });
 
