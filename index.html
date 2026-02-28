@@ -20,10 +20,14 @@
   <meta property="og:title" content="Pomodoro Timer — Focus Timer for ADHD & Neurodivergent Brains">
   <meta property="og:description" content="Free focus timer designed for ADHD and neurodivergent brains. Flexible intervals, visual time tracking, focus analytics. No rigid rules. No shame. Works offline.">
   <meta property="og:site_name" content="Pomodoro Timer">
+  <meta property="og:image" content="https://pomodorotimer.vip/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary">
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Pomodoro Timer — Focus Timer for ADHD & Neurodivergent Brains">
   <meta name="twitter:description" content="Free focus timer designed for ADHD and neurodivergent brains. Flexible intervals, visual time tracking, focus analytics. No rigid rules. No shame.">
+  <meta name="twitter:image" content="https://pomodorotimer.vip/og-image.png">
   <!-- Schema: WebApplication + Organization -->
   <script type="application/ld+json">
   {
@@ -33,6 +37,7 @@
         "@type": "WebApplication",
         "name": "Pomodoro Timer",
         "url": "https://pomodorotimer.vip/",
+        "image": "https://pomodorotimer.vip/og-image.png",
         "description": "Free focus timer designed for ADHD and neurodivergent brains. Flexible intervals, visual time tracking, focus analytics. No rigid rules. No shame. Works offline.",
         "applicationCategory": "ProductivityApplication",
         "operatingSystem": "Any",
@@ -66,7 +71,35 @@
       {
         "@type": "Organization",
         "name": "Pomodoro Timer",
-        "url": "https://pomodorotimer.vip/"
+        "url": "https://pomodorotimer.vip/",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://pomodorotimer.vip/og-image.png",
+          "width": 1200,
+          "height": 630
+        },
+        "sameAs": []
+      },
+      {
+        "@type": "WebSite",
+        "name": "Pomodoro Timer",
+        "url": "https://pomodorotimer.vip/",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://pomodorotimer.vip/blog/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://pomodorotimer.vip/"
+          }
+        ]
       },
       {
         "@type": "FAQPage",
